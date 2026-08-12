@@ -353,6 +353,7 @@
 				grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
 				align-items: center;
 				gap: 1rem;
+				width: min(1400px, calc(100% - 2rem));
 				min-height: 82px;
 			}
 			.brand {
@@ -392,6 +393,7 @@
 				align-items: center;
 				justify-content: flex-end;
 				gap: clamp(0.65rem, 1.4vw, 1rem);
+				white-space: nowrap;
 			}
 			.nav-cta,
 			.button {
@@ -417,7 +419,7 @@
 				box-shadow: 0 11px 22px rgb(16 25 35 / 0.19);
 			}
 			.theme-toggle {
-				display: grid;
+				display: none;
 				place-items: center;
 				width: 44px;
 				height: 44px;
@@ -433,6 +435,9 @@
 					transform 0.18s ease,
 					border-color 0.18s ease,
 					background-color 0.2s ease;
+			}
+			.js .theme-toggle {
+				display: grid;
 			}
 			.theme-toggle:hover {
 				border-color: var(--orange);
@@ -1112,8 +1117,9 @@
 				background: var(--aqua);
 				box-shadow: 0 0 14px var(--aqua);
 			}
-			.nerd-panel h3 {
+			.nerd-panel h2 {
 				max-width: 390px;
+				margin: 0;
 				font-size: clamp(2.2rem, 4vw, 3.7rem);
 			}
 			.nerd-summary {
@@ -1321,7 +1327,7 @@
 					transform: scale(1.06) rotate(-1deg);
 				}
 			}
-			@media (max-width: 900px) {
+			@media (max-width: 1360px) {
 				.nav {
 					grid-template-columns: minmax(0, 1fr) auto;
 				}
@@ -1393,8 +1399,13 @@
 					flex-direction: column;
 				}
 			}
-			@media (max-width: 480px) {
+			@media (max-width: 720px) {
 				.nav-cta {
+					display: none;
+				}
+			}
+			@media (max-width: 480px) {
+				.nav .language-menu summary > span:nth-child(2) {
 					display: none;
 				}
 			}
@@ -1484,7 +1495,7 @@
 			<div class="nav-actions">
 				<a class="nav-cta" href="https://demo.popcornvote.org" target="_blank" rel="noreferrer"
 					>Wypróbuj demo na żywo ↗</a
-				><details class="language-menu"><summary aria-label="Wybierz język"><span aria-hidden="true">◎</span><span lang="pl">Polski</span></summary><ul class="language-options"><li><a href="/en/" hreflang="en" lang="en" data-language="en"><span>English</span><span class="language-code">en</span></a></li><li><a href="/de/" hreflang="de" lang="de" data-language="de"><span>Deutsch</span><span class="language-code">de</span></a></li><li><a href="/es/" hreflang="es" lang="es" data-language="es"><span>Español</span><span class="language-code">es</span></a></li><li><a href="/fr/" hreflang="fr" lang="fr" data-language="fr"><span>Français</span><span class="language-code">fr</span></a></li><li><a href="/pt-br/" hreflang="pt-BR" lang="pt-BR" data-language="pt-BR"><span>Português (Brasil)</span><span class="language-code">pt-BR</span></a></li><li><a href="/it/" hreflang="it" lang="it" data-language="it"><span>Italiano</span><span class="language-code">it</span></a></li><li><a href="/pl/" hreflang="pl" lang="pl" data-language="pl" aria-current="page"><span>Polski</span><span class="language-code">pl</span></a></li><li><a href="/tr/" hreflang="tr" lang="tr" data-language="tr"><span>Türkçe</span><span class="language-code">tr</span></a></li><li><a href="/ja/" hreflang="ja" lang="ja" data-language="ja"><span>日本語</span><span class="language-code">ja</span></a></li></ul></details><button class="theme-toggle" type="button" aria-label="Zmień motyw kolorystyczny">
+				><details class="language-menu"><summary aria-label="Wybierz język"><span aria-hidden="true">◎</span><span lang="pl">Polski</span></summary><ul class="language-options"><li><a href="/en/" hreflang="en" lang="en" data-language="en"><span>English</span><span class="language-code">en</span></a></li><li><a href="/de/" hreflang="de" lang="de" data-language="de"><span>Deutsch</span><span class="language-code">de</span></a></li><li><a href="/es/" hreflang="es" lang="es" data-language="es"><span>Español</span><span class="language-code">es</span></a></li><li><a href="/fr/" hreflang="fr" lang="fr" data-language="fr"><span>Français</span><span class="language-code">fr</span></a></li><li><a href="/pt-br/" hreflang="pt-BR" lang="pt-BR" data-language="pt-BR"><span>Português (Brasil)</span><span class="language-code">pt-BR</span></a></li><li><a href="/it/" hreflang="it" lang="it" data-language="it"><span>Italiano</span><span class="language-code">it</span></a></li><li><a href="/pl/" hreflang="pl" lang="pl" data-language="pl" aria-current="page"><span>Polski</span><span class="language-code">pl</span></a></li><li><a href="/tr/" hreflang="tr" lang="tr" data-language="tr"><span>Türkçe</span><span class="language-code">tr</span></a></li><li><a href="/ja/" hreflang="ja" lang="ja" data-language="ja"><span>日本語</span><span class="language-code">ja</span></a></li></ul></details><button class="theme-toggle" type="button" aria-label="Tryb ciemny">
 					<span class="moon" aria-hidden="true">☾</span><span class="sun" aria-hidden="true">☀</span>
 				</button>
 			</div>
@@ -1685,7 +1696,7 @@
 				<div class="shell nerd-panel">
 					<div class="nerd-intro">
 						<p class="nerd-kicker">Notatki dla self-hosterów</p>
-						<h3 id="self-hosting-title">Mały stos. Przemyślane ustawienia domyślne.</h3>
+						<h2 id="self-hosting-title">Mały stos. Przemyślane ustawienia domyślne.</h2>
 						<p class="nerd-summary">
 							Konfiguracja pozostaje celowo nudna, a szczegóły chroniące dane rodziny poświęcono należytej uwagi.
 						</p>
