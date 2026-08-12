@@ -1,0 +1,7 @@
+# `original` is allowed as the main language and in the trailer chain, but not
+# as the fallback: that value goes to TMDB unchanged.
+pin: '1234'
+language:
+  primary: original
+  fallback: original
+  trailer: original, ja

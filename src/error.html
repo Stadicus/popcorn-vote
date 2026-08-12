@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+		<title>%sveltekit.status% — Popcorn Vote</title>
+		<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+		<link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png" />
+		<style>
+			:root {
+				--bg: #f4f2ee;
+				--card: #ffffff;
+				--text: #1c1f24;
+				--muted: #6b7280;
+				--accent: #b45309;
+			}
+
+			@media (prefers-color-scheme: dark) {
+				:root {
+					--bg: #101418;
+					--card: #1a2027;
+					--text: #e8eaed;
+					--muted: #9aa4af;
+					--accent: #fbbf24;
+				}
+			}
+
+			body {
+				margin: 0;
+				min-height: 100vh;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				padding: 1.5rem;
+				background: var(--bg);
+				color: var(--text);
+				font-family:
+					system-ui,
+					-apple-system,
+					'Segoe UI',
+					Roboto,
+					sans-serif;
+				text-align: center;
+			}
+
+			.box {
+				max-width: 22rem;
+				background: var(--card);
+				border-radius: 14px;
+				padding: 1.5rem;
+				box-shadow: 0 1px 3px rgb(0 0 0 / 0.15);
+			}
+
+			.logo {
+				font-size: 3rem;
+			}
+
+			h1 {
+				font-size: 1.2rem;
+				margin: 0.5rem 0;
+			}
+
+			p {
+				color: var(--muted);
+				line-height: 1.55;
+				font-size: 0.95rem;
+			}
+
+			.status {
+				font-size: 0.8rem;
+				color: var(--muted);
+				margin-top: 1.2rem;
+			}
+
+			a.retry {
+				display: inline-block;
+				font-weight: 600;
+				text-decoration: none;
+				color: #fff;
+				background: var(--accent);
+				border-radius: 12px;
+				padding: 0.65rem 1.1rem;
+			}
+
+			@media (prefers-color-scheme: dark) {
+				a.retry {
+					color: #1c1400;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="box">
+			<div class="logo">🍿</div>
+			<h1>This address is not available</h1>
+			<!-- The last resort, and SvelteKit reaches for it in more cases than one:
+			     when the root layout's load throws, before any page component runs,
+			     but also for an error on an endpoint under /api or /covers, which
+			     never renders +error.svelte at all. The wording therefore has to hold
+			     for a dead link just as much as for an app that could not start, and
+			     it cannot promise a log line that a plain 404 never writes. English,
+			     like the offline page and the manifest: at this point there is no
+			     catalogue left to reach. -->
+			<p>
+				Either the link is out of date, or something went wrong before the app could build its own frame. The
+				number below tells the two apart, and whoever looks after this installation finds more in the
+				container log.
+			</p>
+			<a class="retry" href="/">Try again</a>
+			<p class="status">%sveltekit.status% %sveltekit.error.message%</p>
+		</div>
+	</body>
+</html>

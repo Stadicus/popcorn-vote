@@ -1,0 +1,7 @@
+# A typo inside the daily_build block. The key is not read, and a key nobody
+# reads still has to say so — the link would otherwise stay silently absent while
+# the file looks as though it switched it on.
+pin: '1234'
+daily_build:
+  shown: true
+  url: https://daily.example.com

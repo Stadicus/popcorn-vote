@@ -1,0 +1,128 @@
+# =============================================================================
+# Popcorn Vote – example configuration
+#
+# 1. Put this file into the data volume as config.yaml (/data/config.yaml)
+# 2. Replace every UPPERCASE placeholder
+# 3. Start (or restart) the container
+#
+# Secrets (PIN, API keys) are better set as environment variables, see
+# .env.example — the environment always wins over this file.
+# =============================================================================
+
+# Title in the top left of the app. Without one it says "Popcorn Vote".
+# Can also be set through the PV_TITLE environment variable.
+title: 'Popcorn Vote'
+
+# The family members.
+# id:    fixed identifier, NEVER change it later (votes and ratings hang on it)
+# name:  display name, changeable at any time
+# color: the person's colour, hex only such as '#2f56d3' (names like 'gold' are
+#        ignored — the app measures the brightness for the text on top of it)
+# emoji: optional mark; without one the initial goes in the circle
+members:
+  - id: person1
+    name: FIRST-NAME-1
+    color: '#e63946'
+    emoji: '🦁'
+  - id: person2
+    name: FIRST-NAME-2
+    color: '#457b9d'
+    emoji: '🦉'
+  - id: person3
+    name: FIRST-NAME-3
+    color: '#2a9d8f'
+    emoji: '🐸'
+  - id: person4
+    name: FIRST-NAME-4
+    color: '#e9c46a'
+    emoji: '🦄'
+
+# Four-digit device PIN. Without a PIN the app stays locked.
+# Better set through the PV_PIN environment variable and leave this line out.
+pin: 'NNNN'
+
+# Weekly vote credit (in the timezone configured below).
+# The vote settings live in the 'token' block.
+# Unusable values are ignored with a warning rather than quietly pulled to the
+# default — then the environment variable or the default applies.
+token:
+  weekday: sunday # sunday … saturday (0–6 works too)
+  hour: 8 # whole hour, 0–23
+  amount: 1 # votes per credit, 1–99. Whatever does not fit below the cap
+  #           is not credited; the rest expires
+  cap: 5 # cap for unused votes, 1–99
+  start: 3 # starting balance for new people
+
+# Languages. Two different things, so configured separately: 'interface' is the
+# language of the app itself, everything else concerns the movie data from the
+# movie database.
+#
+# Without 'interface' the app speaks English.
+# Available: en, de, es, fr, pt-BR, it, pl, tr, ja.
+#
+# 'primary' knows two special values besides a plain language code:
+#
+#   latin     the default. The title comes in the film's own language wherever
+#             that is written in Latin letters, and in English otherwise, so
+#             "Das Boot" stays "Das Boot" and the Japanese title of "Spirited
+#             Away" does not arrive in characters nobody here reads. Description,
+#             genres and poster come in English — except for German-language
+#             films, which come in German. Whoever prefers another language for
+#             those sets 'fallback' to it.
+#   original  title and description in the original language of each film,
+#             whatever alphabet that uses.
+#
+# Neither is allowed for 'fallback', whose value goes to TMDB unchanged; only
+# 'original' is allowed in 'trailer', which lists languages a trailer can be in.
+language:
+  interface: en # interface: en, de, es, fr, pt-BR, it, pl, tr, or ja (unset: en)
+  primary: latin # language of the movie data: latin, original, or a code like de-DE
+  fallback: en-US # what 'latin' requests for non-German films, and what fills a gap
+  certification_country: DE # country whose age rating is shown, whatever the language
+  trailer: original,en,de # order of preference. If no trailer is found in any of
+  #                         these languages, the app still takes any it has
+
+# Timezone for the weekly credit and the nightly backup.
+# Careful when changing it on a running instance: in the transition week a credit
+# can arrive twice or not at all.
+timezone: Europe/Berlin
+
+# Nightly backup of the database in $DATA_DIR/backups
+backup:
+  hour: 3 # whole hour, 0–23
+  keep: 14 # how many backups are kept
+
+# Options for the "where to find it" field (the dropdown in the movie details)
+sources:
+  - Netflix
+  - Google
+  - Server
+
+# For test instances only: fills list, archive, log and trash with example
+# content on first start. Applies exclusively to a completely empty movie table.
+# Switch it off here or with PV_DEMO_DATA=false.
+# demo_data: true
+
+# A link under "More" to a daily build — a second instance of your own running
+# the newest code, for whoever in the family wants to look ahead. Off by default
+# and empty by default, so an installation never points at anybody else's.
+#
+# Both halves are needed: with `show` off the link disappears without the address
+# having to be deleted. The address has to be a full http or https one; anything
+# else is refused with a line in the log, because it ends up in a link that gets
+# clicked. Also settable as PV_DAILY_BUILD / PV_DAILY_BUILD_URL.
+# daily_build:
+#   show: true
+#   url: https://daily.example.com
+
+# Access keys for the movie databases (both free).
+# Better set through the TMDB_API_KEY / OMDB_API_KEY environment variables.
+# TMDB: https://www.themoviedb.org/settings/api   (search, covers, trailers)
+# OMDb: https://www.omdbapi.com/apikey.aspx       (IMDb rating)
+#
+# Left as they are, both placeholders count as "not set" — the app does not send
+# them anywhere and says on the suggestion page that the search needs a key. It
+# stays usable meanwhile: films can be added by hand and linked to the database
+# afterwards.
+tmdb_api_key: 'YOUR-TMDB-KEY'
+omdb_api_key: 'YOUR-OMDB-KEY'

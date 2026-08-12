@@ -1,0 +1,8 @@
+# The address that must never reach an href. The value goes into a link the
+# family clicks, so a scheme that executes rather than navigates has to count as
+# unusable — like every other bad value here, it falls back to the default and
+# says so in the log.
+pin: '1234'
+daily_build:
+  show: true
+  url: 'javascript:alert(1)'

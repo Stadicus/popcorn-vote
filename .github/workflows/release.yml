@@ -1,0 +1,443 @@
+name: Release
+
+# Every successful CI run on main publishes the Docker image to the GitHub
+# Container Registry, tagged with the version from package.json and with latest:
+#   ghcr.io/<owner>/<repo>:<version> and :latest
+#
+# The build is laid out for several architectures: each is produced on its own
+# and without a tag, then they are united into a manifest list from which any
+# container service picks the matching one. For now only linux/amd64 is built —
+# why, is explained at the `build` job.
+#
+# If the version is new, the same run also creates the git tag `v<version>` and
+# the GitHub release, with the matching CHANGELOG section as its text. That used
+# to be a manual step afterwards, and it was easily forgotten.
+#
+# No `tags: ['v*']` trigger any more. It came from the time when tags were set by
+# hand — and it has become dangerous: a tag added later on an old commit would
+# have rebuilt `:latest` from there, and every installation tracking `:latest`
+# would have followed it back to that older state.
+on:
+  workflow_run:
+    workflows: [CI]
+    branches: [main]
+    types: [completed]
+
+# Two runs in a row must not overtake each other: otherwise the faster one would
+# create tag and release on its commit while the other built the image.
+concurrency:
+  group: release-main
+  cancel-in-progress: false
+
+jobs:
+  gate:
+    name: Confirm CI gate
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      release_sha: ${{ steps.target.outputs.release_sha }}
+      publish: ${{ steps.target.outputs.publish }}
+    steps:
+      - id: target
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CI_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          CI_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          if [ "$CI_CONCLUSION" != success ]; then
+            echo "::error::CI finished with conclusion '$CI_CONCLUSION'; release is blocked."
+            exit 1
+          fi
+
+          main_sha=$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)
+          if [ "$CI_HEAD_SHA" != "$main_sha" ]; then
+            echo "::notice::$CI_HEAD_SHA passed CI, but main is now $main_sha. This release run is superseded."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "release_sha=$CI_HEAD_SHA" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          deadline=$((SECONDS + 1800))
+          while true; do
+            line=$(
+              gh api "repos/$GITHUB_REPOSITORY/actions/workflows/security.yml/runs?event=push&branch=main&head_sha=$CI_HEAD_SHA&per_page=1" \
+                --jq '.workflow_runs[] | [.status, (.conclusion // "")] | @tsv' |
+                head -n 1
+            )
+            if [ -n "$line" ]; then
+              read -r status conclusion <<< "$line"
+              if [ "$status" = completed ]; then
+                if [ "$conclusion" != success ]; then
+                  echo "::error::Security finished with conclusion '$conclusion'; release is blocked."
+                  exit 1
+                fi
+                break
+              fi
+            fi
+            if [ "$SECONDS" -ge "$deadline" ]; then
+              echo "::error::Timed out waiting for Security to pass for $CI_HEAD_SHA."
+              exit 1
+            fi
+            sleep 20
+          done
+
+          main_sha=$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)
+          if [ "$CI_HEAD_SHA" != "$main_sha" ]; then
+            echo "::notice::$CI_HEAD_SHA passed CI and Security, but main is now $main_sha. This release run is superseded."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "release_sha=$CI_HEAD_SHA" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "publish=true" >> "$GITHUB_OUTPUT"
+          echo "release_sha=$CI_HEAD_SHA" >> "$GITHUB_OUTPUT"
+
+  # Before building, not after: a version bump without a CHANGELOG section should
+  # prevent publication. If the check ran afterwards, `:latest` would already be in
+  # the registry and installations tracking it would pull it — on a run coloured
+  # red that one takes for harmless.
+  notes:
+    name: Check version and release notes
+    if: needs.gate.outputs.publish == 'true'
+    needs: gate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      version_new: ${{ steps.notes.outputs.version_new }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.gate.outputs.release_sha }}
+      - id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          # A line of its own with a check: inside a command substitution within
+          # `echo` the shell swallows every error, and a broken package.json would
+          # quietly produce an image tagged "undefined".
+          version=$(node -p "require('./package.json').version")
+          case "$version" in
+            '' | undefined | null)
+              echo "::error file=package.json::No usable version found."
+              exit 1
+              ;;
+            # Anything that is not a valid Docker tag. A newline would break out
+            # of GITHUB_OUTPUT and truncate the image tag silently; `+` is allowed
+            # in npm versions but not in Docker tags, and would only die deep
+            # inside the build.
+            *[!0-9A-Za-z._-]* | [!0-9A-Za-z]*)
+              echo "::error file=package.json::Version \"$version\" is not usable as a Docker tag."
+              exit 1
+              ;;
+          esac
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - name: Check the notes when the version is new
+        # Merges without a version bump land on main too. For those the tag
+        # already exists, and only `:latest` is refreshed. A new version still
+        # needs release notes before anything is published under that tag.
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        id: notes
+        run: |
+          set -euo pipefail
+          # `matching-refs` answers with an empty list rather than a 404 when the
+          # tag does not exist. That way an API outage aborts the run instead of
+          # passing itself off as "tag missing" and starting a release that then
+          # fails with a 422.
+          refs=$(gh api "repos/$GITHUB_REPOSITORY/git/matching-refs/tags/v$VERSION" --jq '.[].ref')
+          while IFS= read -r ref; do
+            if [ "$ref" = "refs/tags/v$VERSION" ]; then
+              echo "v$VERSION is already published. This run brings no new version."
+              echo "version_new=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done <<< "$refs"
+          if ! .github/release-notes.sh "$VERSION" > /dev/null; then
+            echo "::error file=CHANGELOG.md::Version $VERSION is new but has no release notes. Without notes nothing is published."
+            exit 1
+          fi
+          echo "v$VERSION is new and has notes."
+          echo "version_new=true" >> "$GITHUB_OUTPUT"
+
+  # One architecture per runner, each native rather than emulated: better-sqlite3
+  # is compiled from source on Alpine (musl), which takes a multiple of the time
+  # under QEMU. The partial images carry no tag yet — a tag from one runner would
+  # overwrite the other's instead of complementing it. It is only assigned when
+  # they are merged.
+  #
+  # For now only one architecture is in the list. linux/arm64 on
+  # `ubuntu-24.04-arm` joins it as soon as the repository is public — ARM runners
+  # are free there, on a private repository they are not (and on the free plan not
+  # available at all). The structure is therefore already in place; it is then just
+  # the entry below, and the count check follows along by itself.
+  build:
+    name: Build image (${{ matrix.platform }})
+    if: needs.gate.outputs.publish == 'true'
+    needs: [gate, notes]
+    runs-on: ${{ matrix.runner }}
+    outputs:
+      # How many partial images the merge should expect. Read from the matrix
+      # itself, so that the two places cannot drift apart once an architecture
+      # is added here. That several runs of a matrix job share one output is
+      # harmless here: `job-total` is the same value for each of them, unlike,
+      # say, a digest.
+      expected: ${{ strategy.job-total }}
+    strategy:
+      # Build every architecture to the end rather than choking off the rest on
+      # the first failure: that way all errors are visible at once. Nothing is
+      # published regardless — the next job demands all of them. A partial image
+      # already uploaded then sits untagged in the registry; that is the price,
+      # and it bothers nobody, because untagged layers are downloaded by no one.
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.gate.outputs.release_sha }}
+      - id: target
+        shell: bash
+        env:
+          PLATFORM: ${{ matrix.platform }}
+        run: |
+          set -euo pipefail
+          echo "image=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+          echo "slug=${PLATFORM//\//-}" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: build
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
+        with:
+          context: .
+          platforms: ${{ matrix.platform }}
+          outputs: type=image,name=${{ steps.target.outputs.image }},push-by-digest=true,name-canonical=true,push=true
+          # Provenance and bill of materials: they answer, for outsiders, which
+          # commit this image came from and what is inside it.
+          provenance: mode=max
+          sbom: true
+          # Separate caches, or the architectures overwrite each other and neither
+          # of them ever gets a hit.
+          cache-from: type=gha,scope=${{ matrix.platform }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.platform }}
+      - name: Store the digest
+        shell: bash
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/digests"
+          touch "$RUNNER_TEMP/digests/${DIGEST#sha256:}"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: digest-${{ steps.target.outputs.slug }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+          # Artefacts outlive the individual attempt. Without this, the very
+          # retry a failure here triggers would break off — with "already
+          # exists", not with the actual error.
+          overwrite: true
+
+  image:
+    name: Publish image to GHCR
+    if: needs.gate.outputs.publish == 'true'
+    # Every architecture from the matrix has to be in place: if one fails, this job
+    # does not start at all, and the registry keeps what it had.
+    needs: [gate, notes, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      published: ${{ steps.publish.outputs.published }}
+    steps:
+      # No checkout: since the build sits next door, no step here touches a file
+      # from the tree any more.
+      - id: target
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_SHA: ${{ needs.gate.outputs.release_sha }}
+        run: |
+          set -euo pipefail
+          image="ghcr.io/${GITHUB_REPOSITORY,,}"
+          echo "image=$image" >> "$GITHUB_OUTPUT"
+
+          # Only what really is the tip of main gets `:latest`.
+          #
+          # The workflow_run trigger alone is not enough: an older CI run can
+          # finish after main has moved on. The gate skips those runs already;
+          # this remains as the last check before assigning the moving tag.
+          head_sha=$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)
+          if [ "$head_sha" = "$RELEASE_SHA" ]; then
+            echo "publish_candidate=true" >> "$GITHUB_OUTPUT"
+            echo "latest=$image:latest" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::$RELEASE_SHA is not the tip of main ($head_sha). Image publication is superseded."
+            echo "publish_candidate=false" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        if: steps.target.outputs.publish_candidate == 'true'
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digest-*
+          merge-multiple: true
+      - uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
+        if: steps.target.outputs.publish_candidate == 'true'
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
+        if: steps.target.outputs.publish_candidate == 'true'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Unite the architectures under one tag
+        id: publish
+        if: steps.target.outputs.publish_candidate == 'true'
+        shell: bash
+        working-directory: ${{ runner.temp }}/digests
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IMAGE: ${{ steps.target.outputs.image }}
+          RELEASE_SHA: ${{ needs.gate.outputs.release_sha }}
+          VERSION: ${{ needs.notes.outputs.version }}
+          VERSION_NEW: ${{ needs.notes.outputs.version_new }}
+          EXPECTED: ${{ needs.build.outputs.expected }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          head_sha=$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)
+          if [ "$head_sha" != "$RELEASE_SHA" ]; then
+            echo "::notice::$RELEASE_SHA is no longer the tip of main ($head_sha). No image tags are published."
+            echo "published=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # File names become references. Through an array rather than word
+          # splitting of a string: an empty directory would otherwise yield the
+          # unchanged asterisk, and `imagetools create` would be handed it as a
+          # reference.
+          digest_refs=()
+          for digest in *; do digest_refs+=("$IMAGE@sha256:$digest"); done
+
+          # One digest per architecture built. If one is missing, the manifest
+          # list would look healthy but would strand every device of the missing
+          # architecture — better to publish nothing at all.
+          if [ "${#digest_refs[@]}" -ne "$EXPECTED" ]; then
+            echo "::error::${#digest_refs[@]} digests found, $EXPECTED expected."
+            exit 1
+          fi
+
+          # A version tag is immutable in practice: once the git tag/release
+          # exists, a later main commit with the same package.json version must
+          # not move the matching image tag. Such commits update only `:latest`.
+          tags=()
+          if [ "$VERSION_NEW" = true ]; then
+            set +e
+            inspect_output=$(docker buildx imagetools inspect "$IMAGE:$VERSION" 2>&1)
+            inspect_status=$?
+            set -e
+            if [ "$inspect_status" -eq 0 ]; then
+              echo "::error::$IMAGE:$VERSION already exists, but v$VERSION does not. Refusing to overwrite the orphaned registry tag."
+              exit 1
+            fi
+            if ! grep -Eiq "(not found|manifest unknown|no such manifest)" <<< "$inspect_output"; then
+              echo "::error::Could not verify that $IMAGE:$VERSION is absent."
+              printf '%s\n' "$inspect_output"
+              exit 1
+            fi
+            tags+=(--tag "$IMAGE:$VERSION")
+          fi
+          tags+=(--tag "$IMAGE:latest")
+
+          docker buildx imagetools create "${tags[@]}" "${digest_refs[@]}"
+          echo "published=true" >> "$GITHUB_OUTPUT"
+      - name: Inspect the result
+        if: steps.publish.outputs.published == 'true'
+        shell: bash
+        env:
+          IMAGE: ${{ steps.target.outputs.image }}
+          VERSION: ${{ needs.notes.outputs.version }}
+          VERSION_NEW: ${{ needs.notes.outputs.version_new }}
+        run: |
+          set -euo pipefail
+          if [ "$VERSION_NEW" = true ]; then
+            docker buildx imagetools inspect "$IMAGE:$VERSION"
+          else
+            docker buildx imagetools inspect "$IMAGE:latest"
+          fi
+
+  release:
+    name: Publish tag and release
+    # Only new versions get a GitHub release. Ordinary main commits with the same
+    # package.json version may refresh `:latest`, but they must not move the
+    # already published version tag.
+    if: needs.gate.outputs.publish == 'true' && needs.notes.outputs.version_new == 'true' && needs.image.outputs.published == 'true'
+    # Only once the image is in place: a release whose image is missing sends
+    # every reader nowhere.
+    needs: [gate, notes, image]
+    runs-on: ubuntu-latest
+    permissions:
+      # Its own permissions, its own job: the build still gets by with read access.
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.gate.outputs.release_sha }}
+      - name: Create tag and release when the version is new
+        # bash explicitly: the title below is built with pattern substitution, and
+        # every shell spells that differently.
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.notes.outputs.version }}
+          RELEASE_SHA: ${{ needs.gate.outputs.release_sha }}
+        run: |
+          set -euo pipefail
+          tag="v$VERSION"
+
+          # Merges without a version bump land on main too. For those the tag
+          # already exists, and then there is nothing to do here. Through
+          # matching-refs as in the check job, so that an API outage aborts rather
+          # than guesses.
+          refs=$(gh api "repos/$GITHUB_REPOSITORY/git/matching-refs/tags/$tag" --jq '.[].ref')
+          while IFS= read -r ref; do
+            if [ "$ref" = "refs/tags/$tag" ]; then
+              echo "$tag is already published. No new release."
+              exit 0
+            fi
+          done <<< "$refs"
+
+          # In the runner's working directory, not in the checked-out tree: that
+          # way no later step can pick the file up by accident.
+          notes="$RUNNER_TEMP/notes.md"
+          .github/release-notes.sh "$VERSION" > "$notes"
+
+          # Title assigned as before: "v1.3.0 – what is in it". The description
+          # comes from the subject line of the squash commit; without the usual
+          # prefix it simply stays whole.
+          subject=$(git log -1 --pretty=%s)
+          subject=${subject% (#*)}
+          subject=${subject#Version "$VERSION": }
+
+          gh release create "$tag" \
+            --target "${{ needs.gate.outputs.release_sha }}" \
+            --title "$tag – $subject" \
+            --notes-file "$notes"

@@ -1,0 +1,7 @@
+# A daily build configured in the file: switched on, with an address. Serves the
+# tests that check the file source and that the environment can override either
+# half on its own.
+pin: '1234'
+daily_build:
+  show: true
+  url: https://daily.example.com

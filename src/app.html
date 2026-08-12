@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="%lang%">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+		<meta name="theme-color" content="#101418" media="(prefers-color-scheme: dark)" />
+		<meta name="theme-color" content="#f6f5f2" media="(prefers-color-scheme: light)" />
+		<!-- Full screen without the browser frame: first line for iOS, second as today's standard (Android). -->
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="mobile-web-app-capable" content="yes" />
+		<!-- The home-screen label on iOS. Safari reads it from here, not from
+		     `short_name` in the manifest, so the two have to be kept in step. -->
+		<meta name="apple-mobile-web-app-title" content="Popcorn Vote" />
+		<link rel="manifest" href="/manifest.webmanifest" />
+		<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+		<link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+		<!--
+			Chrome offers the installation very early — often before the app has finished
+			loading. The event is valid only once, so it is kept here; the install banner
+			picks it up at startup (src/lib/client/install.svelte.ts).
+			The nonce comes from SvelteKit and satisfies the Content Security Policy.
+		-->
+		<script nonce="%sveltekit.nonce%">
+			window.__pvInstallEvent = null;
+			window.addEventListener('beforeinstallprompt', function (event) {
+				event.preventDefault();
+				window.__pvInstallEvent = event;
+			});
+		</script>
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>

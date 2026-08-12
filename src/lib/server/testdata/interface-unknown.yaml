@@ -1,0 +1,5 @@
+# A language the app does not ship. It is reported and ignored rather than
+# holding somebody in a half-translated interface.
+pin: '1234'
+language:
+  interface: klingon

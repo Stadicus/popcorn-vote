@@ -1,0 +1,7 @@
+# The unchanged example configuration, in the two lines that matter here: both
+# movie-database keys are still the placeholders `config.example.yaml` hands out.
+# They must count as "not set" the way the PIN placeholder does, or the literal
+# travels to TMDB and the app reports the film as the problem.
+pin: '1234'
+tmdb_api_key: 'YOUR-TMDB-KEY'
+omdb_api_key: 'YOUR-OMDB-KEY'

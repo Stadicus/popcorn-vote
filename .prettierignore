@@ -1,0 +1,13 @@
+.svelte-kit/
+build/
+node_modules/
+static/
+package-lock.json
+*.md
+e2e/.data/
+playwright-report/
+test-results/
+
+# Working copies of the review subagents
+.claude/
+CLAUDE-SECURITY-*/

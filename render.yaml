@@ -1,0 +1,57 @@
+# Render.com blueprint for a test instance.
+# "New → Blueprint" on render.com, pick this repo, pick a branch, then all that
+# is left is PV_PIN, TMDB_API_KEY and OMDB_API_KEY.
+# Note: the free instance goes to sleep after 15 minutes of quiet, and its data
+# is transient (empty after every deploy and restart) — for trying things out
+# only.
+#
+# Since 2.8.1 the service is called popcorn-vote like everything else — the last
+# carrier of the 1.0 name. The name is what the address is built from, and Render
+# treats a renamed service as a new one, so renaming it again moves the instance;
+# the new address can only be read off the Render dashboard afterwards. It
+# currently answers at https://popcorn-vote.onrender.com.
+#
+# Since 2.9.0 nothing in the app points here by itself: the link on /more is the
+# PV_DAILY_BUILD / PV_DAILY_BUILD_URL setting, configured on whichever instance
+# wants to carry it. This one deliberately sets neither — it *is* the daily
+# build, and a link to itself would say nothing.
+#
+# After an upgrade to 2.3.0 the dashboard still holds the PIN under its former
+# name. Set PV_PIN and delete the old entry. Nothing stops the deploy if you
+# forget — the instance comes up and answers its health check — but it does say
+# so twice: the startup line "No PIN configured", and the PIN page itself, which
+# then shows the notice naming PV_PIN instead of a keypad.
+services:
+  - type: web
+    name: popcorn-vote
+    runtime: docker
+    plan: free
+    healthCheckPath: /healthz
+    envVars:
+      - key: ADDRESS_HEADER
+        value: x-forwarded-for
+      - key: XFF_DEPTH
+        value: '1'
+      # Render terminates TLS and forwards this header, so the sign-in cookie is
+      # marked Secure here. Without it nothing would be marked at all.
+      - key: PROTOCOL_HEADER
+        value: x-forwarded-proto
+      - key: PV_MEMBERS
+        value: Anna,Ben,Carla,David
+      - key: PV_START_TOKENS
+        value: '3'
+      - key: PV_SOURCES
+        value: Netflix,Google,Server
+      # Test instance: creates a few movies at startup, or the list would be
+      # empty after every deploy. Applies only to a completely empty database.
+      # CAREFUL: whoever takes this blueprint for a real family installation
+      # should remove the variable — on a freshly set up instance the database
+      # is empty, so it would apply there too.
+      - key: PV_DEMO_DATA
+        value: 'true'
+      - key: PV_PIN
+        sync: false
+      - key: TMDB_API_KEY
+        sync: false
+      - key: OMDB_API_KEY
+        sync: false

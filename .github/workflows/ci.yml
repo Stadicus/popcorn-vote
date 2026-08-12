@@ -1,0 +1,95 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  quality:
+    name: Lint, types, tests, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx svelte-kit sync
+      # Before lint: a German comment that slipped back in should be named as
+      # such, not buried under whatever else a full run turns up.
+      - run: .github/no-german-characters.sh
+      # First of the substantive checks, and the only one besides the guard that
+      # blocks unconditionally: a key that reaches a public repository is out of
+      # our hands the moment it is pushed, whatever the rest of the run says.
+      - run: npm run lint:secrets
+      - run: npm run lint
+      - run: npm run check
+      - run: npm test
+      - run: npm run build
+      # Deliberately not blocking. A newly published advisory in some dependency
+      # is not a reason to hold up a fix the family is waiting for, and there is
+      # rarely anything to do about it in the same hour. The step goes red so it
+      # is seen; the run stays green so it is not in the way. `--omit=dev` is the
+      # honest scope: the image is built with `npm prune --omit=dev`, so nothing
+      # else ever runs in the container.
+      - run: npm audit --omit=dev --audit-level=high
+        continue-on-error: true
+
+  e2e:
+    name: End-to-end (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    strategy:
+      # Both engines run, and one failing does not cancel the other - a layout
+      # that breaks in WebKit only is exactly what this matrix is here to show,
+      # and the Chromium result is still worth having beside it.
+      fail-fast: false
+      matrix:
+        # WebKit on pull requests only. This repository is private, so runner
+        # minutes are metered, and the workflow already fires twice on a branch
+        # that has a pull request open - once for the push and once for the
+        # request. Every push keeps its Chromium run; the second engine joins
+        # where the decision is actually made, before a merge.
+        browser: ${{ github.event_name == 'pull_request' && fromJSON('["chromium", "webkit"]') ||
+          fromJSON('["chromium"]') }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # WebKit's Linux build needs system libraries that a development machine
+      # would have to install with sudo; a runner brings them without asking.
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
+      - run: npm run build
+      # A matrix rather than both projects in one run: the test server wipes its
+      # database at startup and the suite adds films, so a second project against
+      # the same server would meet a database the first one filled. One job per
+      # engine gets one server per engine, and the tests stay as they are.
+      - run: npx playwright test --project=${{ matrix.browser }}
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: failure()
+        with:
+          # The attempt number belongs in the name: an artifact is immutable per
+          # run, so re-running a failed leg would try to upload the same name
+          # twice and be refused - losing the report of the run one actually
+          # wants to look at.
+          name: playwright-report-${{ matrix.browser }}-${{ github.run_attempt }}
+          path: playwright-report/
+          retention-days: 7
+
+  docker:
+    name: Docker image builds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
+      - uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
+        with:
+          context: .
+          push: false
+          tags: popcorn-vote:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

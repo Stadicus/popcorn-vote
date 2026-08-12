@@ -1,0 +1,5 @@
+# A kept configuration: PIN, title and sources are all in the file.
+pin: '1234'
+title: 'Familie Muster'
+sources:
+  - Netflix

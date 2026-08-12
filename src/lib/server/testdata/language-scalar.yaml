@@ -1,0 +1,5 @@
+# The obvious misreading: `language: de` as a single value instead of a block
+# with `interface: de` below it. That is reported rather than ignored in
+# silence — the interface would be English and the log would say nothing.
+pin: '1234'
+language: de
