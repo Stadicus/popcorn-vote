@@ -1,0 +1,4 @@
+# Demo content switched on in the file. Serves as proof that the environment can
+# switch it explicitly off again.
+pin: '1234'
+demo_data: true

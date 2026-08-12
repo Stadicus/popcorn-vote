@@ -1,0 +1,95 @@
+# =============================================================================
+# Popcorn Vote – Docker Compose
+#
+# Command line: keep the values in .env (template: .env.example) and run
+# `docker compose up -d`, Compose fills the ${…} placeholders itself.
+# Graphical container managers take the same file: paste it into their editor
+# and set the values in whatever they call their environment field.
+#
+# Two ways, both work and can be mixed:
+#   1. Set everything here through environment variables (good for test
+#      instances)
+#   2. Put a config.yaml into the data directory (recommended for long-term use,
+#      see config.example.yaml) and set only the secrets here
+#
+# If a value is set in both places the environment variable wins, the app logs
+# that at startup ("is configured twice"), so nobody has to remember the
+# precedence. Empty values count as not set.
+# =============================================================================
+# Images are published as ghcr.io/<owner>/<repository>.
+services:
+  popcorn-vote:
+    image: ghcr.io/stadicus/popcorn-vote:latest
+    # Or build it yourself:  build: .
+    # This publishes the port on every interface, right on a home network,
+    # wrong on a machine with a public address. There the app would stand on the
+    # open internet as plain HTTP beside the reverse proxy, and ADDRESS_HEADER is
+    # believed on that direct path, so a visitor could choose the address the PIN
+    # brake counts against. Write '127.0.0.1:3000:3000' there; Docker publishes a
+    # port past the host firewall, which will not close it for you.
+    ports:
+      - '3000:3000'
+    volumes:
+      - popcorn-vote-data:/data
+    environment:
+      # Four-digit family PIN (required unless it is in the config.yaml .
+      # without a valid PIN the app stays locked)
+      PV_PIN: '${PV_PIN}'
+      # Access keys for the movie databases
+      TMDB_API_KEY: '${TMDB_API_KEY}'
+      OMDB_API_KEY: '${OMDB_API_KEY}'
+      # The real sender IP behind the reverse proxy (for the per-IP PIN brake)
+      ADDRESS_HEADER: x-forwarded-for
+      XFF_DEPTH: '1'
+      # Which header the proxy uses to say that the visitor came over HTTPS. With
+      # it the sign-in cookie is marked Secure for those visitors and left
+      # unmarked for anyone reaching the app directly over plain HTTP, so both
+      # ways in keep working. Without a proxy in front the named header simply
+      # never arrives and nothing is marked, so the line can stay either way.
+      PROTOCOL_HEADER: x-forwarded-proto
+      # Optional, only needed without a config.yaml. Without an entry in the
+      # .env these variables stay empty and therefore count as not set, the
+      # values from config.yaml then apply as usual.
+      PV_TITLE: '${PV_TITLE}'
+      PV_MEMBERS: '${PV_MEMBERS}'
+      PV_SOURCES: '${PV_SOURCES}'
+      PV_START_TOKENS: '${PV_START_TOKENS}'
+      # Game values, language, timezone and backup. Unusable values are ignored
+      # with a warning and do not displace the config.yaml.
+      # See .env.example and config.example.yaml for all supported settings.
+      PV_TOKEN_AMOUNT: '${PV_TOKEN_AMOUNT}'
+      PV_TOKEN_WEEKDAY: '${PV_TOKEN_WEEKDAY}'
+      PV_TOKEN_HOUR: '${PV_TOKEN_HOUR}'
+      PV_TOKEN_CAP: '${PV_TOKEN_CAP}'
+      PV_INTERFACE_LANGUAGE: '${PV_INTERFACE_LANGUAGE}'
+      PV_LANGUAGE: '${PV_LANGUAGE}'
+      PV_LANGUAGE_FALLBACK: '${PV_LANGUAGE_FALLBACK}'
+      PV_CERTIFICATION_COUNTRY: '${PV_CERTIFICATION_COUNTRY}'
+      PV_TRAILER_LANGS: '${PV_TRAILER_LANGS}'
+      PV_TIMEZONE: '${PV_TIMEZONE}'
+      PV_BACKUP_HOUR: '${PV_BACKUP_HOUR}'
+      PV_BACKUP_KEEP: '${PV_BACKUP_KEEP}'
+      # How much ends up in the container log: debug, info (default), warn, error.
+      # Errors are written whatever this says; debug is for a bug being chased.
+      LOG_LEVEL: '${LOG_LEVEL}'
+      # Test instances only: fills list, archive, log and trash with example
+      # content on first start. Applies exclusively to a completely empty movie
+      # table, so never in a running installation.
+      PV_DEMO_DATA: '${PV_DEMO_DATA}'
+      # A link under "More" to a daily build of your own. Off and empty unless
+      # both are set, so an installation never points at somebody else's. Only
+      # http and https addresses are accepted, the value ends up in a link.
+      PV_DAILY_BUILD: '${PV_DAILY_BUILD}'
+      PV_DAILY_BUILD_URL: '${PV_DAILY_BUILD_URL}'
+    # Without a limit the log grows until the volume is full, Docker's default
+    # keeps everything forever. Three files of ten megabytes is a few weeks of
+    # ordinary operation, which is the horizon this log is read on anyway.
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+    restart: unless-stopped
+
+volumes:
+  popcorn-vote-data:

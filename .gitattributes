@@ -1,0 +1,3 @@
+# This example file checks that the release notes are still found with Windows
+# line endings. Git must therefore not normalise it, or the test checks nothing.
+.github/testdata/crlf-tab.md -text

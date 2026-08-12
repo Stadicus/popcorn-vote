@@ -1,0 +1,25 @@
+node_modules/
+.svelte-kit/
+build/
+dist/
+*.local
+.env
+.env.*
+# The template belongs in the repository, or the line above swallows it
+!.env.example
+data/
+*.sqlite
+*.sqlite-*
+vite.config.ts.timestamp-*
+e2e/.data/
+playwright-report/
+test-results/
+
+# Working copies of the review subagents (isolation: worktree)
+.claude/worktrees/
+# Scratch state of the local review tooling, per session and per commit. Not
+# ignoring it meant a `git add -A` here swept up another session's markers.
+.claude/tmp/
+
+# Local security-review artefacts
+CLAUDE-SECURITY-*/

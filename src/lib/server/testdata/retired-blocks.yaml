@@ -1,0 +1,10 @@
+# A configuration file from version 1.x. Since 2.5.0 the app no longer refuses
+# to start over these blocks, it does not read them, and says so.
+pin: '4711'
+sprache:
+  primaer: de-DE
+zeitzone: America/New_York
+# And a plain typo in a block the app does read: the credit would quietly move
+# to Sunday without this being named.
+token:
+  weekdey: monday

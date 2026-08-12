@@ -1,0 +1,18 @@
+{
+	"id": "/",
+	"name": "Popcorn Vote",
+	"short_name": "Popcorn Vote",
+	"description": "Suggest movies, place your votes, celebrate movie night.",
+	"lang": "en",
+	"start_url": "/",
+	"scope": "/",
+	"display": "standalone",
+	"background_color": "#04174d",
+	"theme_color": "#f6f5f2",
+	"icons": [
+		{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+		{ "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+		{ "src": "/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+		{ "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+	]
+}

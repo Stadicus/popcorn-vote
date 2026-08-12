@@ -1,0 +1,5 @@
+# Real keys in the file. Used to check that a placeholder from the environment
+# cannot displace them, the same protection the PIN has had since 2.8.
+pin: '1234'
+tmdb_api_key: 'tmdb-from-file'
+omdb_api_key: 'omdb-from-file'

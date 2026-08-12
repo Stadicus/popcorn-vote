@@ -1,0 +1,2 @@
+# The minimal case: the PIN alone, everything else should fall to its default.
+pin: '1234'

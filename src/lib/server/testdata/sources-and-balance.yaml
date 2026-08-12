@@ -1,0 +1,8 @@
+# A kept list and starting balance in the file; serves as proof that broken
+# environment values do not displace this file.
+pin: '1234'
+sources:
+  - Netflix
+  - Server
+token:
+  start: 5

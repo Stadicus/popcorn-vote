@@ -1,0 +1,17 @@
+# Game values kept in the file. Serves as proof that unusable environment
+# variables do not throw these values back to the defaults.
+pin: '1234'
+token:
+  amount: 2
+  weekday: saturday
+  hour: 18
+  cap: 8
+language:
+  primary: fr-FR
+  fallback: it-IT
+  certification_country: ch
+  trailer: fr, en
+timezone: America/New_York
+backup:
+  hour: 5
+  keep: 30

@@ -1,0 +1,8 @@
+# The English `language:` block, interface language included.
+pin: '1234'
+language:
+  interface: de
+  primary: fr-FR
+  fallback: it-IT
+  certification_country: ch
+  trailer: en, original, en

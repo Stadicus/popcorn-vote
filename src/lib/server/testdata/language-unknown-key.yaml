@@ -1,0 +1,6 @@
+# The key is called `interface`. Whoever reaches beside it is told so .
+# otherwise the setting stays without effect and nothing says why.
+pin: '1234'
+language:
+  ui: de
+  primary: fr-FR
