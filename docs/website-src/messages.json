@@ -71,12 +71,12 @@
 			"Main navigation",
 			"How it works",
 			"Why families use it",
-			"View on GitHub ↗",
+			"Try live demo ↗",
 			"A fairer way to choose the film",
 			"Movie night,",
 			"chosen by you.",
 			"Everyone suggests films and gets votes on the same schedule. Save them, back a favourite, and let Popcorn Vote choose tonight’s winner.",
-			"Set up Popcorn Vote",
+			"Self-host Popcorn Vote",
 			"Free and open source.",
 			"Your family’s film diary stays on your server.",
 			"Make it pop",
@@ -141,7 +141,8 @@
 			"Movie List showing how many votes each family member has placed",
 			"The Popcorn Vote wheel of fortune resolving a tied vote",
 			"The winning film displayed on the Popcorn Vote Movie Night screen",
-			"Popcorn Vote TV mode showing the winning movie on a television-friendly screen"
+			"Popcorn Vote TV mode showing the winning movie on a television-friendly screen",
+			"Try live demo"
 		],
 		"de": [
 			"Popcorn Vote ist eine kostenlose, selbst gehostete App für den Familienfilmabend. Schlagen Sie Filme vor, sammeln Sie Stimmen, lösen Sie Stimmengleichheit mit einem Rad auf und führen Sie ein gemeinsames Filmtagebuch.",
@@ -156,12 +157,12 @@
 			"Hauptnavigation",
 			"Wie es funktioniert",
 			"Warum Familien es nutzen",
-			"Auf GitHub ansehen ↗",
+			"Live-Demo testen ↗",
 			"Eine fairere Möglichkeit, den Film auszuwählen",
 			"Filmabend,",
 			"von Ihnen gewählt.",
 			"Jeder schlägt Filme vor und erhält nach dem gleichen Zeitplan Stimmen. Sammeln Sie sie, unterstützen Sie einen Favoriten und lassen Sie Popcorn Vote den Gewinner des heutigen Abends auswählen.",
-			"Popcorn Vote einrichten",
+			"Popcorn Vote selbst hosten",
 			"Kostenlos und Open Source.",
 			"Das Filmtagebuch Ihrer Familie bleibt auf Ihrem Server.",
 			"Lass es platzen",
@@ -226,7 +227,8 @@
 			"Filmliste, die zeigt, wie viele Stimmen jedes Familienmitglied abgegeben hat",
 			"Das Popcorn Vote-Glücksrad entscheidet über eine Stimmengleichheit",
 			"Der Gewinnerfilm wird auf dem Bildschirm „PV⟧ Movie Night“ angezeigt",
-			"Popcorn Vote TV-Modus, der den Gewinnerfilm auf einem fernsehfreundlichen Bildschirm zeigt"
+			"Popcorn Vote TV-Modus, der den Gewinnerfilm auf einem fernsehfreundlichen Bildschirm zeigt",
+			"Live-Demo testen"
 		],
 		"es": [
 			"Popcorn Vote es una aplicación gratuita y autohospedada para una noche de cine familiar. Sugiera películas, acumule votos, resuelva empates con una rueda y lleve un diario cinematográfico compartido.",
@@ -241,12 +243,12 @@
 			"Navegación principal",
 			"como funciona",
 			"Por qué las familias lo usan",
-			"Ver en GitHub ↗",
+			"Probar la demo en vivo ↗",
 			"Una forma más justa de elegir la película",
 			"noche de cine,",
 			"elegido por ti.",
 			"Todos proponen películas y obtienen votaciones en el mismo horario. Acumúlelos, apoye a un favorito y deje que Popcorn Vote elija al ganador de esta noche.",
-			"Configurar Popcorn Vote",
+			"Alojar Popcorn Vote",
 			"Gratis y de código abierto.",
 			"El diario cinematográfico de su familia permanece en su servidor.",
 			"Hazlo resaltar",
@@ -311,7 +313,8 @@
 			"Lista de películas que muestra cuántos votos ha realizado cada miembro de la familia",
 			"La rueda de la fortuna Popcorn Vote que resuelve un empate en la votación",
 			"La película ganadora se exhibirá en la pantalla Popcorn Vote Movie Night",
-			"Popcorn Vote Modo TV que muestra la película ganadora en una pantalla compatible con televisión"
+			"Popcorn Vote Modo TV que muestra la película ganadora en una pantalla compatible con televisión",
+			"Probar la demo en vivo"
 		],
 		"fr": [
 			"Popcorn Vote est une application gratuite et auto-hébergée pour une soirée cinéma en famille. Suggérez des films, accumulez des votes, résolvez les votes à égalité avec une roue et tenez un journal de film partagé.",
@@ -326,12 +329,12 @@
 			"Navigation principale",
 			"Comment ça marche",
 			"Pourquoi les familles l'utilisent",
-			"Voir sur GitHub ↗",
+			"Essayer la démo en direct ↗",
 			"Une manière plus juste de choisir le film",
 			"Soirée cinéma,",
 			"choisi par vous.",
 			"Tout le monde suggère des films et obtient des votes selon le même calendrier. Accumulez-les, soutenez un favori et laissez Popcorn Vote choisir le gagnant de ce soir.",
-			"Configurer Popcorn Vote",
+			"Auto-héberger Popcorn Vote",
 			"Gratuit et open source.",
 			"Le journal cinématographique de votre famille reste sur votre serveur.",
 			"Faites-le éclater",
@@ -396,7 +399,8 @@
 			"Liste de films indiquant le nombre de votes attribués par chaque membre de la famille",
 			"La roue de la fortune Popcorn Vote résout un vote à égalité",
 			"Le film gagnant affiché sur l'écran Popcorn Vote Movie Night",
-			"Mode TV Popcorn Vote montrant le film gagnant sur un écran compatible avec la télévision"
+			"Mode TV Popcorn Vote montrant le film gagnant sur un écran compatible avec la télévision",
+			"Essayer la démo en direct"
 		],
 		"pt-BR": [
 			"Popcorn Vote é um aplicativo gratuito e auto-hospedado para noites de cinema em família. Sugira filmes, acumule votos, resolva votos empatados com uma roda e mantenha um diário de filmes compartilhado.",
@@ -411,12 +415,12 @@
 			"Navegação principal",
 			"Como funciona",
 			"Por que as famílias usam",
-			"Ver no GitHub ↗",
+			"Testar demonstração ao vivo ↗",
 			"Uma forma mais justa de escolher o filme",
 			"Noite de cinema,",
 			"escolhido por você.",
 			"Todos sugerem filmes e recebem votos no mesmo horário. Acumule-os, apoie um favorito e deixe Popcorn Vote escolher o vencedor desta noite.",
-			"Configurar Popcorn Vote",
+			"Auto-hospedar Popcorn Vote",
 			"Gratuito e de código aberto.",
 			"O diário cinematográfico da sua família permanece no seu servidor.",
 			"Faça estourar",
@@ -481,7 +485,8 @@
 			"Lista de filmes mostrando quantos votos cada membro da família deu",
 			"A roda da fortuna Popcorn Vote resolvendo uma votação empatada",
 			"O filme vencedor exibido na tela Popcorn Vote Movie Night",
-			"Popcorn Vote Modo TV mostrando o filme vencedor em uma tela adequada para televisão"
+			"Popcorn Vote Modo TV mostrando o filme vencedor em uma tela adequada para televisão",
+			"Testar demonstração ao vivo"
 		],
 		"it": [
 			"Popcorn Vote è un'app gratuita e self-hosted per serate di cinema in famiglia. Suggerisci film, accumula voti, risolvi i voti in parità con una ruota e tieni un diario cinematografico condiviso.",
@@ -496,12 +501,12 @@
 			"Navigazione principale",
 			"Come funziona",
 			"Perché le famiglie lo usano",
-			"Visualizza su GitHub ↗",
+			"Prova la demo online ↗",
 			"Un modo più giusto per scegliere il film",
 			"Serata al cinema,",
 			"scelto da te.",
 			"Tutti suggeriscono film e ricevono voti secondo lo stesso programma. Accumulali, sostieni un favorito e lascia che Popcorn Vote scelga il vincitore di stasera.",
-			"Imposta Popcorn Vote",
+			"Ospita Popcorn Vote sul tuo server",
 			"Gratuito e open source.",
 			"Il diario cinematografico della tua famiglia rimane sul tuo server.",
 			"Fallo scoppiare",
@@ -566,7 +571,8 @@
 			"Elenco dei film che mostra quanti voti ha assegnato ciascun membro della famiglia",
 			"La ruota della fortuna Popcorn Vote risolve un voto in parità",
 			"Il film vincitore verrà visualizzato sullo schermo Popcorn Vote Movie Night",
-			"Popcorn Vote Modalità TV che mostra il film vincitore su uno schermo adatto alla televisione"
+			"Popcorn Vote Modalità TV che mostra il film vincitore su uno schermo adatto alla televisione",
+			"Prova la demo online"
 		],
 		"pl": [
 			"Popcorn Vote to bezpłatna aplikacja hostowana na własnym serwerze, przeznaczona na rodzinny wieczór filmowy. Sugeruj filmy, zbieraj głosy, rozstrzygaj remisowe głosy za pomocą koła i prowadź wspólny dziennik filmowy.",
@@ -581,12 +587,12 @@
 			"Główna nawigacja",
 			"Jak to działa",
 			"Dlaczego rodziny z niego korzystają",
-			"Zobacz na GitHubie ↗",
+			"Wypróbuj demo na żywo ↗",
 			"Bardziej sprawiedliwy sposób wyboru filmu",
 			"Wieczór filmowy,",
 			"wybrany przez Ciebie.",
 			"Wszyscy sugerują filmy i otrzymują głosy według tego samego harmonogramu. Zbieraj je, wspieraj faworyta i pozwól Popcorn Vote wybrać dzisiejszego zwycięzcę.",
-			"Skonfiguruj Popcorn Vote",
+			"Hostuj Popcorn Vote samodzielnie",
 			"Darmowe i otwarte źródło.",
 			"Dziennik filmowy Twojej rodziny pozostaje na Twoim serwerze.",
 			"Spraw, żeby to wystrzeliło",
@@ -651,7 +657,8 @@
 			"Lista filmów pokazująca, ile głosów oddał każdy członek rodziny",
 			"Koło fortuny Popcorn Vote rozstrzygające remisową liczbę głosów",
 			"Zwycięski film wyświetlany na ekranie Nocy Filmowej Popcorn Vote",
-			"Popcorn Vote Tryb telewizyjny pokazujący zwycięski film na ekranie przyjaznym dla telewizji"
+			"Popcorn Vote Tryb telewizyjny pokazujący zwycięski film na ekranie przyjaznym dla telewizji",
+			"Wypróbuj demo na żywo"
 		],
 		"tr": [
 			"Popcorn Vote aile film geceleri için ücretsiz, kendi kendine barındırılan bir uygulamadır. Film önerin, oy toplayın, eşit oyları çarkla çözün ve ortak bir film günlüğü tutun.",
@@ -666,12 +673,12 @@
 			"Ana gezinme",
 			"Nasıl çalışır?",
 			"Aileler bunu neden kullanıyor?",
-			"GitHub'da görüntüle ↗",
+			"Canlı demoyu dene ↗",
 			"Filmi seçmenin daha adil bir yolu",
 			"Film gecesi,",
 			"sizin tarafınızdan seçilmiş.",
 			"Herkes aynı programda film önerir ve oy alır. Bunları toplayın, bir favoriyi destekleyin ve Popcorn Vote'nin bu gecenin kazananını seçmesine izin verin.",
-			"Popcorn Vote'yi kurun",
+			"Popcorn Vote’u kendin barındır",
 			"Ücretsiz ve açık kaynak.",
 			"Ailenizin film günlüğü sunucunuzda kalır.",
 			"Pop yap",
@@ -736,7 +743,8 @@
 			"Her aile üyesinin kaç oy verdiğini gösteren Film Listesi",
 			"Eşit oylu bir oyu çözen Popcorn Vote çarkıfelek",
 			"Kazanan film Popcorn Vote Film Gecesi ekranında gösteriliyor",
-			"Popcorn Vote Kazanan filmi televizyona uygun bir ekranda gösteren TV modu"
+			"Popcorn Vote Kazanan filmi televizyona uygun bir ekranda gösteren TV modu",
+			"Canlı demoyu dene"
 		],
 		"ja": [
 			"Popcorn Vote は、家族で映画鑑賞をするための無料の自己ホスト型アプリです。映画を提案し、投票を蓄積し、ホイールで同数の票を解決し、共有の映画日記を付けます。",
@@ -751,12 +759,12 @@
 			"メインナビゲーション",
 			"仕組み",
 			"家族が利用する理由",
-			"GitHub で見る ↗",
+			"ライブデモを試す ↗",
 			"映画を選ぶためのより公平な方法",
 			"映画の夜、",
 			"あなたが選んだもの。",
 			"全員が同じスケジュールで映画を提案し、投票を行います。それらを蓄積し、お気に入りをサポートし、Popcorn Vote に今夜の勝者を選ばせてください。",
-			"Popcorn Voteを設定する",
+			"Popcorn Voteをセルフホストする",
 			"無料でオープンソース。",
 			"家族の映画日記はサーバーに残ります。",
 			"ポップにする",
@@ -821,7 +829,8 @@
 			"各家族が何票投票したかを示す映画リスト",
 			"同数票を解決するPopcorn Vote運命の輪",
 			"Popcorn Vote Movie Night スクリーンに表示される受賞作品",
-			"Popcorn Vote 受賞映画をテレビ向けの画面で表示する TV モード"
+			"Popcorn Vote 受賞映画をテレビ向けの画面で表示する TV モード",
+			"ライブデモを試す"
 		]
 	}
 }
