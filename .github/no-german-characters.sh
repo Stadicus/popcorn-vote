@@ -47,6 +47,16 @@ allow=(
 	'^src/lib/server/api\.test\.ts:'
 	# Fixture changelogs for release-notes.sh; their prose is arbitrary filler.
 	'^\.github/testdata/'
+	# The marketing-site source contains reviewed translations, while its generated
+	# output repeats native language names in every locale switcher. Both are
+	# deliberately multilingual user-facing content, not German implementation text.
+	'^docs/website-src/(messages|overrides)\.json:'
+	# The generated x-default gateway previews its language prompt in four
+	# languages so visitors can recognize the selector before auto-detection.
+	'^docs/website-src/generate\.mjs:[0-9]+:.*Sprache wählen'
+	# Generated locale pages and the x-default gateway repeat native language
+	# names and localized copy. Hand-maintained website documentation stays scanned.
+	'^docs/website/(index\.html|(?:en|de|es|fr|pt-br|it|pl|tr|ja)/index\.html):'
 	# This script has to name the characters it looks for.
 	'^\.github/no-german-characters\.sh:'
 	# Native language names are shown in the language switcher.
