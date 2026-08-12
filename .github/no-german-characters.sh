@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #
-# Trips the build when German characters reappear outside translations.
+# Trips the build when German characters reappear outside translations and
+# verifies that the committed static website matches its generator sources.
 #
 #   .github/no-german-characters.sh
 #
@@ -30,6 +31,34 @@ exit 1
 fi
 done
 
+# The multilingual catalogue file is allow-listed below, but its English source
+# array must still obey the repository's English-only rule.
+node <<'NODE'
+const { messages } = require('./docs/website-src/messages.json');
+const overrides = require('./docs/website-src/overrides.json');
+const germanCharacters = /[äöüÄÖÜß\u0308]/u;
+messages.en.forEach((message, index) => {
+	const effectiveMessage = overrides.en?.[index] ?? message;
+	if (germanCharacters.test(effectiveMessage)) {
+		console.error(`German characters found in English website message ${index}: ${effectiveMessage}`);
+		process.exitCode = 1;
+	}
+});
+NODE
+
+# The static website is deployed directly from its committed generated output.
+# Regenerate it before scanning so CI also catches changed, missing, untracked,
+# or obsolete locale pages instead of reviewing source and deploying stale files.
+node docs/website-src/generate.mjs --check
+untracked_website=$(git ls-files --others --exclude-standard -- docs/website)
+if ! git diff --quiet -- docs/website || [ -n "$untracked_website" ]; then
+	echo "$0: docs/website is not in sync with docs/website-src." >&2
+	git diff --name-status -- docs/website >&2
+	printf '%s\n' "$untracked_website" >&2
+	echo "Run 'node docs/website-src/generate.mjs' and commit the generated output." >&2
+	exit 1
+fi
+
 # Paths that carry German characters on purpose. Every entry is a decision, not
 # a leftover; extending this list needs a reason in the same commit.
 allow=(
@@ -47,6 +76,16 @@ allow=(
 	'^src/lib/server/api\.test\.ts:'
 	# Fixture changelogs for release-notes.sh; their prose is arbitrary filler.
 	'^\.github/testdata/'
+	# The marketing-site source contains reviewed translations, while its generated
+	# output repeats native language names in every locale switcher. Both are
+	# deliberately multilingual user-facing content, not German implementation text.
+	'^docs/website-src/(messages|overrides)\.json:'
+	# The generated x-default gateway previews its language prompt in four
+	# languages so visitors can recognize the selector before auto-detection.
+	'^docs/website-src/generate\.mjs:[0-9]+:[^äöüÄÖÜß\x{0308}]*Sprache wählen[^äöüÄÖÜß\x{0308}]*$'
+	# Generated locale pages and the x-default gateway repeat native language
+	# names and localized copy. Hand-maintained website documentation stays scanned.
+	'^docs/website/(index\.html|(?:en|de|es|fr|pt-br|it|pl|tr|ja)/index\.html):'
 	# This script has to name the characters it looks for.
 	'^\.github/no-german-characters\.sh:'
 	# Native language names are shown in the language switcher.
