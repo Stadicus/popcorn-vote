@@ -299,7 +299,7 @@
 				scroll-behavior: smooth;
 			}
 			section[id] {
-				scroll-margin-top: 1.5rem;
+				scroll-margin-top: calc(82px + 1.5rem);
 			}
 			body {
 				margin: 0;
@@ -327,7 +327,7 @@
 				background: var(--button-bg);
 				color: var(--button-ink);
 				padding: 0.7rem 1rem;
-				z-index: 10;
+				z-index: 40;
 			}
 			.skip:focus {
 				top: 1rem;
@@ -347,6 +347,30 @@
 			}
 			.hero .eyebrow {
 				margin-bottom: 0.6rem;
+			}
+			.site-header {
+				position: sticky;
+				top: 0;
+				z-index: 30;
+				border-bottom: 1px solid transparent;
+				background: var(--paper);
+				background: color-mix(in srgb, var(--paper) 94%, transparent);
+				transform: translateY(0);
+				transition:
+					transform 0.2s ease,
+					border-color 0.2s ease,
+					box-shadow 0.2s ease;
+				backdrop-filter: blur(14px);
+			}
+			.site-header.is-scrolled {
+				border-color: var(--line);
+				box-shadow: 0 8px 24px rgb(16 25 35 / 0.08);
+			}
+			.site-header.is-hidden {
+				transform: translateY(calc(-100% - 1px));
+			}
+			.site-header.is-hidden:focus-within {
+				transform: translateY(0);
 			}
 			.nav {
 				display: grid;
@@ -890,6 +914,9 @@
 				max-width: 420px;
 				margin: 0;
 			}
+			.video-actions {
+				margin-top: 1.5rem;
+			}
 			.demo {
 				width: 100%;
 			}
@@ -1191,7 +1218,7 @@
 			}
 			.closer h2,
 			.closer p,
-			.closer .button {
+			.closer-actions {
 				position: relative;
 			}
 			.closer h2 {
@@ -1206,6 +1233,17 @@
 			.closer .button {
 				background: var(--gold);
 				color: #3a2b00;
+			}
+			.closer-actions {
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: center;
+				gap: 0.75rem;
+			}
+			.closer .button.alt {
+				border-color: #63717e;
+				background: transparent;
+				color: #fff;
 			}
 			.footer {
 				padding: 1.5rem 0;
@@ -1413,6 +1451,9 @@
 				html {
 					scroll-behavior: auto;
 				}
+				.site-header {
+					transition: none;
+				}
 				*,
 				*:before,
 				*:after {
@@ -1485,19 +1526,21 @@
 	</head>
 	<body>
 		<a class="skip" href="#content">Vai al contenuto</a>
-		<header class="shell nav">
-			<button class="brand" type="button" aria-label="Riproduci l'animazione Popcorn Vote">
-				<span class="mark" aria-hidden="true">🍿</span> <span translate="no">Popcorn Vote</span>
-			</button>
-			<nav class="nav-links" aria-label="Navigazione principale">
-				<a href="#story">Come funziona</a><a href="#features">Perché le famiglie lo usano</a>
-			</nav>
-			<div class="nav-actions">
-				<a class="nav-cta" href="https://demo.popcornvote.org" target="_blank" rel="noreferrer"
-					>Prova la demo online ↗</a
-				><details class="language-menu"><summary aria-label="Scegli la lingua"><span aria-hidden="true">◎</span><span lang="it">Italiano</span></summary><ul class="language-options"><li><a href="/en/" hreflang="en" lang="en" data-language="en"><span>English</span><span class="language-code">en</span></a></li><li><a href="/de/" hreflang="de" lang="de" data-language="de"><span>Deutsch</span><span class="language-code">de</span></a></li><li><a href="/es/" hreflang="es" lang="es" data-language="es"><span>Español</span><span class="language-code">es</span></a></li><li><a href="/fr/" hreflang="fr" lang="fr" data-language="fr"><span>Français</span><span class="language-code">fr</span></a></li><li><a href="/pt-br/" hreflang="pt-BR" lang="pt-BR" data-language="pt-BR"><span>Português (Brasil)</span><span class="language-code">pt-BR</span></a></li><li><a href="/it/" hreflang="it" lang="it" data-language="it" aria-current="page"><span>Italiano</span><span class="language-code">it</span></a></li><li><a href="/pl/" hreflang="pl" lang="pl" data-language="pl"><span>Polski</span><span class="language-code">pl</span></a></li><li><a href="/tr/" hreflang="tr" lang="tr" data-language="tr"><span>Türkçe</span><span class="language-code">tr</span></a></li><li><a href="/ja/" hreflang="ja" lang="ja" data-language="ja"><span>日本語</span><span class="language-code">ja</span></a></li></ul></details><button class="theme-toggle" type="button" aria-label="Modalità scura">
-					<span class="moon" aria-hidden="true">☾</span><span class="sun" aria-hidden="true">☀</span>
+		<header class="site-header">
+			<div class="shell nav">
+				<button class="brand" type="button" aria-label="Riproduci l'animazione Popcorn Vote">
+					<span class="mark" aria-hidden="true">🍿</span> <span translate="no">Popcorn Vote</span>
 				</button>
+				<nav class="nav-links" aria-label="Navigazione principale">
+					<a href="#story">Come funziona</a><a href="#features">Perché le famiglie lo usano</a>
+				</nav>
+				<div class="nav-actions">
+					<a class="nav-cta" href="https://demo.popcornvote.org" target="_blank" rel="noreferrer"
+						>Prova la demo online ↗</a
+					><details class="language-menu"><summary aria-label="Scegli la lingua"><span aria-hidden="true">◎</span><span lang="it">Italiano</span></summary><ul class="language-options"><li><a href="/en/" hreflang="en" lang="en" data-language="en"><span>English</span><span class="language-code">en</span></a></li><li><a href="/de/" hreflang="de" lang="de" data-language="de"><span>Deutsch</span><span class="language-code">de</span></a></li><li><a href="/es/" hreflang="es" lang="es" data-language="es"><span>Español</span><span class="language-code">es</span></a></li><li><a href="/fr/" hreflang="fr" lang="fr" data-language="fr"><span>Français</span><span class="language-code">fr</span></a></li><li><a href="/pt-br/" hreflang="pt-BR" lang="pt-BR" data-language="pt-BR"><span>Português (Brasil)</span><span class="language-code">pt-BR</span></a></li><li><a href="/it/" hreflang="it" lang="it" data-language="it" aria-current="page"><span>Italiano</span><span class="language-code">it</span></a></li><li><a href="/pl/" hreflang="pl" lang="pl" data-language="pl"><span>Polski</span><span class="language-code">pl</span></a></li><li><a href="/tr/" hreflang="tr" lang="tr" data-language="tr"><span>Türkçe</span><span class="language-code">tr</span></a></li><li><a href="/ja/" hreflang="ja" lang="ja" data-language="ja"><span>日本語</span><span class="language-code">ja</span></a></li></ul></details><button class="theme-toggle" type="button" aria-label="Modalità scura">
+						<span class="moon" aria-hidden="true">☾</span><span class="sun" aria-hidden="true">☀</span>
+					</button>
+				</div>
 			</div>
 		</header>
 		<main id="content">
@@ -1648,6 +1691,11 @@
 							<h2>Dal voto al vincitore.</h2>
 						</div>
 						<p>Guarda l'app reale valutare la classifica, risolvere un voto in parità e rivelare cosa si gioca stasera.</p>
+						<div class="video-actions">
+							<a class="button" href="https://demo.popcornvote.org" target="_blank" rel="noreferrer"
+								>Prova la demo online <span aria-hidden="true">↗</span></a
+							>
+						</div>
 					</div>
 					<div class="demo">
 						<video controls preload="metadata" poster="/assets/video-preview.png">
@@ -1740,9 +1788,17 @@
 					<p class="eyebrow">La tua prossima serata al cinema inizia qui</p>
 					<h2>Una scelta equa. Una serata divertente.</h2>
 					<p>Popcorn Vote è gratuito, open source e pronto per essere eseguito sul tuo server.</p>
-					<a class="button" href="https://github.com/Stadicus/popcorn-vote" target="_blank" rel="noreferrer"
-						>Visualizza la configurazione su GitHub <span aria-hidden="true">↗</span></a
-					>
+					<div class="closer-actions">
+						<a class="button" href="https://demo.popcornvote.org" target="_blank" rel="noreferrer"
+							>Prova la demo online <span aria-hidden="true">↗</span></a
+						><a
+							class="button alt"
+							href="https://github.com/Stadicus/popcorn-vote"
+							target="_blank"
+							rel="noreferrer"
+							>Visualizza la configurazione su GitHub <span aria-hidden="true">↗</span></a
+						>
+					</div>
 				</div>
 			</section>
 		</main>
@@ -1810,6 +1866,30 @@
 			systemTheme.addEventListener('change', syncTheme);
 			syncTheme();
 			const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+			const siteHeader = document.querySelector('.site-header');
+			let previousScrollY = Math.max(window.scrollY, 0);
+			let headerUpdatePending = false;
+			const updateHeader = () => {
+				const currentScrollY = Math.max(window.scrollY, 0);
+				siteHeader.classList.toggle('is-scrolled', currentScrollY > 0);
+				if (currentScrollY <= 8 || currentScrollY < previousScrollY) {
+					siteHeader.classList.remove('is-hidden');
+				} else if (currentScrollY > previousScrollY && currentScrollY > siteHeader.offsetHeight) {
+					siteHeader.classList.add('is-hidden');
+				}
+				previousScrollY = currentScrollY;
+				headerUpdatePending = false;
+			};
+			window.addEventListener(
+				'scroll',
+				() => {
+					if (headerUpdatePending) return;
+					headerUpdatePending = true;
+					requestAnimationFrame(updateHeader);
+				},
+				{ passive: true }
+			);
+			updateHeader();
 			function supernova(target, scale = 1, anchor = null) {
 				if (reducedMotion) return;
 				const rect = target.getBoundingClientRect();
