@@ -1,4 +1,4 @@
-import { mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -45,9 +45,17 @@ sourceMessages.forEach((message, index) => {
 });
 
 await mkdir(output, { recursive: true });
-for (const entry of await readdir(output, { withFileTypes: true })) {
-	if (entry.isDirectory() && entry.name !== 'assets')
-		await rm(resolve(output, entry.name), { recursive: true, force: true });
+const localeManifestPath = resolve(output, 'generated-locales.json');
+let previousSlugs = [];
+try {
+	previousSlugs = JSON.parse(await readFile(localeManifestPath, 'utf8'));
+} catch (error) {
+	if (error.code !== 'ENOENT') throw error;
+}
+if (!Array.isArray(previousSlugs) || previousSlugs.some((slug) => typeof slug !== 'string'))
+	fail('generated locale manifest must be an array of slugs');
+for (const slug of previousSlugs) {
+	if (!slugs.has(slug)) await rm(resolve(output, slug), { recursive: true, force: true });
 }
 
 const nativeName = (locale) => catalogue.locales[locale].name;
@@ -221,5 +229,6 @@ await writeFile(
 	resolve(output, 'sitemap.xml'),
 	`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${sitemapUrls}\n</urlset>\n`
 );
+await writeFile(localeManifestPath, `${JSON.stringify([...slugs], null, '\t')}\n`);
 
 console.log(`Generated ${locales.length} localized pages, the language gateway, and sitemap.xml.`);

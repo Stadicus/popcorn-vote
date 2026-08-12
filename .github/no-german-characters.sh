@@ -30,6 +30,19 @@ exit 1
 fi
 done
 
+# The multilingual catalogue file is allow-listed below, but its English source
+# array must still obey the repository's English-only rule.
+node <<'NODE'
+const { messages } = require('./docs/website-src/messages.json');
+const germanCharacters = /[äöüÄÖÜß\u0308]/u;
+messages.en.forEach((message, index) => {
+	if (germanCharacters.test(message)) {
+		console.error(`German characters found in English website message ${index}: ${message}`);
+		process.exitCode = 1;
+	}
+});
+NODE
+
 # The static website is deployed directly from its committed generated output.
 # Regenerate it before scanning so CI also catches changed, missing, untracked,
 # or obsolete locale pages instead of reviewing source and deploying stale files.
