@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #
-# Trips the build when German characters reappear outside translations.
+# Trips the build when German characters reappear outside translations and
+# verifies that the committed static website matches its generator sources.
 #
 #   .github/no-german-characters.sh
 #
@@ -34,10 +35,12 @@ done
 # array must still obey the repository's English-only rule.
 node <<'NODE'
 const { messages } = require('./docs/website-src/messages.json');
+const overrides = require('./docs/website-src/overrides.json');
 const germanCharacters = /[äöüÄÖÜß\u0308]/u;
 messages.en.forEach((message, index) => {
-	if (germanCharacters.test(message)) {
-		console.error(`German characters found in English website message ${index}: ${message}`);
+	const effectiveMessage = overrides.en?.[index] ?? message;
+	if (germanCharacters.test(effectiveMessage)) {
+		console.error(`German characters found in English website message ${index}: ${effectiveMessage}`);
 		process.exitCode = 1;
 	}
 });
@@ -46,7 +49,7 @@ NODE
 # The static website is deployed directly from its committed generated output.
 # Regenerate it before scanning so CI also catches changed, missing, untracked,
 # or obsolete locale pages instead of reviewing source and deploying stale files.
-node docs/website-src/generate.mjs
+node docs/website-src/generate.mjs --check
 untracked_website=$(git ls-files --others --exclude-standard -- docs/website)
 if ! git diff --quiet -- docs/website || [ -n "$untracked_website" ]; then
 	echo "$0: docs/website is not in sync with docs/website-src." >&2
@@ -79,7 +82,7 @@ allow=(
 	'^docs/website-src/(messages|overrides)\.json:'
 	# The generated x-default gateway previews its language prompt in four
 	# languages so visitors can recognize the selector before auto-detection.
-	'^docs/website-src/generate\.mjs:[0-9]+:.*Sprache wählen'
+	'^docs/website-src/generate\.mjs:[0-9]+:[^äöüÄÖÜß\x{0308}]*Sprache wählen[^äöüÄÖÜß\x{0308}]*$'
 	# Generated locale pages and the x-default gateway repeat native language
 	# names and localized copy. Hand-maintained website documentation stays scanned.
 	'^docs/website/(index\.html|(?:en|de|es|fr|pt-br|it|pl|tr|ja)/index\.html):'
