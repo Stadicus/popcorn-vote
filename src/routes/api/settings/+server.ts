@@ -20,7 +20,7 @@ export const PUT: RequestHandler = async (event) => {
 	if (event.locals.config.origins.Title !== 'PV_TITLE' && body.title !== undefined) {
 		const title = String(body.title).trim();
 		if (title.length < 1 || title.length > 80)
-			return json({ error: 'Instance name must be between 1 and 80 characters.' }, { status: 400 });
+			return json({ error: event.locals.t('settings.errorInstanceName') }, { status: 400 });
 		values.title = title;
 	}
 	if (event.locals.config.origins.Timezone !== 'PV_TIMEZONE' && body.timezone !== undefined) {
@@ -28,7 +28,7 @@ export const PUT: RequestHandler = async (event) => {
 		try {
 			new Intl.DateTimeFormat('en', { timeZone: timezone });
 		} catch {
-			return json({ error: 'Enter a valid timezone such as Europe/Zurich.' }, { status: 400 });
+			return json({ error: event.locals.t('settings.errorTimezone') }, { status: 400 });
 		}
 		values.timezone = timezone;
 	}
@@ -38,7 +38,7 @@ export const PUT: RequestHandler = async (event) => {
 	) {
 		const timeout = Number(body.sessionTimeout);
 		if (!Number.isInteger(timeout) || timeout < 300 || timeout > 31_536_000)
-			return json({ error: 'Session timeout must be between 5 minutes and one year.' }, { status: 400 });
+			return json({ error: event.locals.t('settings.errorSessionTimeout') }, { status: 400 });
 		values.sessionTimeout = timeout;
 	}
 	updateSettings(values);

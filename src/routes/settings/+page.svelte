@@ -3,9 +3,10 @@
 	import { untrack } from 'svelte';
 	import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
 	import Toast from '$lib/components/Toast.svelte';
+	import { getI18n } from '$lib/i18n/context';
 
 	let { data } = $props();
-	const de = $derived(data.locale === 'de');
+	const t = getI18n();
 	const initial = untrack(() => data.settings);
 	let settings = $state(initial);
 	let tab = $state<'general' | 'users' | 'security' | 'advanced'>('general');
@@ -15,6 +16,8 @@
 	let message = $state('');
 	let error = $state('');
 	let busy = $state(false);
+	const standardTimeouts = [1800, 3600, 28800, 604800, 31536000];
+	const customTimeout = $derived(!standardTimeouts.includes(Number(sessionTimeout)));
 
 	type User = (typeof settings.users)[number];
 	let editorOpen = $state(false);
@@ -28,14 +31,20 @@
 	let deleteOpen = $state(false);
 
 	const labels = $derived({
-		general: de ? 'Allgemein' : 'General',
-		users: de ? 'Benutzer' : 'Users',
-		security: de ? 'Sicherheit' : 'Security',
-		advanced: de ? 'Erweitert' : 'Advanced'
+		general: t('settings.general'),
+		users: t('settings.users'),
+		security: t('settings.security'),
+		advanced: t('settings.advanced')
 	});
 
 	function envHint(source: string | undefined) {
-		return de ? `Durch Umgebungsvariable ${source} verwaltet` : `Managed by environment variable ${source}`;
+		return t('settings.managedByEnv', { source: source ?? '' });
+	}
+
+	function timeoutLabel(seconds: number): string {
+		if (seconds % 86400 === 0) return `${seconds / 86400} d`;
+		if (seconds % 3600 === 0) return `${seconds / 3600} h`;
+		return `${Math.round(seconds / 60)} min`;
 	}
 
 	async function request(url: string, method: string, body?: unknown) {
@@ -54,16 +63,16 @@
 				return null;
 			}
 			if (!response.ok) {
-				error = result.error ?? (de ? 'Speichern fehlgeschlagen.' : 'Could not save.');
+				error = result.error ?? t('settings.saveFailed');
 				return null;
 			}
 			await invalidateAll();
 			const fresh = await fetch('/api/settings');
 			if (fresh.ok) settings = await fresh.json();
-			message = de ? 'Einstellungen gespeichert.' : 'Settings saved.';
+			message = t('settings.saved');
 			return result;
 		} catch {
-			error = de ? 'Keine Verbindung zur App.' : 'Cannot connect to the app.';
+			error = t('error.offline');
 			return null;
 		} finally {
 			busy = false;
@@ -97,7 +106,7 @@
 	async function saveUser(event: SubmitEvent) {
 		event.preventDefault();
 		if (editPin !== confirmPin) {
-			error = de ? 'Die PINs stimmen nicht überein.' : 'The PINs do not match.';
+			error = t('settings.errorPinMismatch');
 			return;
 		}
 		const result = await request(
@@ -118,12 +127,12 @@
 	}
 </script>
 
-<svelte:head><title>{de ? 'Einstellungen' : 'Settings'} · {data.title}</title></svelte:head>
+<svelte:head><title>{t('settings.title')} · {data.title}</title></svelte:head>
 
 <header class="settings-head">
 	<div>
 		<p class="kicker">POPCORN VOTE</p>
-		<h1>{de ? 'Einstellungen' : 'Settings'}</h1>
+		<h1>{t('settings.title')}</h1>
 	</div>
 	<span class="reel" aria-hidden="true">⚙</span>
 </header>
@@ -132,7 +141,7 @@
 {#if message}<p class="saved" role="status">✓ {message}</p>{/if}
 
 <div class="settings-layout">
-	<nav class="section-nav" aria-label={de ? 'Einstellungsbereiche' : 'Settings sections'}>
+	<nav class="section-nav" aria-label={t('settings.sections')}>
 		{#each Object.entries(labels) as [key, label] (key)}
 			<button class:active={tab === key} onclick={() => (tab = key as typeof tab)}
 				><span>{key === 'general' ? '⌂' : key === 'users' ? '♟' : key === 'security' ? '◇' : '⋯'}</span
@@ -146,17 +155,13 @@
 			<div class="section-title">
 				<div>
 					<h2>{labels.general}</h2>
-					<p>
-						{de
-							? 'Wie diese Popcorn-Vote-Instanz für deine Familie erscheint.'
-							: 'How this Popcorn Vote instance appears to your family.'}
-					</p>
+					<p>{t('settings.generalHint')}</p>
 				</div>
 				<span>01</span>
 			</div>
 			<div class="form-grid">
 				<label
-					>{de ? 'Instanzname' : 'Instance name'}<input
+					>{t('settings.instanceName')}<input
 						bind:value={title}
 						disabled={!settings.general.title.editable}
 						maxlength="80"
@@ -164,7 +169,7 @@
 						>{/if}</label
 				>
 				<label
-					>{de ? 'Zeitzone' : 'Timezone'}<input
+					>{t('settings.timezone')}<input
 						bind:value={timezone}
 						disabled={!settings.general.timezone.editable}
 						placeholder="Europe/Zurich"
@@ -172,18 +177,12 @@
 						>{/if}</label
 				>
 			</div>
-			<button class="btn save" onclick={saveSettings} disabled={busy}
-				>{de ? 'Änderungen speichern' : 'Save changes'}</button
-			>
+			<button class="btn save" onclick={saveSettings} disabled={busy}>{t('settings.saveChanges')}</button>
 		{:else if tab === 'users'}
 			<div class="section-title">
 				<div>
 					<h2>{labels.users}</h2>
-					<p>
-						{de
-							? 'Konten, Rollen und Zugang zur Familienrunde.'
-							: 'Accounts, roles and access to your family night.'}
-					</p>
+					<p>{t('settings.usersHint')}</p>
 				</div>
 				<span>02</span>
 			</div>
@@ -194,16 +193,15 @@
 						<div>
 							<strong>{user.name}</strong>
 							<p>
-								{user.role === 'admin' ? (de ? 'Administrator' : 'Administrator') : de ? 'Benutzer' : 'User'} ·
-								{user.enabled ? (de ? 'Aktiv' : 'Enabled') : de ? 'Deaktiviert' : 'Disabled'}
+								{user.role === 'admin' ? t('settings.administrator') : t('settings.user')} ·
+								{user.enabled ? t('settings.enabled') : t('settings.disabled')}
 							</p>
 						</div>
 						<div class="row-actions">
-							<button class="btn secondary" onclick={() => editUser(user)}
-								>{de ? 'Bearbeiten' : 'Edit'}</button
+							<button class="btn secondary" onclick={() => editUser(user)}>{t('settings.edit')}</button
 							><button
 								class="icon-danger"
-								aria-label={`${de ? 'Löschen' : 'Delete'} ${user.name}`}
+								aria-label={t('settings.deleteNamed', { name: user.name })}
 								onclick={() => {
 									deleteUser = user;
 									deleteOpen = true;
@@ -213,64 +211,54 @@
 					</article>
 				{/each}
 			</div>
-			<button class="btn save" onclick={addUser}>＋ {de ? 'Benutzer hinzufügen' : 'Add user'}</button>
+			<button class="btn save" onclick={addUser}>＋ {t('settings.addUser')}</button>
 		{:else if tab === 'security'}
 			<div class="section-title">
 				<div>
 					<h2>{labels.security}</h2>
-					<p>{de ? 'Anmeldung und automatische Abmeldung.' : 'Sign-in and automatic logout.'}</p>
+					<p>{t('settings.securityHint')}</p>
 				</div>
 				<span>03</span>
 			</div>
 			<label
-				>{de ? 'Automatisch abmelden nach' : 'Automatically log out after'}<select
+				>{t('settings.logoutAfter')}<select
 					bind:value={sessionTimeout}
 					disabled={!settings.security.sessionTimeout.editable}
-					><option value={1800}>30 min</option><option value={3600}>1 h</option><option value={28800}
+					>{#if customTimeout}<option value={Number(sessionTimeout)}
+							>{timeoutLabel(Number(sessionTimeout))}</option
+						>{/if}<option value={1800}>30 min</option><option value={3600}>1 h</option><option value={28800}
 						>8 h</option
-					><option value={604800}>{de ? '1 Woche' : '1 week'}</option><option value={31536000}
-						>{de ? '1 Jahr' : '1 year'}</option
+					><option value={604800}>{t('settings.oneWeek')}</option><option value={31536000}
+						>{t('settings.oneYear')}</option
 					></select
 				>{#if !settings.security.sessionTimeout.editable}<small
 						>{envHint(settings.security.sessionTimeout.source)}</small
 					>{/if}</label
 			>
 			<p class="notice">
-				◇ {de
-					? 'PINs werden mit scrypt und individuellem Salt gehasht. Sie werden nie wieder im Klartext angezeigt.'
-					: 'PINs are hashed with scrypt and an individual salt. They are never displayed again.'}
+				◇ {t('settings.pinSecurity')}
 			</p>
-			<button class="btn save" onclick={saveSettings} disabled={busy}
-				>{de ? 'Änderungen speichern' : 'Save changes'}</button
-			>
+			<button class="btn save" onclick={saveSettings} disabled={busy}>{t('settings.saveChanges')}</button>
 		{:else}
 			<div class="section-title">
 				<div>
 					<h2>{labels.advanced}</h2>
-					<p>
-						{de
-							? 'Deployment-Details bleiben bewusst außerhalb der Produktkonfiguration.'
-							: 'Deployment details intentionally remain outside product configuration.'}
-					</p>
+					<p>{t('settings.advancedHint')}</p>
 				</div>
 				<span>04</span>
 			</div>
 			<div class="fact">
-				<span>{de ? 'Konfigurationsdatei' : 'Configuration file'}</span><code
-					>{settings.advanced.configFile}</code
-				>
+				<span>{t('settings.configFile')}</span><code>{settings.advanced.configFile}</code>
 			</div>
-			<div class="fact"><span>{de ? 'Version' : 'Version'}</span><code>{data.version}</code></div>
-			<h3>{de ? 'Umgebungs-Overrides' : 'Environment overrides'}</h3>
+			<div class="fact"><span>{t('settings.version')}</span><code>{data.version}</code></div>
+			<h3>{t('settings.environmentOverrides')}</h3>
 			{#if settings.advanced.environment.length}<div class="env-list">
 					{#each settings.advanced.environment as item (item.variable)}<div>
 							<code>{item.variable}</code><span>{item.setting}</span>
 						</div>{/each}
-				</div>{:else}<p class="muted">{de ? 'Keine aktiven Overrides.' : 'No active overrides.'}</p>{/if}
+				</div>{:else}<p class="muted">{t('settings.noOverrides')}</p>{/if}
 			<p class="notice">
-				{de
-					? 'Weitere technische Werte können weiterhin über config.yaml oder Umgebungsvariablen gesetzt werden.'
-					: 'Additional technical values remain configurable through config.yaml or environment variables.'}
+				{t('settings.advancedNotice')}
 			</p>
 		{/if}
 	</section>
@@ -286,16 +274,14 @@
 			<div class="editor-head">
 				<div>
 					<p class="kicker">
-						{editingId ? (de ? 'KONTO BEARBEITEN' : 'EDIT ACCOUNT') : de ? 'NEUES KONTO' : 'NEW ACCOUNT'}
+						{editingId ? t('settings.editAccount') : t('settings.newAccount')}
 					</p>
-					<h2>{editingId ? editName : de ? 'Benutzer hinzufügen' : 'Add user'}</h2>
+					<h2>{editingId ? editName : t('settings.addUser')}</h2>
 				</div>
-				<button type="button" aria-label={de ? 'Schließen' : 'Close'} onclick={() => (editorOpen = false)}
-					>×</button
-				>
+				<button type="button" aria-label={t('settings.close')} onclick={() => (editorOpen = false)}>×</button>
 			</div>
 			<label
-				>{de ? 'Anzeigename' : 'Display name'}<input
+				>{t('settings.displayName')}<input
 					bind:value={editName}
 					minlength="2"
 					maxlength="80"
@@ -303,17 +289,18 @@
 				/></label
 			>
 			<label
-				>{de ? 'Rolle' : 'Role'}<select bind:value={editRole}
-					><option value="user">{de ? 'Benutzer' : 'User'}</option><option value="admin">Administrator</option
+				>{t('settings.role')}<select bind:value={editRole}
+					><option value="user">{t('settings.user')}</option><option value="admin"
+						>{t('settings.administrator')}</option
 					></select
 				></label
 			>
 			<label class="check"
 				><input type="checkbox" bind:checked={editEnabled} />
-				{de ? 'Konto aktiviert' : 'Account enabled'}</label
+				{t('settings.accountEnabled')}</label
 			>
 			<label
-				>{editingId ? (de ? 'Neue PIN (optional)' : 'New PIN (optional)') : 'PIN'}<input
+				>{editingId ? t('settings.newPinOptional') : 'PIN'}<input
 					bind:value={editPin}
 					type="password"
 					inputmode="numeric"
@@ -325,7 +312,7 @@
 				/></label
 			>
 			<label
-				>{de ? 'PIN bestätigen' : 'Confirm PIN'}<input
+				>{t('settings.confirmPin')}<input
 					bind:value={confirmPin}
 					type="password"
 					inputmode="numeric"
@@ -338,8 +325,8 @@
 			>
 			<div class="editor-actions">
 				<button type="button" class="btn secondary" onclick={() => (editorOpen = false)}
-					>{de ? 'Abbrechen' : 'Cancel'}</button
-				><button class="btn" disabled={busy}>{de ? 'Speichern' : 'Save'}</button>
+					>{t('dialog.cancel')}</button
+				><button class="btn" disabled={busy}>{t('settings.save')}</button>
 			</div>
 		</form>
 	</div>
@@ -347,15 +334,13 @@
 
 <ConfirmDialog
 	bind:open={deleteOpen}
-	title={de ? 'Benutzer löschen?' : 'Delete user?'}
-	confirmText={de ? 'Löschen' : 'Delete'}
+	title={t('settings.deleteUserTitle')}
+	confirmText={t('settings.delete')}
 	danger
 	{busy}
 	onconfirm={removeUser}
 	><p>
-		{de
-			? `${deleteUser?.name} verliert den Zugang. Dieser Schritt kann nicht rückgängig gemacht werden.`
-			: `${deleteUser?.name} will lose access. This cannot be undone.`}
+		{t('settings.deleteUserBody', { name: deleteUser?.name ?? '' })}
 	</p></ConfirmDialog
 >
 

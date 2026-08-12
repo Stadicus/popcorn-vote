@@ -129,13 +129,13 @@
 		<p class="muted">{t('pin.hint')}</p>
 		{#if data.namedUsers}
 			<label class="account">
-				<span>{data.locale === 'de' ? 'Name' : 'Name'}</span>
+				<span>{t('settings.name')}</span>
 				<input
 					bind:value={userId}
 					autocomplete="username"
 					required
 					onkeydown={accountKeydown}
-					aria-label={data.locale === 'de' ? 'Name' : 'Name'}
+					aria-label={t('settings.name')}
 				/>
 			</label>
 		{/if}

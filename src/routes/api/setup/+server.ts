@@ -4,22 +4,27 @@ import { AUTH_COOKIE, hashPin, userCookieValue } from '$lib/server/auth';
 import { replaceUsers } from '$lib/server/config-service';
 import { loadConfig } from '$lib/server/config';
 import { authCookie } from '$lib/server/cookies';
+import { authenticationMissing, pristineForSetup } from '$lib/server/setup';
 
 export const POST: RequestHandler = async ({ request, locals, cookies }) => {
+	if (!authenticationMissing(locals.config))
+		return json({ error: locals.t('setup.errorComplete') }, { status: 409 });
+	if (!pristineForSetup(locals.db))
+		return json({ error: locals.t('setup.errorExistingData') }, { status: 503 });
 	const body = (await request.json().catch(() => ({}))) as {
 		name?: string;
 		pin?: string;
 		confirmPin?: string;
 	};
 	const current = loadConfig(true);
-	if (current.users.length > 0 || current.pin)
-		return json({ error: 'Setup is already complete.' }, { status: 409 });
+	if (!authenticationMissing(current))
+		return json({ error: locals.t('setup.errorComplete') }, { status: 409 });
 	const name = String(body.name ?? '').trim();
 	const pin = String(body.pin ?? '');
 	if (name.length < 2 || name.length > 80)
-		return json({ error: 'Name must be between 2 and 80 characters.' }, { status: 400 });
-	if (!/^\d{4}$/.test(pin)) return json({ error: 'PIN must contain exactly 4 digits.' }, { status: 400 });
-	if (pin !== body.confirmPin) return json({ error: 'The PINs do not match.' }, { status: 400 });
+		return json({ error: locals.t('settings.errorName') }, { status: 400 });
+	if (!/^\d{4}$/.test(pin)) return json({ error: locals.t('settings.errorPin') }, { status: 400 });
+	if (pin !== body.confirmPin) return json({ error: locals.t('settings.errorPinMismatch') }, { status: 400 });
 	const id =
 		name
 			.toLowerCase()

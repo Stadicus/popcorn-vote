@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { getI18n } from '$lib/i18n/context';
 
-	let { data } = $props();
-	const de = $derived(data.locale === 'de');
+	const t = getI18n();
 	let name = $state('');
 	let pin = $state('');
 	let confirmPin = $state('');
@@ -20,30 +20,26 @@
 		});
 		const body = await response.json().catch(() => ({}));
 		if (response.ok) return goto('/', { invalidateAll: true });
-		error = body.error ?? (de ? 'Einrichtung fehlgeschlagen.' : 'Setup failed.');
+		error = body.error ?? t('setup.failed');
 		busy = false;
 	}
 </script>
 
-<svelte:head><title>{de ? 'Willkommen' : 'Welcome'} · Popcorn Vote</title></svelte:head>
+<svelte:head><title>{t('setup.welcome')} · Popcorn Vote</title></svelte:head>
 
 <main class="setup-shell">
 	<section class="welcome">
 		<div class="mark" aria-hidden="true">P</div>
 		<p class="eyebrow">POPCORN VOTE</p>
-		<h1>{de ? 'Der erste Platz gehört dir.' : 'The first seat is yours.'}</h1>
-		<p>
-			{de
-				? 'Erstelle das Administratorkonto. Weitere Benutzer und Einstellungen kannst du danach bequem in der App verwalten.'
-				: 'Create the administrator account. You can manage more users and settings from inside the app.'}
-		</p>
+		<h1>{t('setup.headline')}</h1>
+		<p>{t('setup.intro')}</p>
 	</section>
 	<form class="ticket" onsubmit={submit}>
 		<div class="ticket-head">
-			<span>01</span><strong>{de ? 'Administrator erstellen' : 'Create administrator'}</strong>
+			<span>01</span><strong>{t('setup.createAdmin')}</strong>
 		</div>
 		<label
-			>{de ? 'Anzeigename' : 'Display name'}<input
+			>{t('settings.displayName')}<input
 				bind:value={name}
 				minlength="2"
 				maxlength="80"
@@ -64,7 +60,7 @@
 			/></label
 		>
 		<label
-			>{de ? 'PIN bestätigen' : 'Confirm PIN'}<input
+			>{t('settings.confirmPin')}<input
 				bind:value={confirmPin}
 				type="password"
 				inputmode="numeric"
@@ -76,14 +72,10 @@
 			/></label
 		>
 		<p class="hint">
-			{de
-				? '4 Ziffern. Die PIN wird nur als sicherer Hash gespeichert.'
-				: '4 digits. The PIN is stored only as a secure hash.'}
+			{t('setup.pinHint')}
 		</p>
 		{#if error}<p class="error" role="alert">{error}</p>{/if}
-		<button class="btn" disabled={busy}
-			>{busy ? '…' : de ? 'Konto erstellen' : 'Create account'} <span>→</span></button
-		>
+		<button class="btn" disabled={busy}>{busy ? '…' : t('setup.createAccount')} <span>→</span></button>
 	</form>
 </main>
 

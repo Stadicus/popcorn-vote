@@ -76,12 +76,8 @@
 <div class="menu">
 	{#if data.isAdmin}
 		<a class="card" href="/settings">
-			⚙️ {data.locale === 'de' ? 'Einstellungen' : 'Settings'}
-			<span class="muted"
-				>{data.locale === 'de'
-					? 'Benutzer, Sicherheit und Konfiguration'
-					: 'Users, security and configuration'}</span
-			>
+			⚙️ {t('settings.title')}
+			<span class="muted">{t('settings.menuHint')}</span>
 		</a>
 	{/if}
 	<!-- On a monitor the TV stage is already in the main bar; here it would be the

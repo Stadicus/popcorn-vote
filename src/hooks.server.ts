@@ -1,4 +1,4 @@
-import { json, redirect, type Handle, type HandleServerError } from '@sveltejs/kit';
+import { error, json, redirect, type Handle, type HandleServerError } from '@sveltejs/kit';
 import { building } from '$app/environment';
 import { loadConfig } from '$lib/server/config';
 import { getDb } from '$lib/server/db';
@@ -6,11 +6,12 @@ import { ensureBalances } from '$lib/server/game';
 import { startScheduler } from '$lib/server/schedule';
 import { seedDemoMovies } from '$lib/server/demo';
 import { log } from '$lib/server/log';
-import { AUTH_COOKIE, authenticatedUser } from '$lib/server/auth';
+import { AUTH_COOKIE, authenticatedUser, cookieValue, userCookieValue } from '$lib/server/auth';
 import { authCookie as authCookieOptions, deviceCookie } from '$lib/server/cookies';
 import { logFailure, shortPath } from '$lib/server/api';
 import { LANG_COOKIE, resolveLocale } from '$lib/i18n/locales';
 import { translator } from '$lib/i18n/translate';
+import { authenticationMissing, pristineForSetup } from '$lib/server/setup';
 
 if (!building) {
 	const config = loadConfig();
@@ -54,6 +55,8 @@ function isOpen(pathname: string): boolean {
 	);
 }
 
+let missingAuthLogged = false;
+
 export const handle: Handle = async ({ event, resolve }) => {
 	const config = loadConfig();
 	event.locals.config = config;
@@ -71,7 +74,22 @@ export const handle: Handle = async ({ event, resolve }) => {
 	const authed = user !== null;
 	event.locals.authed = authed;
 	event.locals.user = user;
-	const setupRequired = config.users.length === 0 && !config.pin;
+	const authMissing = authenticationMissing(config);
+	const setupRequired = authMissing && pristineForSetup(event.locals.db);
+	if (authMissing && !setupRequired) {
+		if (!missingAuthLogged) {
+			missingAuthLogged = true;
+			log.error(
+				'Authentication configuration is missing for an existing data store. First-run setup is disabled to protect the existing data.'
+			);
+		}
+		if (pathname === '/api/setup' || (pathname.startsWith('/api/') && pathname !== '/api/language')) {
+			return json({ error: event.locals.t('setup.errorLocked') }, { status: 503 });
+		}
+		if (pathname === '/setup' || pathname === '/pin' || !isOpen(pathname)) {
+			throw error(503, event.locals.t('setup.errorExistingData'));
+		}
+	}
 	if (setupRequired && pathname === '/pin') throw redirect(307, '/setup');
 	if (setupRequired && pathname !== '/setup' && pathname !== '/api/setup' && !isOpen(pathname)) {
 		throw redirect(307, '/setup');
@@ -86,10 +104,17 @@ export const handle: Handle = async ({ event, resolve }) => {
 	if (authed && pathname === '/pin') {
 		throw redirect(307, '/');
 	}
-	if (authed) {
-		const authCookie = event.cookies.get(AUTH_COOKIE);
-		if (authCookie)
-			event.cookies.set(AUTH_COOKIE, authCookie, authCookieOptions(config, event.request.headers));
+	const acceptsHtml = event.request.headers.get('accept')?.includes('text/html') ?? false;
+	if (user && event.request.method === 'GET' && acceptsHtml) {
+		const renewed =
+			user.id === 'legacy'
+				? cookieValue(event.locals.db, config)
+				: userCookieValue(
+						event.locals.db,
+						user.id,
+						config.users.find((candidate) => candidate.id === user.id)!.pinHash
+					);
+		event.cookies.set(AUTH_COOKIE, renewed, authCookieOptions(config, event.request.headers));
 	}
 
 	const cookie = event.cookies.get('pv_person');

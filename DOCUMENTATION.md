@@ -753,8 +753,9 @@ permissions for UID/GID `1000`; the setup writes `/data/config.yaml` there.
 
 **"Forgotten every administrator PIN."**
 This deliberately has no unauthenticated reset button. An operator with access
-to the data volume can temporarily use the legacy `PV_PIN`, sign in, and create
-or repair a named administrator in Settings.
+to the deployment can temporarily set the legacy `PV_PIN`, leave the account
+name empty on the sign-in page, enter that PIN, and create or repair a named
+administrator in Settings. Remove `PV_PIN` again afterwards.
 
 **"The film search finds nothing / reports an error."**
 If the key is the problem, the suggestion page says so itself: whether it is

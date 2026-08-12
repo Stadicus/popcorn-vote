@@ -53,30 +53,52 @@ function authSecret(db: DB): string {
 }
 
 /** Cookie value for the current PIN. Change the PIN and every device is signed out. */
-export function cookieValue(db: DB, config: AppConfig): string {
-	return crypto.createHmac('sha256', authSecret(db)).update(`pin:${config.pin}`).digest('hex');
+export function cookieValue(db: DB, config: AppConfig, issuedAt = Math.floor(Date.now() / 1000)): string {
+	return legacyCookieValue(db, config, issuedAt);
 }
 
 export function isAuthed(db: DB, config: AppConfig, cookie: string | undefined): boolean {
 	return authenticatedUser(db, config, cookie) !== null;
 }
 
-export function userCookieValue(db: DB, userId: string, pinHash: string): string {
+export function userCookieValue(
+	db: DB,
+	userId: string,
+	pinHash: string,
+	issuedAt = Math.floor(Date.now() / 1000)
+): string {
 	const signature = crypto
 		.createHmac('sha256', authSecret(db))
-		.update(`user:${userId}:${pinHash}`)
+		.update(`user:${userId}:${pinHash}:${issuedAt}`)
 		.digest('hex');
-	return `${userId}.${signature}`;
+	return `${userId}.${issuedAt}.${signature}`;
 }
 
-export function authenticatedUser(db: DB, config: AppConfig, cookie: string | undefined): AuthUser | null {
+function legacyCookieValue(db: DB, config: AppConfig, issuedAt: number): string {
+	const signature = crypto
+		.createHmac('sha256', authSecret(db))
+		.update(`pin:${config.pin}:${issuedAt}`)
+		.digest('hex');
+	return `legacy.${issuedAt}.${signature}`;
+}
+
+export function authenticatedUser(
+	db: DB,
+	config: AppConfig,
+	cookie: string | undefined,
+	now = Math.floor(Date.now() / 1000)
+): AuthUser | null {
 	if (!cookie) return null;
-	const separator = cookie.indexOf('.');
-	if (separator > 0) {
-		const id = cookie.slice(0, separator);
+	const [id, issuedRaw, signature, extra] = cookie.split('.');
+	if (!id || !issuedRaw || !signature || extra !== undefined) return null;
+	const issuedAt = Number(issuedRaw);
+	if (!Number.isSafeInteger(issuedAt) || issuedAt > now + 300 || now - issuedAt > config.sessionTimeout) {
+		return null;
+	}
+	if (id !== 'legacy') {
 		const user = config.users.find((candidate) => candidate.id === id && candidate.enabled);
 		if (!user) return null;
-		const expected = Buffer.from(userCookieValue(db, user.id, user.pinHash));
+		const expected = Buffer.from(userCookieValue(db, user.id, user.pinHash, issuedAt));
 		const got = Buffer.from(cookie);
 		if (got.length === expected.length && crypto.timingSafeEqual(got, expected)) {
 			return { id: user.id, name: user.name, role: user.role };
@@ -84,7 +106,7 @@ export function authenticatedUser(db: DB, config: AppConfig, cookie: string | un
 		return null;
 	}
 	if (!config.pin) return null;
-	const expected = Buffer.from(cookieValue(db, config));
+	const expected = Buffer.from(legacyCookieValue(db, config, issuedAt));
 	const got = Buffer.from(cookie);
 	return got.length === expected.length && crypto.timingSafeEqual(got, expected)
 		? { id: 'legacy', name: 'Administrator', role: 'admin' }
@@ -204,11 +226,12 @@ export function tryUserPin(
 	now: Date = new Date()
 ): (AttemptGate & { ok: false }) | (AttemptGate & { ok: true; user: AuthUser; cookie: string }) {
 	const login = userId.trim().toLocaleLowerCase('en');
-	const user = config.users.find(
+	const matchingUsers = config.users.filter(
 		(candidate) =>
 			candidate.enabled &&
 			(candidate.id.toLocaleLowerCase('en') === login || candidate.name.toLocaleLowerCase('en') === login)
 	);
+	const user = matchingUsers.length === 1 ? matchingUsers[0] : undefined;
 	const candidate = String(pin).slice(0, 256);
 	// A missing, disabled, or malformed account still pays for one real scrypt
 	// verification. Otherwise response time would disclose configured names.

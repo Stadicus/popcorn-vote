@@ -33,7 +33,7 @@ export const POST: RequestHandler = async (event) => {
 
 	const { pin, userId } = (await request.json().catch(() => ({}))) as { pin?: string; userId?: string };
 	const result =
-		locals.config.users.length > 0
+		locals.config.users.length > 0 && String(userId ?? '').trim() !== ''
 			? tryUserPin(locals.db, locals.config, String(userId ?? ''), String(pin ?? ''), ip)
 			: tryPin(locals.db, locals.config, String(pin ?? ''), ip);
 

@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { hashPin } from '$lib/server/auth';
 import { replaceUsers, storedUsers } from '$lib/server/config-service';
-import { requireAdmin } from '$lib/server/settings';
+import { loginIdentifierTaken, requireAdmin } from '$lib/server/settings';
 
 export const POST: RequestHandler = async (event) => {
 	requireAdmin(event);
@@ -15,11 +15,11 @@ export const POST: RequestHandler = async (event) => {
 	const name = String(body.name ?? '').trim();
 	const pin = String(body.pin ?? '');
 	if (name.length < 2 || name.length > 80)
-		return json({ error: 'Name must be between 2 and 80 characters.' }, { status: 400 });
-	if (!/^\d{4}$/.test(pin)) return json({ error: 'PIN must contain exactly 4 digits.' }, { status: 400 });
+		return json({ error: event.locals.t('settings.errorName') }, { status: 400 });
+	if (!/^\d{4}$/.test(pin)) return json({ error: event.locals.t('settings.errorPin') }, { status: 400 });
 	const users = storedUsers();
-	if (users.some((user) => user.name.toLocaleLowerCase('en') === name.toLocaleLowerCase('en'))) {
-		return json({ error: 'Display names must be unique.' }, { status: 400 });
+	if (loginIdentifierTaken(users, name)) {
+		return json({ error: event.locals.t('settings.errorUniqueName') }, { status: 400 });
 	}
 	const base =
 		name
@@ -29,7 +29,7 @@ export const POST: RequestHandler = async (event) => {
 			.replace(/[^a-z0-9]+/g, '-')
 			.replace(/^-|-$/g, '') || 'user';
 	let id = base;
-	for (let suffix = 2; users.some((user) => user.id === id); suffix += 1) id = `${base}-${suffix}`;
+	for (let suffix = 2; loginIdentifierTaken(users, id); suffix += 1) id = `${base}-${suffix}`;
 	users.push({
 		id,
 		name,

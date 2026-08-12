@@ -11,7 +11,8 @@ import {
 	hashPin,
 	verifyPin,
 	tryUserPin,
-	authenticatedUser
+	authenticatedUser,
+	userCookieValue
 } from './auth';
 
 const config: AppConfig = {
@@ -132,6 +133,23 @@ describe('device PIN', () => {
 		expect(isAuthed(db, config, 'forged')).toBe(false);
 		// PIN changed → old cookies are no longer valid
 		expect(isAuthed(db, { ...config, pin: '9999' }, cookie)).toBe(false);
+	});
+
+	it('rejects signed cookies after the server-side session timeout', () => {
+		const short = { ...config, sessionTimeout: 1800 };
+		const legacy = cookieValue(db, short, 10_000);
+		expect(authenticatedUser(db, short, legacy, 11_800)?.id).toBe('legacy');
+		expect(authenticatedUser(db, short, legacy, 11_801)).toBeNull();
+
+		const pinHash = hashPin('2468');
+		const withUser = {
+			...short,
+			pin: '',
+			users: [{ id: 'anna', name: 'Anna', role: 'admin' as const, enabled: true, pinHash }]
+		};
+		const named = userCookieValue(db, 'anna', pinHash, 20_000);
+		expect(authenticatedUser(db, withUser, named, 21_800)?.id).toBe('anna');
+		expect(authenticatedUser(db, withUser, named, 21_801)).toBeNull();
 	});
 });
 
