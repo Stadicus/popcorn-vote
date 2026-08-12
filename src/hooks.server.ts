@@ -1,4 +1,4 @@
-import { json, redirect, type Handle, type HandleServerError } from '@sveltejs/kit';
+import { error, json, redirect, type Handle, type HandleServerError } from '@sveltejs/kit';
 import { building } from '$app/environment';
 import { loadConfig } from '$lib/server/config';
 import { getDb } from '$lib/server/db';
@@ -6,11 +6,12 @@ import { ensureBalances } from '$lib/server/game';
 import { startScheduler } from '$lib/server/schedule';
 import { seedDemoMovies } from '$lib/server/demo';
 import { log } from '$lib/server/log';
-import { AUTH_COOKIE, isAuthed } from '$lib/server/auth';
-import { deviceCookie } from '$lib/server/cookies';
+import { AUTH_COOKIE, authenticatedUser, cookieValue, userCookieValue } from '$lib/server/auth';
+import { authCookie as authCookieOptions, deviceCookie } from '$lib/server/cookies';
 import { logFailure, shortPath } from '$lib/server/api';
 import { LANG_COOKIE, resolveLocale } from '$lib/i18n/locales';
 import { translator } from '$lib/i18n/translate';
+import { authenticationMissing, pristineForSetup } from '$lib/server/setup';
 
 if (!building) {
 	const config = loadConfig();
@@ -20,7 +21,9 @@ if (!building) {
 	// Only for test instances (PV_DEMO_DATA) and only when the movie list is
 	// empty. Runs alongside, so that the movie database does not hold up the
 	// server start.
-	void seedDemoMovies(db, config).catch((err) => log.warn('Demo content could not be created', { err }));
+	if (!authenticationMissing(config)) {
+		void seedDemoMovies(db, config).catch((err) => log.warn('Demo content could not be created', { err }));
+	}
 }
 
 // Reachable without a PIN: the PIN page itself, the health address and the app's
@@ -34,7 +37,9 @@ if (!building) {
 // the same class as /api/pin itself.
 const OPEN_PATHS = new Set([
 	'/pin',
+	'/setup',
 	'/api/pin',
+	'/api/setup',
 	'/api/language',
 	'/healthz',
 	'/manifest.webmanifest',
@@ -52,6 +57,13 @@ function isOpen(pathname: string): boolean {
 	);
 }
 
+let missingAuthLogged = false;
+
+export function shouldRenewAuth(pathname: string, method: string): boolean {
+	if (pathname.startsWith('/covers/') || isOpen(pathname) || pathname === '/api/tv') return false;
+	return method !== 'OPTIONS' && method !== 'HEAD';
+}
+
 export const handle: Handle = async ({ event, resolve }) => {
 	const config = loadConfig();
 	event.locals.config = config;
@@ -65,8 +77,31 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	// Device PIN: once per device, after that everything is open.
 	const pathname = event.url.pathname;
-	const authed = isAuthed(event.locals.db, config, event.cookies.get(AUTH_COOKIE));
+	const user = authenticatedUser(event.locals.db, config, event.cookies.get(AUTH_COOKIE));
+	const authed = user !== null;
 	event.locals.authed = authed;
+	event.locals.user = user;
+	const authMissing = authenticationMissing(config);
+	const setupRequired = authMissing && pristineForSetup(event.locals.db);
+	if (authMissing && !setupRequired) {
+		if (!missingAuthLogged) {
+			missingAuthLogged = true;
+			log.error(
+				'Authentication configuration is missing for an existing data store. First-run setup is disabled to protect the existing data.'
+			);
+		}
+		if (pathname === '/api/setup' || (pathname.startsWith('/api/') && pathname !== '/api/language')) {
+			return json({ error: event.locals.t('setup.errorLocked') }, { status: 503 });
+		}
+		if (pathname === '/setup' || pathname === '/pin' || !isOpen(pathname)) {
+			throw error(503, event.locals.t('setup.errorExistingData'));
+		}
+	}
+	if (setupRequired && pathname === '/pin') throw redirect(307, '/setup');
+	if (setupRequired && pathname !== '/setup' && pathname !== '/api/setup' && !isOpen(pathname)) {
+		throw redirect(307, '/setup');
+	}
+	if (!setupRequired && pathname === '/setup') throw redirect(307, authed ? '/' : '/pin');
 	if (!authed && !isOpen(pathname)) {
 		if (pathname.startsWith('/api/') || pathname.startsWith('/covers/')) {
 			return json({ error: event.locals.t('auth.required') }, { status: 401 });
@@ -76,12 +111,19 @@ export const handle: Handle = async ({ event, resolve }) => {
 	if (authed && pathname === '/pin') {
 		throw redirect(307, '/');
 	}
+	if (user && shouldRenewAuth(pathname, event.request.method)) {
+		const renewed =
+			user.kind === 'legacy'
+				? cookieValue(event.locals.db, config)
+				: userCookieValue(event.locals.db, user.id, user.pinHash);
+		event.cookies.set(AUTH_COOKIE, renewed, authCookieOptions(config, event.request.headers));
+	}
 
 	const cookie = event.cookies.get('pv_person');
 	const person = config.members.find((m) => m.id === cookie);
 	event.locals.personId = person?.id ?? null;
 	if (person) {
-		// Extend the cookie by a year on every use.
+		// Extend the device preference by a year on every use.
 		event.cookies.set(
 			'pv_person',
 			person.id,

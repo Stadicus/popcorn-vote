@@ -63,14 +63,16 @@
 
 	function isActive(href: string): boolean {
 		if (href === '/') return page.url.pathname === '/';
-		if (href === '/more') return ['/more', '/log', '/trash'].includes(page.url.pathname);
+		if (href === '/more') return ['/more', '/log', '/trash', '/settings'].includes(page.url.pathname);
 		// Includes '/tv'; the bar does not render there, but the rule should not
 		// depend on that.
 		return page.url.pathname.startsWith(href);
 	}
 
 	// Without the app frame: the PIN entry and the TV stage (for casting to a TV).
-	const bare = $derived(page.url.pathname === '/pin' || page.url.pathname === '/tv');
+	const bare = $derived(
+		page.url.pathname === '/pin' || page.url.pathname === '/setup' || page.url.pathname === '/tv'
+	);
 </script>
 
 {#if bare}

@@ -2,6 +2,7 @@ import type { Locale } from '$lib/i18n/locales';
 import type { Translate } from '$lib/i18n/translate';
 import type { AppConfig } from '$lib/server/config';
 import type { DB } from '$lib/server/db';
+import type { AuthUser } from '$lib/server/auth';
 
 declare global {
 	/** Version from package.json, substituted by Vite at build time (see vite.config.ts). */
@@ -24,6 +25,7 @@ declare global {
 			db: DB;
 			personId: string | null;
 			authed: boolean;
+			user: AuthUser | null;
 			/** Language of this one request: cookie, else configuration, else English. */
 			locale: Locale;
 			/** Translator for this request alone, never shared across requests. */

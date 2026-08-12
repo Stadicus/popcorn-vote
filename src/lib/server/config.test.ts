@@ -34,6 +34,7 @@ const SETTINGS = [
 	'TIMEZONE',
 	'BACKUP_HOUR',
 	'BACKUP_KEEP',
+	'SESSION_TIMEOUT',
 	'DEMO_DATA',
 	'DAILY_BUILD',
 	'DAILY_BUILD_URL',
@@ -626,6 +627,22 @@ describe('PIN selection', () => {
 
 	it('locks the app without any PIN', () => {
 		expect(load('without-pin.yaml').pin).toBe('');
+	});
+});
+
+describe('named users', () => {
+	it('ignores ambiguous login identifiers from hand-edited YAML', () => {
+		const spy = vi.spyOn(log, 'warn').mockImplementation(() => {});
+		try {
+			const config = load('users-colliding.yaml');
+			expect(config.users.map(({ id }) => id)).toEqual(['anna', 'carla', 'david']);
+			expect(spy.mock.calls.some(([message]) => String(message).includes('login identifier'))).toBe(true);
+			expect(spy.mock.calls.some(([message]) => String(message).includes('must be true or false'))).toBe(
+				true
+			);
+		} finally {
+			spy.mockRestore();
+		}
 	});
 });
 

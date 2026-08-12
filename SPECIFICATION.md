@@ -58,9 +58,11 @@ apps it can also open in Chrome for browser-based casting.
 
 ## 5. Access and security
 
-The app uses one shared four-digit PIN. A successful entry creates a signed
-device cookie; changing the PIN invalidates all such cookies. Failed attempts
-are throttled per sender address with an installation-wide fallback limit.
+The app uses named accounts with four-digit PINs and administrator/user roles.
+PINs are stored as salted scrypt hashes. A successful entry creates a signed
+device cookie; changing an account PIN invalidates that account's cookies.
+Failed attempts are throttled per sender address with an installation-wide
+fallback limit. The former shared `PV_PIN` remains a migration path.
 
 The PIN is suitable only for a trusted household. Public deployments must use
 HTTPS via a reverse proxy. A local-network HTTP deployment is supported, but its

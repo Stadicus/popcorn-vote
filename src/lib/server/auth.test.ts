@@ -1,7 +1,19 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import crypto from 'node:crypto';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createDb, metaGet, metaSet, type DB } from './db';
 import type { AppConfig } from './config';
-import { cookieValue, isAuthed, delaySeconds, tryPin, checkAttempt } from './auth';
+import {
+	cookieValue,
+	isAuthed,
+	delaySeconds,
+	tryPin,
+	checkAttempt,
+	hashPin,
+	verifyPin,
+	tryUserPin,
+	authenticatedUser,
+	userCookieValue
+} from './auth';
 
 const config: AppConfig = {
 	title: 'Movie Night',
@@ -29,7 +41,11 @@ const config: AppConfig = {
 	omdbKeyState: 'missing',
 	pin: '4711',
 	dataDir: '/tmp/pv-test',
-	httpsProof: { mode: 'none' }
+	httpsProof: { mode: 'none' },
+	sessionTimeout: 31_536_000,
+	users: [],
+	origins: {},
+	configFile: '/tmp/config.yaml'
 };
 
 let db: DB;
@@ -39,6 +55,66 @@ beforeEach(() => {
 });
 
 describe('device PIN', () => {
+	it('hashes named-user PINs and binds their cookie to the current hash', () => {
+		const pinHash = hashPin('2468');
+		expect(pinHash).not.toContain('2468');
+		expect(verifyPin('2468', pinHash)).toBe(true);
+		expect(verifyPin('2469', pinHash)).toBe(false);
+		const withUser = {
+			...config,
+			pin: '',
+			users: [{ id: 'anna', name: 'Anna', role: 'admin' as const, enabled: true, pinHash }]
+		};
+		const result = tryUserPin(db, withUser, ' ANNA ', '2468', 'ip1');
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(authenticatedUser(db, withUser, result.cookie)?.role).toBe('admin');
+		expect(
+			authenticatedUser(
+				db,
+				{ ...withUser, users: [{ ...withUser.users[0], pinHash: hashPin('1357') }] },
+				result.cookie
+			)
+		).toBeNull();
+	});
+
+	it('performs one scrypt verification for known and unknown account names', () => {
+		const pinHash = hashPin('2468');
+		const withUser = {
+			...config,
+			pin: '',
+			users: [{ id: 'anna', name: 'Anna', role: 'admin' as const, enabled: true, pinHash }]
+		};
+		const spy = vi.spyOn(crypto, 'scryptSync');
+		try {
+			tryUserPin(db, withUser, 'anna', '0000', 'known');
+			expect(spy).toHaveBeenCalledTimes(1);
+			spy.mockClear();
+			tryUserPin(db, withUser, 'unknown', '0000', 'unknown');
+			expect(spy).toHaveBeenCalledTimes(1);
+		} finally {
+			spy.mockRestore();
+		}
+	});
+
+	it('does not run scrypt while a named-account attempt is locked', () => {
+		const withUser = {
+			...config,
+			pin: '',
+			users: [{ id: 'anna', name: 'Anna', role: 'admin' as const, enabled: true, pinHash: hashPin('2468') }]
+		};
+		const now = new Date('2026-08-12T20:00:00Z');
+		for (const wrong of ['0000', '0001', '0002']) tryUserPin(db, withUser, 'anna', wrong, 'ip1', now);
+
+		const spy = vi.spyOn(crypto, 'scryptSync');
+		try {
+			const blocked = tryUserPin(db, withUser, 'anna', '2468', 'ip1', new Date(now.getTime() + 1000));
+			expect(blocked).toMatchObject({ ok: false, allowed: false, waitSeconds: 1 });
+			expect(spy).not.toHaveBeenCalled();
+		} finally {
+			spy.mockRestore();
+		}
+	});
 	it('accepts the right PIN and resets the counter', () => {
 		tryPin(db, config, '0000', 'ip1');
 		const result = tryPin(db, config, '4711', 'ip1');
@@ -76,6 +152,56 @@ describe('device PIN', () => {
 		expect(isAuthed(db, config, 'forged')).toBe(false);
 		// PIN changed → old cookies are no longer valid
 		expect(isAuthed(db, { ...config, pin: '9999' }, cookie)).toBe(false);
+	});
+
+	it('rejects signed cookies after the server-side session timeout', () => {
+		const short = { ...config, sessionTimeout: 1800 };
+		const legacy = cookieValue(db, short, 10_000);
+		expect(authenticatedUser(db, short, legacy, 11_800)?.id).toBe('legacy');
+		expect(authenticatedUser(db, short, legacy, 11_801)).toBeNull();
+
+		const pinHash = hashPin('2468');
+		const withUser = {
+			...short,
+			pin: '',
+			users: [{ id: 'anna', name: 'Anna', role: 'admin' as const, enabled: true, pinHash }]
+		};
+		const named = userCookieValue(db, 'anna', pinHash, 20_000);
+		expect(authenticatedUser(db, withUser, named, 21_800)?.id).toBe('anna');
+		expect(authenticatedUser(db, withUser, named, 21_801)).toBeNull();
+	});
+
+	it('keeps the legacy cookie type separate from an account named Legacy', () => {
+		const pinHash = hashPin('2468');
+		const withLegacyUser = {
+			...config,
+			pin: '',
+			users: [{ id: 'legacy', name: 'Legacy', role: 'admin' as const, enabled: true, pinHash }]
+		};
+		const cookie = userCookieValue(db, 'legacy', pinHash, 20_000);
+		expect(cookie).toMatch(/^user\./);
+		expect(authenticatedUser(db, withLegacyUser, cookie, 20_001)).toMatchObject({
+			kind: 'user',
+			id: 'legacy'
+		});
+	});
+
+	it('does not let a valid login reset failed attempts against another account', () => {
+		const withUsers = {
+			...config,
+			pin: '',
+			users: [
+				{ id: 'admin', name: 'Admin', role: 'admin' as const, enabled: true, pinHash: hashPin('2468') },
+				{ id: 'alice', name: 'Alice', role: 'user' as const, enabled: true, pinHash: hashPin('1357') }
+			]
+		};
+		const now = new Date('2026-08-12T20:00:00Z');
+		expect(tryUserPin(db, withUsers, 'admin', '0000', 'ip1', now).ok).toBe(false);
+		expect(tryUserPin(db, withUsers, 'admin', '0001', 'ip1', now).ok).toBe(false);
+		expect(tryUserPin(db, withUsers, 'alice', '1357', 'ip1', now).ok).toBe(true);
+		const thirdAdminGuess = tryUserPin(db, withUsers, 'admin', '0002', 'ip1', now);
+		expect(thirdAdminGuess.ok).toBe(false);
+		expect(thirdAdminGuess.waitSeconds).toBe(2);
 	});
 });
 

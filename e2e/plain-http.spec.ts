@@ -62,9 +62,8 @@ test.afterEach(async () => {
 test('signs in over plain HTTP on a non-loopback origin', async () => {
 	await page.goto(`${BASE}/`);
 	await expect(page).toHaveURL(/\/pin$/);
-	for (const digit of ['2', '6', '1', '1']) {
-		await page.getByRole('button', { name: digit, exact: true }).click();
-	}
+	await page.getByLabel('Name').fill('E2E Admin');
+	await page.getByLabel('PIN').fill('2611');
 
 	// The whole point: the app has to stay on `/`. Before the fix the cookie was
 	// dropped and this went back to `/pin`.
@@ -84,9 +83,8 @@ test('signs in over plain HTTP on a non-loopback origin', async () => {
 // writes and deletes `pv_lang`.
 test('keeps the person and the language over plain HTTP', async () => {
 	await page.goto(`${BASE}/`);
-	for (const digit of ['2', '6', '1', '1']) {
-		await page.getByRole('button', { name: digit, exact: true }).click();
-	}
+	await page.getByLabel('Name').fill('E2E Admin');
+	await page.getByLabel('PIN').fill('2611');
 	await page.waitForURL((url) => url.pathname === '/');
 
 	await page.getByRole('button', { name: /Anna/ }).first().click();

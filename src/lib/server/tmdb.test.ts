@@ -43,7 +43,11 @@ const base: AppConfig = {
 	omdbKeyState: 'missing',
 	pin: '1234',
 	dataDir: '/tmp/pv-test',
-	httpsProof: { mode: 'none' }
+	httpsProof: { mode: 'none' },
+	sessionTimeout: 31_536_000,
+	users: [],
+	origins: {},
+	configFile: '/tmp/config.yaml'
 };
 
 interface Call {

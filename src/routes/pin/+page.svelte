@@ -11,6 +11,8 @@
 	let error = $state('');
 	let wait = $state(0); // taken from data.waitSeconds in the $effect
 	let busy = $state(false);
+	let userId = $state('');
+	let pinInput: HTMLInputElement | undefined = $state();
 	let ticker: ReturnType<typeof setInterval> | undefined;
 
 	function startCountdown(seconds: number) {
@@ -42,12 +44,32 @@
 		error = '';
 	}
 
+	function typePin(event: Event) {
+		const input = event.currentTarget as HTMLInputElement;
+		digits = input.value.replace(/\D/g, '').slice(0, 4);
+		input.value = digits;
+		error = '';
+		if (digits.length === 4) submit();
+	}
+
+	function accountKeydown(event: KeyboardEvent) {
+		if (event.key === 'Enter' && userId.trim()) {
+			event.preventDefault();
+			pinInput?.focus();
+		} else if (/^[0-9]$/.test(event.key) && userId.trim()) {
+			event.preventDefault();
+			pinInput?.focus();
+			press(event.key);
+		}
+	}
+
 	/**
 	 * On a laptop, or with a keyboard attached, "2611" should simply be typeable.
 	 * The number row and the numeric keypad both deliver event.key = "0".."9".
 	 */
 	function onKeydown(event: KeyboardEvent) {
 		if (!data.pinConfigured || event.metaKey || event.ctrlKey || event.altKey) return;
+		if (event.target instanceof HTMLInputElement) return;
 		if (/^[0-9]$/.test(event.key)) {
 			event.preventDefault();
 			press(event.key);
@@ -67,7 +89,7 @@
 			const res = await fetch('/api/pin', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ pin: digits })
+				body: JSON.stringify({ pin: digits, userId })
 			});
 			const body = await res.json().catch(() => ({}));
 			if (res.ok) {
@@ -105,12 +127,38 @@
 		</div>
 	{:else}
 		<p class="muted">{t('pin.hint')}</p>
+		{#if data.namedUsers}
+			<label class="account">
+				<span>{t('settings.name')}</span>
+				<input
+					bind:value={userId}
+					autocomplete="username"
+					required
+					onkeydown={accountKeydown}
+					aria-label={t('settings.name')}
+				/>
+			</label>
+		{/if}
 
-		<div class="dots" aria-label={t('pin.entryLabel')}>
-			{#each [0, 1, 2, 3] as i (i)}
-				<span class="pindot" class:filled={digits.length > i}></span>
-			{/each}
-		</div>
+		<label class="pin-field">
+			<span class="sr-only">{t('pin.entryLabel')}</span>
+			<span class="dots" aria-hidden="true">
+				{#each [0, 1, 2, 3] as i (i)}
+					<span class="pindot" class:filled={digits.length > i}></span>
+				{/each}
+			</span>
+			<input
+				class="pin-native"
+				bind:this={pinInput}
+				value={digits}
+				type="password"
+				inputmode="numeric"
+				autocomplete="current-password"
+				maxlength="4"
+				disabled={busy || wait > 0}
+				oninput={typePin}
+			/>
+		</label>
 
 		{#if error}<p class="error">{error}</p>{/if}
 		{#if wait > 0}<p class="error">{t('pin.retryIn', { n: wait })}</p>{/if}
@@ -151,6 +199,16 @@
 		max-width: 26rem;
 		line-height: 1.6;
 		text-align: left;
+	}
+
+	.account {
+		display: grid;
+		gap: 0.35rem;
+		width: min(18rem, 100%);
+		text-align: left;
+		font-size: 0.8rem;
+		font-weight: 700;
+		color: var(--muted);
 	}
 
 	/* A small cinema-ticket note: visible enough for a public demo, deliberately
@@ -210,6 +268,24 @@
 		display: flex;
 		gap: 0.9rem;
 		margin: 0.75rem 0;
+	}
+
+	.pin-field {
+		position: relative;
+		display: block;
+		border-radius: 999px;
+	}
+
+	.pin-field:focus-within {
+		outline: 2px solid var(--accent);
+		outline-offset: 5px;
+	}
+
+	.pin-native {
+		position: absolute;
+		inset: 0;
+		opacity: 0;
+		cursor: text;
 	}
 
 	.pindot {

@@ -37,9 +37,21 @@ members:
     color: '#e9c46a'
     emoji: '🦄'
 
-# Four-digit device PIN. Without a PIN the app stays locked.
+# Legacy shared device PIN. New installations create a named administrator in
+# the browser and do not need this value. Existing installations keep working;
+# sign in with this PIN and create the first named account under Settings.
 # Better set through the PV_PIN environment variable and leave this line out.
 pin: 'NNNN'
+
+# Named accounts are normally managed through Settings and written here with a
+# one-way scrypt hash. PINs are never written in clear text. The shape is shown
+# for configuration-management users; let the UI create a real hash.
+# users:
+#   - id: anna
+#     name: Anna
+#     role: admin
+#     enabled: true
+#     pin_hash: 'scrypt$SALT$HASH'
 
 # Weekly vote credit (in the timezone configured below).
 # The vote settings live in the 'token' block.
@@ -86,6 +98,12 @@ language:
 # Careful when changing it on a running instance: in the transition week a credit
 # can arrive twice or not at all.
 timezone: Europe/Berlin
+
+# Automatic logout after this many seconds without activity. The default is one
+# year, matching the traditional trusted-family-tablet behaviour. Also settable
+# as PV_SESSION_TIMEOUT.
+security:
+  session_timeout: 31536000
 
 # Nightly backup of the database in $DATA_DIR/backups
 backup:

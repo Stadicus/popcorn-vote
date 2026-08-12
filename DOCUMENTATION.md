@@ -49,9 +49,10 @@ The idea behind it:
   allowed) and moves to the archive. Over time, this builds a lovely family
   film diary.
 
-There are no user accounts and no passwords for individual people. The app
-only knows who is currently sitting at the device because you tell it once –
-switching is possible at any time with a single tap.
+Named PIN accounts control access to the app; administrators can manage them
+under **More → Settings**. The person selected for voting remains a separate,
+quick device choice. This lets a shared family tablet switch voters with one tap
+without turning every vote into another login.
 
 ---
 
@@ -59,14 +60,12 @@ switching is possible at any time with a single tap.
 
 Two things happen the very first time the app is opened on a new device.
 
-**Step 1: The family PIN.** Because the app can be reached from the
-internet, it asks once for a four-digit PIN – the same one for the whole
-family. This is the bouncer at the door: strangers who stumble across the
-address cannot get in without the PIN. Once the correct PIN is entered, the
-device remembers the sign-in permanently. So the PIN only needs to be entered
-**once per device** – after that, everything is as open as in a perfectly
-normal app. On a phone, the four digits are tapped on the number pad; anyone
-with a keyboard simply types them directly (⌫ removes a digit).
+**Step 1: Account and PIN.** On a completely new installation, the browser asks
+for the first administrator's name and four-digit PIN. Later visits ask for an
+account name and its PIN. This is the bouncer at the door: strangers who stumble
+across the address cannot get in. The device remembers the sign-in until the
+configured inactivity timeout expires. On a phone, the digits are tapped on the
+number pad; anyone with a keyboard can type them directly (⌫ removes a digit).
 
 Anyone who enters the PIN wrong a few times has to wait between attempts –
 first 2 seconds, then 4, then 8, and so on, up to a maximum of five minutes.
@@ -468,12 +467,12 @@ takes the best available alternative rather than showing an empty field.
 
 ### The PIN protection, in a little more detail
 
-After the correct PIN is entered, the app stores a small, tamper-proof
+After the correct account PIN is entered, the app stores a small, tamper-proof
 "pass" in the device's browser (a so-called cookie). On every visit, the
 device presents this pass automatically – which is why nobody has to enter
-the PIN twice. The pass is bound to the current PIN: **if you change the
-PIN, every device is automatically signed out** and has to enter the new one
-once. That is handy if the PIN ever ends up in the wrong hands.
+the PIN twice. The pass is bound to that account's current PIN hash: **if you
+change the PIN, every device signed in as that account is automatically signed
+out**. PINs are stored as salted scrypt hashes, never as clear text.
 
 The app remembers the waiting times after failed attempts permanently. Even
 restarting the app does not reset them – a protection that cannot be
@@ -649,9 +648,9 @@ pre-built image, then start a container with:
   where the database, posters, backups, and `config.yaml` live. For a host
   folder, make it writable for UID/GID `1000`; named Docker volumes get the
   right ownership from the image when they are created.
-- **Environment variables** (recommended instead of plain text in the
-  file): `PV_PIN` (the PIN), `TMDB_API_KEY` and `OMDB_API_KEY` (the
-  keys)
+- **Environment variables:** `TMDB_API_KEY` and `OMDB_API_KEY` for the movie
+	database keys. `PV_PIN` remains available only for installations migrating
+	from the former shared-PIN model.
 - **Restart policy:** "always" or "unless-stopped", so the app comes back
   on its own after a restart of the server
 
@@ -685,17 +684,17 @@ points at its own inside. It needs a shared Docker network, which the
 
 ### Step 5: Try it out
 
-Open the address on your phone, enter the PIN, choose a person, suggest
-your first film. If the search returns results, the keys are correct. Then
+Open the address on your phone. On a new installation, create the administrator;
+otherwise enter your account name and PIN. Choose a person and suggest your
+first film. If the search returns results, the keys are correct. Then
 "Add to Home Screen" – done.
 
 ---
 
 ## 8. Maintenance and administration
 
-**Changing the PIN:** enter the new PIN in `config.yaml` (or the
-environment variable `PV_PIN`) and restart the container. All devices are
-automatically signed out as a result and are asked for the new PIN once.
+**Changing a PIN:** open **More → Settings → Users**, edit the account and use
+“Change PIN”. Devices signed in as that account are automatically signed out.
 
 **Renaming a person:** in `config.yaml`, change only the display name
 (`name`) and restart the container. The balance, the votes already placed and
@@ -748,15 +747,15 @@ docker run --rm -v popcorn-vote-data:/data alpine chown -R 1000:1000 /data
 
 ## 9. When something goes wrong
 
-**"The app only shows the PIN page with a notice that no PIN is
-configured."**
-No (valid, four-digit) PIN has been set. Enter the `pin` field in
-`config.yaml`, or set the environment variable `PV_PIN`, and restart the
-container. Without a PIN, the app deliberately stays fully locked.
+**"The first-run setup cannot save the administrator."**
+The container must be able to write `/data`. Check the mounted volume's
+permissions for UID/GID `1000`; the setup writes `/data/config.yaml` there.
 
-**"Forgotten the PIN."**
-No problem: set a new one in the configuration and restart the container.
-Every device is then asked for the new PIN once.
+**"Forgotten every administrator PIN."**
+This deliberately has no unauthenticated reset button. An operator with access
+to the deployment can temporarily set the legacy `PV_PIN`, leave the account
+name empty on the sign-in page, enter that PIN, and create or repair a named
+administrator in Settings. Remove `PV_PIN` again afterwards.
 
 **"The film search finds nothing / reports an error."**
 If the key is the problem, the suggestion page says so itself: whether it is

@@ -25,15 +25,13 @@ Popcorn Vote is built for a handful of people who live in the same
 household and already trust each other. Its protection model is deliberately
 thin:
 
-- **A single four-digit PIN, shared by the whole family.** It is not a password,
-  and four digits are not much entropy. What stands behind it: the PIN is
-  verified server-side, failed attempts are throttled per IP address with a
-  growing delay plus a global fallback limit, and a device that got it right
-  holds an HMAC-signed cookie. Changing the PIN signs every device out.
-- **No user accounts, no per-person authentication.** Picking a person in the
-  app is a convenience, not an identity. Anyone who knows the PIN can spend
-  anyone's votes. Inside a family that is the point; treat it as a design
-  constraint, not a vulnerability.
+- **Named accounts with four-digit PINs.** Four digits are not much entropy.
+	PINs are stored as salted scrypt hashes, failed attempts are throttled per IP
+	address with a growing delay plus a global fallback limit, and a signed cookie
+	remembers a successful login. Changing an account PIN invalidates its cookies.
+- **Accounts are access roles, not voting identities.** Picking a person in the
+	app remains a convenience. An authenticated family member can spend anyone's
+	votes; inside a trusted household that is the point.
 - **No transport security of its own.** The app speaks plain HTTP on port 3000
   and expects to sit behind a reverse proxy that terminates TLS. Exposing the
   container port directly to the internet is a misconfiguration.
@@ -43,7 +41,7 @@ thin:
 
 ### In scope
 
-Anything that lets someone **without** the PIN get in or extract data:
+Anything that lets someone **without a valid account PIN** get in or extract data:
 authentication bypass, cookie forgery, defeating the brute-force throttle, path
 traversal in the cover route, SQL injection, XSS or CSP bypass, SSRF through the
 movie-database lookups, remote code execution, or a leak of the API keys or the
@@ -63,8 +61,8 @@ PIN into logs, error pages, or API responses.
 ## For operators
 
 Two things matter more than everything else in this file: put the app behind
-HTTPS, and set a PIN that is not `1234`. Without a configured PIN the app stays
-locked on purpose, only `/healthz` answers. Keep the container up to date;
+HTTPS, and do not choose `1234` as a PIN. Without an account, only first-run
+setup and `/healthz` answer. Keep the container up to date;
 `latest` is rebuilt on every release, and the [installation
 example](docs/installation-example.md) shows one way to pull new versions
 automatically.

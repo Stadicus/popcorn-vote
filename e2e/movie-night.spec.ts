@@ -3,9 +3,8 @@ import { test, expect, type Page } from '@playwright/test';
 async function enterPin(page: Page) {
 	await page.goto('/');
 	await expect(page).toHaveURL(/\/pin$/);
-	for (const digit of ['2', '6', '1', '1']) {
-		await page.getByRole('button', { name: digit, exact: true }).click();
-	}
+	await page.getByLabel('Name').fill('E2E Admin');
+	await page.getByLabel('PIN').fill('2611');
 	await page.waitForURL((url) => url.pathname === '/');
 }
 
@@ -210,6 +209,7 @@ test('the PIN can be typed on the keyboard, and ⌫ takes back one digit', async
 	// otherwise the first keystrokes go nowhere. The click tests wait longer
 	// implicitly.
 	await page.waitForLoadState('networkidle');
+	await page.getByLabel('Name').fill('E2E Admin');
 
 	const filled = page.locator('.pindot.filled');
 	await page.keyboard.type('261', { delay: 30 });
@@ -235,6 +235,25 @@ test('a suggestion can be attributed to another person', async ({ page }) => {
 	await proposer.selectOption('carla');
 	await page.reload();
 	await expect(page.getByLabel('Suggested by')).toHaveValue('carla');
+});
+
+test('authenticated API activity renews the server-enforced session', async ({ page }) => {
+	await enterPin(page);
+	const authCookie = async () =>
+		(await page.context().cookies()).find((cookie) => cookie.name === 'pv_auth')?.value ?? '';
+	const before = await authCookie();
+	expect(before).toMatch(/^user\./);
+
+	await page.waitForTimeout(1100);
+	await page.evaluate(async () => {
+		const response = await fetch('/api/person', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({ personId: 'anna' })
+		});
+		if (!response.ok) throw new Error(`person request failed: ${response.status}`);
+	});
+	await expect.poll(authCookie).not.toBe(before);
 });
 
 // The switch itself, before signing in: whoever cannot read the lock screen has
@@ -294,7 +313,7 @@ test('the More page links to the project and carries its signature', async ({ pa
 	await expect(creditNote).toHaveCSS('text-align', 'center');
 
 	await expect(page.getByText('Made with ❤️ by Stadicus', { exact: true })).toBeVisible();
-	await expect(page.locator('.version')).toHaveText(/^Version 1\.0\.0\+[0-9a-f]{7}$/);
+	await expect(page.locator('.version')).toHaveText(/^Version 1\.1\.0\+[0-9a-f]{7}$/);
 });
 
 test('an unknown address lands on the error page', async ({ page }) => {
@@ -338,6 +357,9 @@ test('a missing database key says so rather than finding nothing', async ({ page
 // Has to go last: the failed attempts lock the IP for the following seconds.
 test('a wrong PIN leads to a rising wait', async ({ page }) => {
 	await page.goto('/pin');
+	// Keep the real admin's account-scoped limiter untouched for other files in
+	// the suite, whose execution order Playwright does not promise.
+	await page.getByLabel('Name').fill('No Such Account');
 	for (let attempt = 0; attempt < 3; attempt++) {
 		for (const digit of ['9', '9', '9', '9']) {
 			await page.getByRole('button', { name: digit, exact: true }).click();
