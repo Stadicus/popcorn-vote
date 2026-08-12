@@ -5,7 +5,8 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="robots" content="index, follow" />
-		<meta name="theme-color" content="#ffbe36" />
+		<meta name="theme-color" content="#f7f4ed" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#0b1218" media="(prefers-color-scheme: dark)" />
 		<meta name="description" content="Choose your language for Popcorn Vote, the free, self-hosted family movie night voting app." />
 		<title>Popcorn Vote — Choose your language</title>
 		<link rel="canonical" href="https://popcornvote.org/" />
@@ -35,7 +36,7 @@
 		<meta name="twitter:image" content="https://popcornvote.org/assets/social-preview.png" />
 		<meta name="twitter:image:alt" content="Popcorn Vote preview with a popcorn bucket and voting symbols." />
 		<style>
-			:root { color-scheme: light; font-family: system-ui, sans-serif; color: #101923; background: #f7f4ed; }
+			:root { color-scheme: light dark; font-family: system-ui, sans-serif; color: #101923; background: #f7f4ed; }
 			body { min-height: 100vh; margin: 0; display: grid; place-items: center; }
 			main { width: min(680px, calc(100% - 2rem)); text-align: center; }
 			.mark { font-size: 4rem; }
@@ -45,6 +46,13 @@
 			a { min-height: 44px; display: inline-flex; align-items: center; padding: .5rem 1rem; border: 1px solid #c9c1b5; border-radius: 999px; color: inherit; background: #fffdf8; font-weight: 700; text-decoration: none; }
 			a:hover { border-color: #c75d09; }
 			a:focus-visible { outline: 3px solid #08736f; outline-offset: 3px; }
+			@media (prefers-color-scheme: dark) {
+				:root { color: #f4f0e7; background: #0b1218; }
+				p { color: #aeb9c3; }
+				a { border-color: #465663; background: #141e27; }
+				a:hover { border-color: #ffae57; }
+				a:focus-visible { outline-color: #69d4cd; }
+			}
 		</style>
 		<script>
 			(() => {
