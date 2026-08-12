@@ -282,6 +282,7 @@
 	"settings.errorAdminRequired": "Un accès administrateur est requis.",
 	"settings.errorDeleteLastAdmin": "Le dernier administrateur actif ne peut pas être supprimé.",
 	"settings.errorInstanceName": "Le nom de l’instance doit contenir entre 1 et 80 caractères.",
+	"settings.errorInvalidUser": "Les données du compte ne sont pas valides.",
 	"settings.errorLastAdmin": "Au moins un administrateur actif est requis.",
 	"settings.errorName": "Le nom doit contenir entre 2 et 80 caractères.",
 	"settings.errorPin": "Le PIN doit contenir exactement 4 chiffres.",

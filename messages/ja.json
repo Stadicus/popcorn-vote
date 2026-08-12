@@ -275,6 +275,7 @@
 	"settings.errorAdminRequired": "管理者権限が必要です。",
 	"settings.errorDeleteLastAdmin": "最後の有効な管理者は削除できません。",
 	"settings.errorInstanceName": "インスタンス名は1〜80文字にしてください。",
+	"settings.errorInvalidUser": "アカウントデータが無効です。",
 	"settings.errorLastAdmin": "有効な管理者が1人以上必要です。",
 	"settings.errorName": "名前は2〜80文字にしてください。",
 	"settings.errorPin": "PINは4桁の数字にしてください。",

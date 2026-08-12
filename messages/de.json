@@ -282,6 +282,7 @@
 	"settings.errorAdminRequired": "Administratorzugriff erforderlich.",
 	"settings.errorDeleteLastAdmin": "Der letzte aktive Administrator kann nicht gelöscht werden.",
 	"settings.errorInstanceName": "Der Instanzname muss zwischen 1 und 80 Zeichen lang sein.",
+	"settings.errorInvalidUser": "Ungültige Kontodaten.",
 	"settings.errorLastAdmin": "Mindestens ein aktiver Administrator ist erforderlich.",
 	"settings.errorName": "Der Name muss zwischen 2 und 80 Zeichen lang sein.",
 	"settings.errorPin": "Die PIN muss genau 4 Ziffern enthalten.",

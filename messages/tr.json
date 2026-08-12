@@ -282,6 +282,7 @@
 	"settings.errorAdminRequired": "Yönetici erişimi gerekli.",
 	"settings.errorDeleteLastAdmin": "Son etkin yönetici silinemez.",
 	"settings.errorInstanceName": "Örnek adı 1 ile 80 karakter arasında olmalı.",
+	"settings.errorInvalidUser": "Hesap verileri geçersiz.",
 	"settings.errorLastAdmin": "En az bir etkin yönetici gerekli.",
 	"settings.errorName": "Ad 2 ile 80 karakter arasında olmalı.",
 	"settings.errorPin": "PIN tam olarak 4 rakam içermeli.",

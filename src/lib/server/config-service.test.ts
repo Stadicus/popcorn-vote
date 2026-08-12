@@ -51,4 +51,15 @@ describe('writable configuration', () => {
 			sources: ['Cinema']
 		});
 	});
+
+	it.each(['security: broken\n', 'security: null\n'])(
+		'repairs a non-map security section when saving settings: %s',
+		(source) => {
+			fs.writeFileSync(process.env.PV_CONFIG!, `${source}title: Before\n`);
+			loadConfig(true);
+			expect(() => updateSettings({ title: 'After', sessionTimeout: 7200 })).not.toThrow();
+			const raw = parse(fs.readFileSync(process.env.PV_CONFIG!, 'utf8'));
+			expect(raw).toMatchObject({ title: 'After', security: { session_timeout: 7200 } });
+		}
+	);
 });

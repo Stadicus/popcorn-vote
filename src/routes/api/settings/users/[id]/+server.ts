@@ -15,14 +15,25 @@ export const PUT: RequestHandler = async (event) => {
 	const users = storedUsers();
 	const user = users.find((candidate) => candidate.id === event.params.id);
 	if (!user) return json({ error: event.locals.t('settings.errorUserNotFound') }, { status: 404 });
-	const body = (await event.request.json().catch(() => ({}))) as {
-		name?: string;
-		role?: string;
-		enabled?: boolean;
-		pin?: string;
-	};
-	if (body.name !== undefined) {
-		const name = String(body.name).trim();
+	const body: unknown = await event.request.json().catch(() => null);
+	if (!body || typeof body !== 'object' || Array.isArray(body)) {
+		return json({ error: event.locals.t('settings.errorInvalidUser') }, { status: 400 });
+	}
+	const values = body as Record<string, unknown>;
+	if (
+		(values.name !== undefined && typeof values.name !== 'string') ||
+		(values.role !== undefined && values.role !== 'admin' && values.role !== 'user') ||
+		(values.enabled !== undefined && typeof values.enabled !== 'boolean') ||
+		(values.pin !== undefined && typeof values.pin !== 'string')
+	) {
+		return json({ error: event.locals.t('settings.errorInvalidUser') }, { status: 400 });
+	}
+	const nameValue = values.name as string | undefined;
+	const roleValue = values.role as 'admin' | 'user' | undefined;
+	const enabledValue = values.enabled as boolean | undefined;
+	const pinValue = values.pin as string | undefined;
+	if (nameValue !== undefined) {
+		const name = nameValue.trim();
 		if (name.length < 2 || name.length > 80)
 			return json({ error: event.locals.t('settings.errorName') }, { status: 400 });
 		if (loginIdentifierTaken(users, name, user.id)) {
@@ -30,17 +41,17 @@ export const PUT: RequestHandler = async (event) => {
 		}
 		user.name = name;
 	}
-	if (body.role !== undefined) user.role = body.role === 'admin' ? 'admin' : 'user';
-	if (body.enabled !== undefined) user.enabled = body.enabled;
+	if (roleValue !== undefined) user.role = roleValue;
+	if (enabledValue !== undefined) user.enabled = enabledValue;
 	const currentNamedUserId = event.locals.user?.kind === 'user' ? event.locals.user.id : undefined;
 	if (wouldLockOutCurrentAdmin(currentNamedUserId, user.id, user.role, user.enabled)) {
 		return json({ error: event.locals.t('settings.errorSelfLockout') }, { status: 400 });
 	}
 	let pinChanged = false;
-	if (body.pin) {
-		if (!/^\d{4}$/.test(body.pin))
+	if (pinValue) {
+		if (!/^\d{4}$/.test(pinValue))
 			return json({ error: event.locals.t('settings.errorPin') }, { status: 400 });
-		user.pin_hash = hashPin(body.pin);
+		user.pin_hash = hashPin(pinValue);
 		pinChanged = true;
 	}
 	if (!hasUsableAdmin(users))

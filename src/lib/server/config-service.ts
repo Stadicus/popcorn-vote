@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { parseDocument, type Document, type Node } from 'yaml';
+import { isMap, parseDocument, type Document, type Node } from 'yaml';
 import { loadConfig, type ConfigUser } from './config';
 
 export interface StoredUser {
@@ -41,7 +41,10 @@ export function updateSettings(values: { title?: string; timezone?: string; sess
 	const { doc, file } = document();
 	if (values.title !== undefined) doc.set('title', values.title.trim());
 	if (values.timezone !== undefined) doc.set('timezone', values.timezone.trim());
-	if (values.sessionTimeout !== undefined) doc.setIn(['security', 'session_timeout'], values.sessionTimeout);
+	if (values.sessionTimeout !== undefined) {
+		if (!isMap(doc.get('security', true))) doc.set('security', doc.createNode({}));
+		doc.setIn(['security', 'session_timeout'], values.sessionTimeout);
+	}
 	save(doc, file);
 }
 

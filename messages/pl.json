@@ -296,6 +296,7 @@
 	"settings.errorAdminRequired": "Wymagany jest dostęp administratora.",
 	"settings.errorDeleteLastAdmin": "Nie można usunąć ostatniego aktywnego administratora.",
 	"settings.errorInstanceName": "Nazwa instancji musi mieć od 1 do 80 znaków.",
+	"settings.errorInvalidUser": "Dane konta są nieprawidłowe.",
 	"settings.errorLastAdmin": "Wymagany jest co najmniej jeden aktywny administrator.",
 	"settings.errorName": "Nazwa musi mieć od 2 do 80 znaków.",
 	"settings.errorPin": "PIN musi składać się dokładnie z 4 cyfr.",

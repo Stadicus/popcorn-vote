@@ -282,6 +282,7 @@
 	"settings.errorAdminRequired": "Administrator access required.",
 	"settings.errorDeleteLastAdmin": "The last enabled administrator cannot be deleted.",
 	"settings.errorInstanceName": "Instance name must be between 1 and 80 characters.",
+	"settings.errorInvalidUser": "Invalid account data.",
 	"settings.errorLastAdmin": "At least one enabled administrator is required.",
 	"settings.errorName": "Name must be between 2 and 80 characters.",
 	"settings.errorPin": "PIN must contain exactly 4 digits.",

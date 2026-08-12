@@ -282,6 +282,7 @@
 	"settings.errorAdminRequired": "É necessário acesso de administrador.",
 	"settings.errorDeleteLastAdmin": "O último administrador ativo não pode ser excluído.",
 	"settings.errorInstanceName": "O nome da instância deve ter entre 1 e 80 caracteres.",
+	"settings.errorInvalidUser": "Os dados da conta são inválidos.",
 	"settings.errorLastAdmin": "É necessário pelo menos um administrador ativo.",
 	"settings.errorName": "O nome deve ter entre 2 e 80 caracteres.",
 	"settings.errorPin": "O PIN deve conter exatamente 4 dígitos.",
