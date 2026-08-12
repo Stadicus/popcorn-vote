@@ -11,6 +11,7 @@ test('first run creates a named administrator and opens settings', async ({ page
 	await page.getByRole('button', { name: /Create account/ }).click();
 	await page.waitForURL((url) => url.pathname === '/');
 	await page.getByRole('dialog').getByRole('button', { name: /Anna/ }).click();
+	await expect(page.locator('header .who')).toContainText('Anna');
 
 	await page.goto('/settings');
 	await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible();
