@@ -9,13 +9,14 @@ RUN apk add --no-cache python3 make g++
 COPY package.json package-lock.json ./
 RUN npm ci --no-audit --no-fund
 COPY . .
-# Commit id for the version display. Render deploys this blueprint as a Docker
-# image and passes its environment variables in as build arguments, without this
-# ARG the build would not see them, and every build on the test instance would
-# show the same bare version number. An ARG is already available to the following
-# RUN as an environment variable, so an extra ENV would be decoration. If the
-# value is missing, the suffix simply falls away (see vite.config.ts).
+# Commit id for the version display. Render passes its environment variables as
+# build arguments; the GitHub workflows explicitly pass GITHUB_SHA. Without
+# these ARGs the build would see neither, and every image would show the same
+# bare version number. An ARG is already available to the following RUN as an
+# environment variable, so an extra ENV would be decoration. If both values are
+# missing, the suffix simply falls away (see vite.config.ts).
 ARG RENDER_GIT_COMMIT=""
+ARG GITHUB_SHA=""
 RUN npm run build && npm prune --omit=dev
 
 FROM node:22-alpine

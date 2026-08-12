@@ -274,6 +274,7 @@ test('the language switcher on the PIN page changes the interface', async ({ pag
 
 test('the More page links to the project and carries its signature', async ({ page }) => {
 	await enterPin(page);
+	await choosePerson(page, 'Anna');
 	await page.goto('/more');
 
 	const website = page.locator('a[href="https://popcornvote.org"]');
@@ -286,7 +287,14 @@ test('the More page links to the project and carries its signature', async ({ pa
 	await expect(repository).toHaveAttribute('target', '_blank');
 	await expect(repository).toHaveAttribute('rel', 'noreferrer');
 
+	const creditNote = page.getByText('Get one new vote every Sunday at 8:00 AM, up to a balance of 5.', {
+		exact: true
+	});
+	await expect(creditNote).toBeVisible();
+	await expect(creditNote).toHaveCSS('text-align', 'center');
+
 	await expect(page.getByText('Made with ❤️ by Stadicus', { exact: true })).toBeVisible();
+	await expect(page.locator('.version')).toHaveText(/^Version 1\.0\.0\+[0-9a-f]{7}$/);
 });
 
 test('an unknown address lands on the error page', async ({ page }) => {

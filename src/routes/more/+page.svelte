@@ -133,7 +133,7 @@
 </div>
 
 {#if me}
-	<p class="muted note">
+	<p class="muted note credit-note">
 		{creditSentence(t, data.locale, {
 			amount: data.tokenAmount,
 			weekday: data.tokenWeekday,
@@ -246,6 +246,11 @@
 	.note {
 		margin-top: 1.5rem;
 		line-height: 1.5;
+	}
+
+	.credit-note {
+		text-align: center;
+		text-wrap: balance;
 	}
 
 	.testnote {
