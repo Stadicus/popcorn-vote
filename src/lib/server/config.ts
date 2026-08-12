@@ -11,6 +11,14 @@ export interface Member {
 	emoji: string;
 }
 
+export interface ConfigUser {
+	id: string;
+	name: string;
+	role: 'admin' | 'user';
+	enabled: boolean;
+	pinHash: string;
+}
+
 /**
  * What the configuration knows about a movie-database key: usable as far as can
  * be told here (`ok`), absent, or still the placeholder from the example
@@ -50,6 +58,8 @@ export interface AppConfig {
 	backupHour: number;
 	/** How many backups are kept. */
 	backupKeep: number;
+	/** Inactivity window for authentication cookies, in seconds. */
+	sessionTimeout: number;
 	/** Create demo content on first start; for test instances only. */
 	demoData: boolean;
 	/**
@@ -67,6 +77,11 @@ export interface AppConfig {
 	omdbKeyState: ConfiguredKeyState;
 	/** Four-digit device PIN; empty = not configured, the app stays locked. */
 	pin: string;
+	/** Named accounts managed through the settings UI. Empty keeps legacy PIN auth. */
+	users: ConfigUser[];
+	/** Source names are safe to expose; values never are. */
+	origins: Readonly<Record<string, string>>;
+	configFile: string;
 	dataDir: string;
 	/** What proves that a request arrived over HTTPS. See `HttpsProof`. */
 	httpsProof: HttpsProof;
@@ -278,10 +293,12 @@ const TOP_LEVEL_KEYS = [
 	'title',
 	'members',
 	'pin',
+	'users',
 	'token',
 	'language',
 	'timezone',
 	'backup',
+	'security',
 	'sources',
 	'demo_data',
 	'daily_build',
@@ -535,11 +552,11 @@ function choosePin(origins: Origins, raw: Record<string, unknown>): string {
 	}
 
 	if (!valid) {
-		log.error(
-			candidates.length > 0
-				? 'No usable PIN found (four digits required). The app stays locked.'
-				: 'No PIN configured (config.yaml "pin" or PV_PIN). The app stays locked.'
-		);
+		if (candidates.length > 0) {
+			log.warn('No usable legacy PIN found (four digits required). Named-account setup remains available.');
+		} else if (!Array.isArray(raw.users) || raw.users.length === 0) {
+			log.info('No authentication configured yet. First-run setup is available.');
+		}
 		origins['PIN'] = 'missing';
 		return '';
 	}
@@ -617,6 +634,28 @@ export function loadConfig(force = false): AppConfig {
 		log.warn('No configuration file found, running on the example configuration', { file });
 	}
 	const origins: Origins = {};
+	const users: ConfigUser[] = Array.isArray(raw.users)
+		? raw.users.flatMap((entry, index) => {
+				if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return [];
+				const user = entry as Record<string, unknown>;
+				const id = String(user.id ?? '').trim();
+				const name = String(user.name ?? '').trim();
+				const pinHash = String(user.pin_hash ?? '').trim();
+				if (!id || !name || !pinHash) {
+					log.warn(`users[${index}] in config.yaml is incomplete and is ignored`);
+					return [];
+				}
+				return [
+					{
+						id,
+						name,
+						role: user.role === 'admin' ? ('admin' as const) : ('user' as const),
+						enabled: user.enabled !== false,
+						pinHash
+					}
+				];
+			})
+		: [];
 
 	// People: "Anna,Ben,Carla,David", or with extras "Name:Colour:Emoji,…"
 	const membersFromFile = Array.isArray(raw.members) && raw.members.length > 0 ? raw.members : undefined;
@@ -660,6 +699,8 @@ export function loadConfig(force = false): AppConfig {
 	]);
 	const backupBlock = block('backup', raw.backup);
 	checkKeys('backup', backupBlock, ['hour', 'keep']);
+	const securityBlock = block('security', raw.security);
+	checkKeys('security', securityBlock, ['session_timeout']);
 	const dailyBuildBlock = block('daily_build', raw.daily_build);
 	checkKeys('daily_build', dailyBuildBlock, ['show', 'url']);
 
@@ -825,6 +866,20 @@ export function loadConfig(force = false): AppConfig {
 			wholeNumber('Backups kept', 'config.yaml', backupBlock.keep, 1, 999),
 			14
 		),
+		sessionTimeout: choose(
+			origins,
+			'Session timeout',
+			'PV_SESSION_TIMEOUT',
+			wholeNumber('Session timeout', 'PV_SESSION_TIMEOUT', env('PV_SESSION_TIMEOUT'), 300, 31_536_000),
+			wholeNumber(
+				'Session timeout',
+				'config.yaml (security.session_timeout)',
+				securityBlock.session_timeout,
+				300,
+				31_536_000
+			),
+			31_536_000
+		),
 		demoData: choose(
 			origins,
 			'Demo content',
@@ -854,6 +909,9 @@ export function loadConfig(force = false): AppConfig {
 		tmdbKeyState: configuredKeyState(tmdbApiKey, tmdbCandidates),
 		omdbKeyState: configuredKeyState(omdbApiKey, omdbCandidates),
 		pin: choosePin(origins, raw),
+		users,
+		origins,
+		configFile: file,
 		dataDir: dir,
 		httpsProof: chooseHttpsProof(origins)
 	};

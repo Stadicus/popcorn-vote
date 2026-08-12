@@ -27,7 +27,6 @@ export interface DeviceCookieOptions {
 	secure: boolean;
 }
 
-/** A year. Long enough that a family tablet is not asked again every few weeks. */
 const ONE_YEAR = 60 * 60 * 24 * 365;
 
 /**
@@ -121,8 +120,8 @@ function warnAboutUnusedProxy(
 }
 
 /**
- * The options for a device cookie. `httpOnly` is the only one worth overriding:
- * `pv_person` is read by the interface, the other two are not.
+ * The options for a long-lived device preference. `httpOnly` is the only one
+ * worth overriding: `pv_person` is read by the interface, the others are not.
  *
  * Used for deleting as well as for setting. SvelteKit implements `delete` as a
  * `set` with `maxAge: 0` over the same defaults, so a delete that leaves the
@@ -141,4 +140,9 @@ export function deviceCookie(
 		sameSite: 'lax',
 		secure: overHttps(config, headers)
 	};
+}
+
+/** Authentication alone follows the configurable inactivity timeout. */
+export function authCookie(config: AppConfig, headers: Headers): DeviceCookieOptions {
+	return { ...deviceCookie(config, headers), maxAge: config.sessionTimeout };
 }

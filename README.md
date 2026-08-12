@@ -96,7 +96,8 @@ family's film diary.
    [TMDB](https://www.themoviedb.org/settings/api) (film data and trailers) and
    [OMDb](https://www.omdbapi.com/apikey.aspx) (IMDb rating).
 2. **Copy `config.example.yaml` into the data directory as `config.yaml`** and
-   adjust it: family members, PIN, and the hour of the weekly credit if you like.
+	adjust it: family members and the hour of the weekly credit if you like. The
+	first administrator and PIN are created in the browser.
 3. **Start the container**, most easily with the ready-made image through
    [`docker-compose.yml`](docker-compose.yml), or directly:
 
@@ -104,8 +105,7 @@ family's film diary.
    docker run -d --name popcorn-vote \
      -p 3000:3000 \
      -v popcorn-vote-data:/data \
-     -e PV_PIN=1234 \
-     -e PV_MEMBERS=Anna,Ben,Carla,David \
+	 -e PV_MEMBERS=Anna,Ben,Carla,David \
      -e TMDB_API_KEY=your-tmdb-key \
      -e OMDB_API_KEY=your-omdb-key \
      -e ADDRESS_HEADER=x-forwarded-for -e XFF_DEPTH=1 \
@@ -121,8 +121,7 @@ family's film diary.
    docker run -d --name popcorn-vote \
      -p 3000:3000 \
      -v popcorn-vote-data:/data \
-     -e PV_PIN=1234 \
-     -e TMDB_API_KEY=your-tmdb-key \
+	 -e TMDB_API_KEY=your-tmdb-key \
      -e OMDB_API_KEY=your-omdb-key \
      -e ADDRESS_HEADER=x-forwarded-for \
      -e XFF_DEPTH=1 \
@@ -169,12 +168,12 @@ family's film diary.
    different machine wants that machine's address instead, and then the port
    cannot be bound to the loopback.
 
-5. Open the address on a phone, enter the PIN, pick a person, suggest the first
-   film, and do not forget **"Add to Home Screen"**.
+5. Open the address, create the first administrator, then pick a person and
+	suggest the first film. On a phone, do not forget **"Add to Home Screen"**.
 
-Worth knowing: **without a configured PIN the app stays locked** (only the health
-address `/healthz` answers). That is deliberate, an app reachable from the
-internet must never accidentally stand open.
+Worth knowing: an installation without accounts or the legacy `PV_PIN` opens
+only its first-run setup and health endpoint. The setup writes a salted PIN hash
+to `/data/config.yaml`; it never stores the PIN itself.
 
 ### Over plain HTTP on the local network
 
@@ -224,8 +223,8 @@ setting keeps its default.
 
 SvelteKit (Svelte 5, TypeScript) with the Node adapter, SQLite as the single
 data file, shipped as one Docker container for linux/amd64, no separate
-database, no user accounts, timezone Europe/Berlin by default for the credit and
-the backup. The ready-made image does not run on ARM devices yet (Raspberry Pi,
+database, named PIN accounts with administrator roles, timezone Europe/Berlin by
+default for the credit and the backup. The ready-made image does not run on ARM devices yet (Raspberry Pi,
 Apple Silicon, ARM servers); whoever needs one builds it with `docker build` for
 the time being.
 

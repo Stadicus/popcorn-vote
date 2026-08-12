@@ -5,6 +5,43 @@ import type { AppConfig } from './config';
 
 export const AUTH_COOKIE = 'pv_auth';
 
+export interface AuthUser {
+	id: string;
+	name: string;
+	role: 'admin' | 'user';
+}
+
+const DUMMY_PIN_SALT = Buffer.from('cG9wY29ybi12b3RlLWR1bW15LXNlZWQ=', 'base64');
+const DUMMY_PIN_HASH = Buffer.from('6m8yRnkU7Oj8FSoZ6XBMKI2Ht6Jrf4voOzCqleCp0RQ=', 'base64');
+
+export function hashPin(pin: string): string {
+	const salt = crypto.randomBytes(16);
+	const hash = crypto.scryptSync(pin, salt, 32);
+	return `scrypt$${salt.toString('base64')}$${hash.toString('base64')}`;
+}
+
+export function verifyPin(pin: string, encoded: string): boolean {
+	const [algorithm, salt64, hash64] = encoded.split('$');
+	let salt = DUMMY_PIN_SALT;
+	let expected = DUMMY_PIN_HASH;
+	let valid = false;
+	try {
+		if (algorithm === 'scrypt' && salt64 && hash64) {
+			const parsedSalt = Buffer.from(salt64, 'base64');
+			const parsedHash = Buffer.from(hash64, 'base64');
+			if (parsedSalt.length >= 16 && parsedHash.length === 32) {
+				salt = parsedSalt;
+				expected = parsedHash;
+				valid = true;
+			}
+		}
+	} catch {
+		// Malformed input takes the same dummy-scrypt path as a missing account.
+	}
+	const actual = crypto.scryptSync(pin, salt, expected.length);
+	return valid && crypto.timingSafeEqual(actual, expected);
+}
+
 /** Random per-installation secret; created on first access. */
 function authSecret(db: DB): string {
 	let secret = metaGet(db, 'auth_secret');
@@ -21,10 +58,37 @@ export function cookieValue(db: DB, config: AppConfig): string {
 }
 
 export function isAuthed(db: DB, config: AppConfig, cookie: string | undefined): boolean {
-	if (!config.pin || !cookie) return false;
+	return authenticatedUser(db, config, cookie) !== null;
+}
+
+export function userCookieValue(db: DB, userId: string, pinHash: string): string {
+	const signature = crypto
+		.createHmac('sha256', authSecret(db))
+		.update(`user:${userId}:${pinHash}`)
+		.digest('hex');
+	return `${userId}.${signature}`;
+}
+
+export function authenticatedUser(db: DB, config: AppConfig, cookie: string | undefined): AuthUser | null {
+	if (!cookie) return null;
+	const separator = cookie.indexOf('.');
+	if (separator > 0) {
+		const id = cookie.slice(0, separator);
+		const user = config.users.find((candidate) => candidate.id === id && candidate.enabled);
+		if (!user) return null;
+		const expected = Buffer.from(userCookieValue(db, user.id, user.pinHash));
+		const got = Buffer.from(cookie);
+		if (got.length === expected.length && crypto.timingSafeEqual(got, expected)) {
+			return { id: user.id, name: user.name, role: user.role };
+		}
+		return null;
+	}
+	if (!config.pin) return null;
 	const expected = Buffer.from(cookieValue(db, config));
 	const got = Buffer.from(cookie);
-	return got.length === expected.length && crypto.timingSafeEqual(got, expected);
+	return got.length === expected.length && crypto.timingSafeEqual(got, expected)
+		? { id: 'legacy', name: 'Administrator', role: 'admin' }
+		: null;
 }
 
 // --- Brute-force protection: rising wait per sender IP ------------------------
@@ -129,6 +193,37 @@ export function tryPin(
 	);
 
 	return { ok: false, allowed: true, waitSeconds: Math.max(wait, globalWait) };
+}
+
+export function tryUserPin(
+	db: DB,
+	config: AppConfig,
+	userId: string,
+	pin: string,
+	ip: string,
+	now: Date = new Date()
+): (AttemptGate & { ok: false }) | (AttemptGate & { ok: true; user: AuthUser; cookie: string }) {
+	const login = userId.trim().toLocaleLowerCase('en');
+	const user = config.users.find(
+		(candidate) =>
+			candidate.enabled &&
+			(candidate.id.toLocaleLowerCase('en') === login || candidate.name.toLocaleLowerCase('en') === login)
+	);
+	const candidate = String(pin).slice(0, 256);
+	// A missing, disabled, or malformed account still pays for one real scrypt
+	// verification. Otherwise response time would disclose configured names.
+	const hashMatches = verifyPin(candidate, user?.pinHash ?? '');
+	const verified = Boolean(user) && hashMatches;
+	// Reuse the same per-IP and installation-wide brake as legacy authentication.
+	const comparisonPin = verified ? candidate : crypto.randomBytes(32).toString('hex');
+	const result = tryPin(db, { ...config, pin: comparisonPin }, candidate, ip, now);
+	if (!result.ok || !user) return { ...result, ok: false };
+	return {
+		...result,
+		ok: true,
+		user: { id: user.id, name: user.name, role: user.role },
+		cookie: userCookieValue(db, user.id, user.pinHash)
+	};
 }
 
 /** The global count with the elapsed time run off it, plus the failure just made. */

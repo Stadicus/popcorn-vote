@@ -74,6 +74,16 @@
 <Toast bind:message={error} hold={errorHolds} />
 
 <div class="menu">
+	{#if data.isAdmin}
+		<a class="card" href="/settings">
+			⚙️ {data.locale === 'de' ? 'Einstellungen' : 'Settings'}
+			<span class="muted"
+				>{data.locale === 'de'
+					? 'Benutzer, Sicherheit und Konfiguration'
+					: 'Users, security and configuration'}</span
+			>
+		</a>
+	{/if}
 	<!-- On a monitor the TV stage is already in the main bar; here it would be the
 	     same entry a second time. On a phone this is the only way in. -->
 	<a class="card phoneOnly" href="/tv">

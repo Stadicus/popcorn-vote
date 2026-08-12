@@ -32,9 +32,9 @@ services:
     volumes:
       - popcorn-vote-data:/data
     environment:
-      # Four-digit family PIN (required unless it is in the config.yaml .
-      # without a valid PIN the app stays locked)
+      # Optional legacy shared PIN. Leave empty for browser setup.
       PV_PIN: '${PV_PIN}'
+      PV_SESSION_TIMEOUT: '${PV_SESSION_TIMEOUT}'
       # Access keys for the movie databases
       TMDB_API_KEY: '${TMDB_API_KEY}'
       OMDB_API_KEY: '${OMDB_API_KEY}'

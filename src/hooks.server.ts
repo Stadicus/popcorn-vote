@@ -6,8 +6,8 @@ import { ensureBalances } from '$lib/server/game';
 import { startScheduler } from '$lib/server/schedule';
 import { seedDemoMovies } from '$lib/server/demo';
 import { log } from '$lib/server/log';
-import { AUTH_COOKIE, isAuthed } from '$lib/server/auth';
-import { deviceCookie } from '$lib/server/cookies';
+import { AUTH_COOKIE, authenticatedUser } from '$lib/server/auth';
+import { authCookie as authCookieOptions, deviceCookie } from '$lib/server/cookies';
 import { logFailure, shortPath } from '$lib/server/api';
 import { LANG_COOKIE, resolveLocale } from '$lib/i18n/locales';
 import { translator } from '$lib/i18n/translate';
@@ -34,7 +34,9 @@ if (!building) {
 // the same class as /api/pin itself.
 const OPEN_PATHS = new Set([
 	'/pin',
+	'/setup',
 	'/api/pin',
+	'/api/setup',
 	'/api/language',
 	'/healthz',
 	'/manifest.webmanifest',
@@ -65,8 +67,16 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	// Device PIN: once per device, after that everything is open.
 	const pathname = event.url.pathname;
-	const authed = isAuthed(event.locals.db, config, event.cookies.get(AUTH_COOKIE));
+	const user = authenticatedUser(event.locals.db, config, event.cookies.get(AUTH_COOKIE));
+	const authed = user !== null;
 	event.locals.authed = authed;
+	event.locals.user = user;
+	const setupRequired = config.users.length === 0 && !config.pin;
+	if (setupRequired && pathname === '/pin') throw redirect(307, '/setup');
+	if (setupRequired && pathname !== '/setup' && pathname !== '/api/setup' && !isOpen(pathname)) {
+		throw redirect(307, '/setup');
+	}
+	if (!setupRequired && pathname === '/setup') throw redirect(307, authed ? '/' : '/pin');
 	if (!authed && !isOpen(pathname)) {
 		if (pathname.startsWith('/api/') || pathname.startsWith('/covers/')) {
 			return json({ error: event.locals.t('auth.required') }, { status: 401 });
@@ -76,12 +86,17 @@ export const handle: Handle = async ({ event, resolve }) => {
 	if (authed && pathname === '/pin') {
 		throw redirect(307, '/');
 	}
+	if (authed) {
+		const authCookie = event.cookies.get(AUTH_COOKIE);
+		if (authCookie)
+			event.cookies.set(AUTH_COOKIE, authCookie, authCookieOptions(config, event.request.headers));
+	}
 
 	const cookie = event.cookies.get('pv_person');
 	const person = config.members.find((m) => m.id === cookie);
 	event.locals.personId = person?.id ?? null;
 	if (person) {
-		// Extend the cookie by a year on every use.
+		// Extend the device preference by a year on every use.
 		event.cookies.set(
 			'pv_person',
 			person.id,

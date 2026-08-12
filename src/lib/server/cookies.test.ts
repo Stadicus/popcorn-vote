@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { overHttps, deviceCookie } from './cookies';
+import { overHttps, deviceCookie, authCookie } from './cookies';
 import type { AppConfig, HttpsProof } from './config';
 
 /** Only `httpsProof` matters here; the rest of the configuration is not read. */
@@ -197,10 +197,12 @@ describe('deviceCookie', () => {
 	});
 
 	it('keeps path, sameSite and lifetime the same for every cookie', () => {
-		const options = deviceCookie(configWith({ mode: 'none' }), new Headers());
+		const config = { ...configWith({ mode: 'none' }), sessionTimeout: 1800 };
+		const options = deviceCookie(config, new Headers());
 		expect(options.path).toBe('/');
 		expect(options.sameSite).toBe('lax');
 		expect(options.maxAge).toBe(60 * 60 * 24 * 365);
+		expect(authCookie(config, new Headers()).maxAge).toBe(1800);
 	});
 
 	it('hides the cookie from the interface unless asked otherwise', () => {
