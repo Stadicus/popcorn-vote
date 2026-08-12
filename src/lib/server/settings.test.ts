@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { translator } from '$lib/i18n/translate';
-import { hasUsableAdmin, loginIdentifierTaken, requireAdmin } from './settings';
+import { hasUsableAdmin, loginIdentifierTaken, requireAdmin, wouldLockOutCurrentAdmin } from './settings';
 
 describe('settings authorization and identities', () => {
 	it('rejects non-administrators with a localized 403', () => {
@@ -21,5 +21,11 @@ describe('settings authorization and identities', () => {
 		expect(loginIdentifierTaken(users, 'ANNA-2')).toBe(true);
 		expect(loginIdentifierTaken(users, 'anna')).toBe(true);
 		expect(loginIdentifierTaken(users, 'Anna', 'anna-2')).toBe(false);
+	});
+
+	it('prevents an administrator from disabling or demoting their own account', () => {
+		expect(wouldLockOutCurrentAdmin('admin', 'admin', 'user', true)).toBe(true);
+		expect(wouldLockOutCurrentAdmin('admin', 'admin', 'admin', false)).toBe(true);
+		expect(wouldLockOutCurrentAdmin('admin', 'other', 'user', false)).toBe(false);
 	});
 });

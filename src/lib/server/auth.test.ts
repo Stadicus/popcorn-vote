@@ -96,6 +96,25 @@ describe('device PIN', () => {
 			spy.mockRestore();
 		}
 	});
+
+	it('does not run scrypt while a named-account attempt is locked', () => {
+		const withUser = {
+			...config,
+			pin: '',
+			users: [{ id: 'anna', name: 'Anna', role: 'admin' as const, enabled: true, pinHash: hashPin('2468') }]
+		};
+		const now = new Date('2026-08-12T20:00:00Z');
+		for (const wrong of ['0000', '0001', '0002']) tryUserPin(db, withUser, 'anna', wrong, 'ip1', now);
+
+		const spy = vi.spyOn(crypto, 'scryptSync');
+		try {
+			const blocked = tryUserPin(db, withUser, 'anna', '2468', 'ip1', new Date(now.getTime() + 1000));
+			expect(blocked).toMatchObject({ ok: false, allowed: false, waitSeconds: 1 });
+			expect(spy).not.toHaveBeenCalled();
+		} finally {
+			spy.mockRestore();
+		}
+	});
 	it('accepts the right PIN and resets the counter', () => {
 		tryPin(db, config, '0000', 'ip1');
 		const result = tryPin(db, config, '4711', 'ip1');
@@ -150,6 +169,39 @@ describe('device PIN', () => {
 		const named = userCookieValue(db, 'anna', pinHash, 20_000);
 		expect(authenticatedUser(db, withUser, named, 21_800)?.id).toBe('anna');
 		expect(authenticatedUser(db, withUser, named, 21_801)).toBeNull();
+	});
+
+	it('keeps the legacy cookie type separate from an account named Legacy', () => {
+		const pinHash = hashPin('2468');
+		const withLegacyUser = {
+			...config,
+			pin: '',
+			users: [{ id: 'legacy', name: 'Legacy', role: 'admin' as const, enabled: true, pinHash }]
+		};
+		const cookie = userCookieValue(db, 'legacy', pinHash, 20_000);
+		expect(cookie).toMatch(/^user\./);
+		expect(authenticatedUser(db, withLegacyUser, cookie, 20_001)).toMatchObject({
+			kind: 'user',
+			id: 'legacy'
+		});
+	});
+
+	it('does not let a valid login reset failed attempts against another account', () => {
+		const withUsers = {
+			...config,
+			pin: '',
+			users: [
+				{ id: 'admin', name: 'Admin', role: 'admin' as const, enabled: true, pinHash: hashPin('2468') },
+				{ id: 'alice', name: 'Alice', role: 'user' as const, enabled: true, pinHash: hashPin('1357') }
+			]
+		};
+		const now = new Date('2026-08-12T20:00:00Z');
+		expect(tryUserPin(db, withUsers, 'admin', '0000', 'ip1', now).ok).toBe(false);
+		expect(tryUserPin(db, withUsers, 'admin', '0001', 'ip1', now).ok).toBe(false);
+		expect(tryUserPin(db, withUsers, 'alice', '1357', 'ip1', now).ok).toBe(true);
+		const thirdAdminGuess = tryUserPin(db, withUsers, 'admin', '0002', 'ip1', now);
+		expect(thirdAdminGuess.ok).toBe(false);
+		expect(thirdAdminGuess.waitSeconds).toBe(2);
 	});
 });
 

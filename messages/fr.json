@@ -327,5 +327,6 @@
 	"setup.intro": "Créez le compte administrateur. Vous pourrez ensuite gérer les utilisateurs et paramètres dans l’application.",
 	"setup.pinHint": "4 chiffres. Le PIN est uniquement conservé sous forme de hash sécurisé.",
 	"setup.welcome": "Bienvenue",
+	"settings.errorSelfLockout": "Vous ne pouvez pas désactiver ni rétrograder le compte que vous utilisez.",
 	"wheel.label": "Roue de départage"
 }

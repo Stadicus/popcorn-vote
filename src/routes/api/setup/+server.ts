@@ -5,6 +5,8 @@ import { replaceUsers } from '$lib/server/config-service';
 import { loadConfig } from '$lib/server/config';
 import { authCookie } from '$lib/server/cookies';
 import { authenticationMissing, pristineForSetup } from '$lib/server/setup';
+import { seedDemoMovies } from '$lib/server/demo';
+import { log } from '$lib/server/log';
 
 export const POST: RequestHandler = async ({ request, locals, cookies }) => {
 	if (!authenticationMissing(locals.config))
@@ -36,5 +38,8 @@ export const POST: RequestHandler = async ({ request, locals, cookies }) => {
 	replaceUsers([{ id, name, role: 'admin', enabled: true, pin_hash: pinHash }]);
 	const config = loadConfig();
 	cookies.set(AUTH_COOKIE, userCookieValue(locals.db, id, pinHash), authCookie(config, request.headers));
+	void seedDemoMovies(locals.db, config).catch((err) =>
+		log.warn('Demo content could not be created', { err })
+	);
 	return json({ ok: true });
 };

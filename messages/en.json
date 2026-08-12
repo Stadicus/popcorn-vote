@@ -327,5 +327,6 @@
 	"setup.intro": "Create the administrator account. You can manage more users and settings from inside the app.",
 	"setup.pinHint": "4 digits. The PIN is stored only as a secure hash.",
 	"setup.welcome": "Welcome",
+	"settings.errorSelfLockout": "You cannot disable or demote the account you are currently using.",
 	"wheel.label": "Tie-breaker wheel"
 }

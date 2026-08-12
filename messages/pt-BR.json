@@ -327,5 +327,6 @@
 	"setup.intro": "Crie a conta de administrador. Depois, gerencie usuários e configurações no aplicativo.",
 	"setup.pinHint": "4 dígitos. O PIN é armazenado apenas como hash seguro.",
 	"setup.welcome": "Bem-vindo",
+	"settings.errorSelfLockout": "Você não pode desativar nem rebaixar a conta que está usando.",
 	"wheel.label": "Roleta de desempate"
 }

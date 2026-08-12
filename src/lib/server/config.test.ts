@@ -630,6 +630,22 @@ describe('PIN selection', () => {
 	});
 });
 
+describe('named users', () => {
+	it('ignores ambiguous login identifiers from hand-edited YAML', () => {
+		const spy = vi.spyOn(log, 'warn').mockImplementation(() => {});
+		try {
+			const config = load('users-colliding.yaml');
+			expect(config.users.map(({ id }) => id)).toEqual(['anna', 'carla', 'david']);
+			expect(spy.mock.calls.some(([message]) => String(message).includes('login identifier'))).toBe(true);
+			expect(spy.mock.calls.some(([message]) => String(message).includes('must be true or false'))).toBe(
+				true
+			);
+		} finally {
+			spy.mockRestore();
+		}
+	});
+});
+
 // The keys for the movie databases had no shape to be checked against, any
 // string can be a valid key, so our own placeholders walked straight through
 // and travelled to TMDB, which answered 401. What the family then read was that

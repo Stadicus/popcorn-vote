@@ -110,7 +110,7 @@
 			return;
 		}
 		const result = await request(
-			editingId ? `/api/settings/users/${editingId}` : '/api/settings/users',
+			editingId ? `/api/settings/users/${encodeURIComponent(editingId)}` : '/api/settings/users',
 			editingId ? 'PUT' : 'POST',
 			{ name: editName, role: editRole, enabled: editEnabled, pin: editPin || undefined }
 		);
@@ -119,7 +119,7 @@
 
 	async function removeUser() {
 		if (!deleteUser) return;
-		const result = await request(`/api/settings/users/${deleteUser.id}`, 'DELETE');
+		const result = await request(`/api/settings/users/${encodeURIComponent(deleteUser.id)}`, 'DELETE');
 		if (result) {
 			deleteUser = null;
 			deleteOpen = false;

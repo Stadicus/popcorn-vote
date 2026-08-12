@@ -634,7 +634,7 @@ export function loadConfig(force = false): AppConfig {
 		log.warn('No configuration file found, running on the example configuration', { file });
 	}
 	const origins: Origins = {};
-	const users: ConfigUser[] = Array.isArray(raw.users)
+	const parsedUsers: ConfigUser[] = Array.isArray(raw.users)
 		? raw.users.flatMap((entry, index) => {
 				if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return [];
 				const user = entry as Record<string, unknown>;
@@ -643,6 +643,10 @@ export function loadConfig(force = false): AppConfig {
 				const pinHash = String(user.pin_hash ?? '').trim();
 				if (!id || !name || !pinHash) {
 					log.warn(`users[${index}] in config.yaml is incomplete and is ignored`);
+					return [];
+				}
+				if (user.enabled !== undefined && typeof user.enabled !== 'boolean') {
+					log.warn(`users[${index}].enabled in config.yaml must be true or false; the user is ignored`);
 					return [];
 				}
 				return [
@@ -656,6 +660,18 @@ export function loadConfig(force = false): AppConfig {
 				];
 			})
 		: [];
+	const loginIdentifiers = new Set<string>();
+	const users = parsedUsers.filter((user, index) => {
+		const id = user.id.toLocaleLowerCase('en');
+		const name = user.name.toLocaleLowerCase('en');
+		if (loginIdentifiers.has(id) || loginIdentifiers.has(name)) {
+			log.warn(`users[${index}] in config.yaml collides with another login identifier and is ignored`);
+			return false;
+		}
+		loginIdentifiers.add(id);
+		loginIdentifiers.add(name);
+		return true;
+	});
 
 	// People: "Anna,Ben,Carla,David", or with extras "Name:Colour:Emoji,…"
 	const membersFromFile = Array.isArray(raw.members) && raw.members.length > 0 ? raw.members : undefined;

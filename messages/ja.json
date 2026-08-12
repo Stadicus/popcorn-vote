@@ -320,5 +320,6 @@
 	"setup.intro": "管理者アカウントを作成します。その後、アプリ内でユーザーと設定を管理できます。",
 	"setup.pinHint": "4桁。PINは安全なハッシュとしてのみ保存されます。",
 	"setup.welcome": "ようこそ",
+	"settings.errorSelfLockout": "現在使用中のアカウントを無効化したり降格したりすることはできません。",
 	"wheel.label": "同票決定ルーレット"
 }

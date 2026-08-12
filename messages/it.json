@@ -327,5 +327,6 @@
 	"setup.intro": "Crea l’account amministratore. Potrai poi gestire utenti e impostazioni dall’app.",
 	"setup.pinHint": "4 cifre. Il PIN viene conservato solo come hash sicuro.",
 	"setup.welcome": "Benvenuto",
+	"settings.errorSelfLockout": "Non puoi disattivare o declassare l’account che stai utilizzando.",
 	"wheel.label": "Ruota di spareggio"
 }

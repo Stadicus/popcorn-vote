@@ -341,5 +341,6 @@
 	"setup.intro": "Utwórz konto administratora. Potem możesz zarządzać użytkownikami i ustawieniami w aplikacji.",
 	"setup.pinHint": "4 cyfry. PIN jest przechowywany wyłącznie jako bezpieczny hash.",
 	"setup.welcome": "Witamy",
+	"settings.errorSelfLockout": "Nie możesz wyłączyć ani obniżyć roli aktualnie używanego konta.",
 	"wheel.label": "Koło rozstrzygające remis"
 }

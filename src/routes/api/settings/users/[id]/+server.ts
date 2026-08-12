@@ -2,7 +2,12 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { AUTH_COOKIE, hashPin, userCookieValue } from '$lib/server/auth';
 import { replaceUsers, storedUsers } from '$lib/server/config-service';
-import { hasUsableAdmin, loginIdentifierTaken, requireAdmin } from '$lib/server/settings';
+import {
+	hasUsableAdmin,
+	loginIdentifierTaken,
+	requireAdmin,
+	wouldLockOutCurrentAdmin
+} from '$lib/server/settings';
 import { authCookie } from '$lib/server/cookies';
 
 export const PUT: RequestHandler = async (event) => {
@@ -27,6 +32,10 @@ export const PUT: RequestHandler = async (event) => {
 	}
 	if (body.role !== undefined) user.role = body.role === 'admin' ? 'admin' : 'user';
 	if (body.enabled !== undefined) user.enabled = body.enabled;
+	const currentNamedUserId = event.locals.user?.kind === 'user' ? event.locals.user.id : undefined;
+	if (wouldLockOutCurrentAdmin(currentNamedUserId, user.id, user.role, user.enabled)) {
+		return json({ error: event.locals.t('settings.errorSelfLockout') }, { status: 400 });
+	}
 	let pinChanged = false;
 	if (body.pin) {
 		if (!/^\d{4}$/.test(body.pin))
@@ -37,7 +46,7 @@ export const PUT: RequestHandler = async (event) => {
 	if (!hasUsableAdmin(users))
 		return json({ error: event.locals.t('settings.errorLastAdmin') }, { status: 400 });
 	replaceUsers(users);
-	if (pinChanged && user.enabled && event.locals.user?.id === user.id) {
+	if (pinChanged && user.enabled && currentNamedUserId === user.id) {
 		event.cookies.set(
 			AUTH_COOKIE,
 			userCookieValue(event.locals.db, user.id, user.pin_hash),
@@ -49,6 +58,9 @@ export const PUT: RequestHandler = async (event) => {
 
 export const DELETE: RequestHandler = (event) => {
 	requireAdmin(event);
+	if (event.locals.user?.kind === 'user' && event.locals.user.id === event.params.id) {
+		return json({ error: event.locals.t('settings.errorSelfLockout') }, { status: 400 });
+	}
 	const users = storedUsers();
 	const remaining = users.filter((candidate) => candidate.id !== event.params.id);
 	if (remaining.length === users.length)

@@ -13,15 +13,20 @@
 		event.preventDefault();
 		busy = true;
 		error = '';
-		const response = await fetch('/api/setup', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ name, pin, confirmPin })
-		});
-		const body = await response.json().catch(() => ({}));
-		if (response.ok) return goto('/', { invalidateAll: true });
-		error = body.error ?? t('setup.failed');
-		busy = false;
+		try {
+			const response = await fetch('/api/setup', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ name, pin, confirmPin })
+			});
+			const body = await response.json().catch(() => ({}));
+			if (response.ok) return goto('/', { invalidateAll: true });
+			error = body.error ?? t('setup.failed');
+		} catch {
+			error = t('error.offline');
+		} finally {
+			busy = false;
+		}
 	}
 </script>
 

@@ -6,9 +6,12 @@ import type { AppConfig } from './config';
 export const AUTH_COOKIE = 'pv_auth';
 
 export interface AuthUser {
+	kind: 'legacy' | 'user';
 	id: string;
 	name: string;
 	role: 'admin' | 'user';
+	/** Server-only credential binding used to renew this session. */
+	pinHash: string;
 }
 
 const DUMMY_PIN_SALT = Buffer.from('cG9wY29ybi12b3RlLWR1bW15LXNlZWQ=', 'base64');
@@ -71,7 +74,7 @@ export function userCookieValue(
 		.createHmac('sha256', authSecret(db))
 		.update(`user:${userId}:${pinHash}:${issuedAt}`)
 		.digest('hex');
-	return `${userId}.${issuedAt}.${signature}`;
+	return `user.${Buffer.from(userId).toString('base64url')}.${issuedAt}.${signature}`;
 }
 
 function legacyCookieValue(db: DB, config: AppConfig, issuedAt: number): string {
@@ -89,19 +92,34 @@ export function authenticatedUser(
 	now = Math.floor(Date.now() / 1000)
 ): AuthUser | null {
 	if (!cookie) return null;
-	const [id, issuedRaw, signature, extra] = cookie.split('.');
-	if (!id || !issuedRaw || !signature || extra !== undefined) return null;
+	const parts = cookie.split('.');
+	const legacy = parts.length === 3 && parts[0] === 'legacy' && Boolean(parts[2]);
+	const named = parts.length === 4 && parts[0] === 'user' && Boolean(parts[3]);
+	if (!legacy && !named) return null;
+	let id = 'legacy';
+	let issuedRaw: string;
+	if (named) {
+		try {
+			id = Buffer.from(parts[1], 'base64url').toString();
+		} catch {
+			return null;
+		}
+		if (!id || Buffer.from(id).toString('base64url') !== parts[1]) return null;
+		issuedRaw = parts[2];
+	} else {
+		issuedRaw = parts[1];
+	}
 	const issuedAt = Number(issuedRaw);
 	if (!Number.isSafeInteger(issuedAt) || issuedAt > now + 300 || now - issuedAt > config.sessionTimeout) {
 		return null;
 	}
-	if (id !== 'legacy') {
+	if (named) {
 		const user = config.users.find((candidate) => candidate.id === id && candidate.enabled);
 		if (!user) return null;
 		const expected = Buffer.from(userCookieValue(db, user.id, user.pinHash, issuedAt));
 		const got = Buffer.from(cookie);
 		if (got.length === expected.length && crypto.timingSafeEqual(got, expected)) {
-			return { id: user.id, name: user.name, role: user.role };
+			return { kind: 'user', id: user.id, name: user.name, role: user.role, pinHash: user.pinHash };
 		}
 		return null;
 	}
@@ -109,7 +127,7 @@ export function authenticatedUser(
 	const expected = Buffer.from(legacyCookieValue(db, config, issuedAt));
 	const got = Buffer.from(cookie);
 	return got.length === expected.length && crypto.timingSafeEqual(got, expected)
-		? { id: 'legacy', name: 'Administrator', role: 'admin' }
+		? { kind: 'legacy', id: 'legacy', name: 'Administrator', role: 'admin', pinHash: config.pin }
 		: null;
 }
 
@@ -144,9 +162,10 @@ export interface AttemptGate {
 	waitSeconds: number;
 }
 
-export function checkAttempt(db: DB, ip: string, now: Date = new Date()): AttemptGate {
+export function checkAttempt(db: DB, ip: string, now: Date = new Date(), identity = 'legacy'): AttemptGate {
+	const key = attemptKey(ip, identity);
 	const wait = Math.max(
-		lockWait(rowLock(db, ip), now),
+		lockWait(rowLock(db, key), now),
 		lockWait(metaGet(db, 'pin_global_locked_until'), now)
 	);
 	return wait > 0 ? { allowed: false, waitSeconds: wait } : { allowed: true, waitSeconds: 0 };
@@ -158,9 +177,12 @@ export function tryPin(
 	config: AppConfig,
 	pin: string,
 	ip: string,
-	now: Date = new Date()
+	now: Date = new Date(),
+	identity = 'legacy',
+	resetGlobalOnSuccess = true
 ): AttemptGate & { ok: boolean } {
-	const gate = checkAttempt(db, ip, now);
+	const key = attemptKey(ip, identity);
+	const gate = checkAttempt(db, ip, now, identity);
 	if (!gate.allowed) return { ok: false, ...gate };
 
 	// Compared as SHA-256 digests, because those are 32 bytes whatever went in.
@@ -177,10 +199,12 @@ export function tryPin(
 	const ok = config.pin.length > 0 && crypto.timingSafeEqual(digest(candidate), digest(config.pin));
 
 	if (ok) {
-		db.prepare('DELETE FROM pin_attempts WHERE ip = ?').run(ip);
-		metaSet(db, 'pin_global_failures', '0');
-		metaSet(db, 'pin_global_failed_at', '');
-		metaSet(db, 'pin_global_locked_until', '');
+		db.prepare('DELETE FROM pin_attempts WHERE ip = ?').run(key);
+		if (resetGlobalOnSuccess) {
+			metaSet(db, 'pin_global_failures', '0');
+			metaSet(db, 'pin_global_failed_at', '');
+			metaSet(db, 'pin_global_locked_until', '');
+		}
 		return { ok: true, allowed: true, waitSeconds: 0 };
 	}
 
@@ -189,7 +213,7 @@ export function tryPin(
 		new Date(now.getTime() - 86_400_000).toISOString()
 	);
 
-	const row = db.prepare('SELECT failures FROM pin_attempts WHERE ip = ?').get(ip) as
+	const row = db.prepare('SELECT failures FROM pin_attempts WHERE ip = ?').get(key) as
 		{ failures: number } | undefined;
 	const failures = (row?.failures ?? 0) + 1;
 	const wait = delaySeconds(failures);
@@ -197,7 +221,7 @@ export function tryPin(
 		'INSERT INTO pin_attempts (ip, failures, locked_until, updated_at) VALUES (?, ?, ?, ?) ' +
 			'ON CONFLICT(ip) DO UPDATE SET failures = excluded.failures, locked_until = excluded.locked_until, updated_at = excluded.updated_at'
 	).run(
-		ip,
+		key,
 		failures,
 		wait > 0 ? new Date(now.getTime() + wait * 1000).toISOString() : null,
 		now.toISOString()
@@ -225,13 +249,19 @@ export function tryUserPin(
 	ip: string,
 	now: Date = new Date()
 ): (AttemptGate & { ok: false }) | (AttemptGate & { ok: true; user: AuthUser; cookie: string }) {
-	const login = userId.trim().toLocaleLowerCase('en');
+	const login = userId.trim().slice(0, 80).toLocaleLowerCase('en');
 	const matchingUsers = config.users.filter(
 		(candidate) =>
 			candidate.enabled &&
 			(candidate.id.toLocaleLowerCase('en') === login || candidate.name.toLocaleLowerCase('en') === login)
 	);
 	const user = matchingUsers.length === 1 ? matchingUsers[0] : undefined;
+	const identity = `user:${user?.id.toLocaleLowerCase('en') ?? login}`;
+	// Refuse locked identities before paying for scrypt. The later check in
+	// tryPin remains authoritative for recording the attempt, but it is too late
+	// to protect the event loop from repeated work while a lock is active.
+	const gate = checkAttempt(db, ip, now, identity);
+	if (!gate.allowed) return { ok: false, ...gate };
 	const candidate = String(pin).slice(0, 256);
 	// A missing, disabled, or malformed account still pays for one real scrypt
 	// verification. Otherwise response time would disclose configured names.
@@ -239,14 +269,19 @@ export function tryUserPin(
 	const verified = Boolean(user) && hashMatches;
 	// Reuse the same per-IP and installation-wide brake as legacy authentication.
 	const comparisonPin = verified ? candidate : crypto.randomBytes(32).toString('hex');
-	const result = tryPin(db, { ...config, pin: comparisonPin }, candidate, ip, now);
+	const result = tryPin(db, { ...config, pin: comparisonPin }, candidate, ip, now, identity, false);
 	if (!result.ok || !user) return { ...result, ok: false };
 	return {
 		...result,
 		ok: true,
-		user: { id: user.id, name: user.name, role: user.role },
+		user: { kind: 'user', id: user.id, name: user.name, role: user.role, pinHash: user.pinHash },
 		cookie: userCookieValue(db, user.id, user.pinHash)
 	};
+}
+
+function attemptKey(ip: string, identity: string): string {
+	const scope = crypto.createHash('sha256').update(identity).digest('base64url').slice(0, 22);
+	return `${ip}\n${scope}`;
 }
 
 /** The global count with the elapsed time run off it, plus the failure just made. */

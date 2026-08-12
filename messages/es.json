@@ -327,5 +327,6 @@
 	"setup.intro": "Crea la cuenta de administrador. Después podrás gestionar usuarios y ajustes desde la aplicación.",
 	"setup.pinHint": "4 dígitos. El PIN solo se guarda como hash seguro.",
 	"setup.welcome": "Bienvenido",
+	"settings.errorSelfLockout": "No puedes desactivar ni degradar la cuenta que estás utilizando.",
 	"wheel.label": "Ruleta de desempate"
 }

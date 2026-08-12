@@ -327,5 +327,6 @@
 	"setup.intro": "Erstelle das Administratorkonto. Weitere Benutzer und Einstellungen kannst du danach bequem in der App verwalten.",
 	"setup.pinHint": "4 Ziffern. Die PIN wird nur als sicherer Hash gespeichert.",
 	"setup.welcome": "Willkommen",
+	"settings.errorSelfLockout": "Du kannst das aktuell verwendete Konto nicht deaktivieren oder herabstufen.",
 	"wheel.label": "Glücksrad bei Gleichstand"
 }

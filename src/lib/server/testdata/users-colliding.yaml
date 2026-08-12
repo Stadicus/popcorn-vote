@@ -1,0 +1,18 @@
+users:
+  - id: anna
+    name: Anna
+    role: admin
+    pin_hash: first
+  - id: ben
+    name: ANNA
+    pin_hash: duplicate-name
+  - id: carla
+    name: Ben
+    pin_hash: cross-id-name
+  - id: david
+    name: David
+    pin_hash: valid
+  - id: eve
+    name: Eve
+    enabled: 'false'
+    pin_hash: malformed-enabled

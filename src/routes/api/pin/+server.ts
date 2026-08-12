@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { AUTH_COOKIE, checkAttempt, cookieValue, tryPin, tryUserPin } from '$lib/server/auth';
+import { AUTH_COOKIE, cookieValue, tryPin, tryUserPin } from '$lib/server/auth';
 import { authCookie as authCookieOptions } from '$lib/server/cookies';
 
 export const POST: RequestHandler = async (event) => {
@@ -24,13 +24,6 @@ export const POST: RequestHandler = async (event) => {
 		// For instance in tests without a socket, then everyone shares one brake.
 	}
 
-	const gate = checkAttempt(locals.db, ip);
-	if (!gate.allowed) {
-		// The page counts the remaining time down itself (waitSeconds), so it is not
-		// repeated in the text here.
-		return json({ error: t('pin.tooManyAttempts'), waitSeconds: gate.waitSeconds }, { status: 429 });
-	}
-
 	const { pin, userId } = (await request.json().catch(() => ({}))) as { pin?: string; userId?: string };
 	const result =
 		locals.config.users.length > 0 && String(userId ?? '').trim() !== ''
@@ -38,7 +31,10 @@ export const POST: RequestHandler = async (event) => {
 			: tryPin(locals.db, locals.config, String(pin ?? ''), ip);
 
 	if (!result.ok) {
-		return json({ error: t('pin.wrong'), waitSeconds: result.waitSeconds }, { status: 403 });
+		return json(
+			{ error: result.allowed ? t('pin.wrong') : t('pin.tooManyAttempts'), waitSeconds: result.waitSeconds },
+			{ status: result.allowed ? 403 : 429 }
+		);
 	}
 
 	const authCookie =

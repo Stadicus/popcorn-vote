@@ -327,5 +327,6 @@
 	"setup.intro": "Yönetici hesabını oluşturun. Sonra kullanıcıları ve ayarları uygulamadan yönetebilirsiniz.",
 	"setup.pinHint": "4 rakam. PIN yalnızca güvenli bir hash olarak saklanır.",
 	"setup.welcome": "Hoş geldiniz",
+	"settings.errorSelfLockout": "Şu anda kullandığınız hesabı devre dışı bırakamaz veya yetkisini düşüremezsiniz.",
 	"wheel.label": "Eşitlik bozma çarkı"
 }

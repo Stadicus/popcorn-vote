@@ -21,7 +21,9 @@ if (!building) {
 	// Only for test instances (PV_DEMO_DATA) and only when the movie list is
 	// empty. Runs alongside, so that the movie database does not hold up the
 	// server start.
-	void seedDemoMovies(db, config).catch((err) => log.warn('Demo content could not be created', { err }));
+	if (!authenticationMissing(config)) {
+		void seedDemoMovies(db, config).catch((err) => log.warn('Demo content could not be created', { err }));
+	}
 }
 
 // Reachable without a PIN: the PIN page itself, the health address and the app's
@@ -56,6 +58,11 @@ function isOpen(pathname: string): boolean {
 }
 
 let missingAuthLogged = false;
+
+export function shouldRenewAuth(pathname: string, method: string): boolean {
+	if (pathname.startsWith('/covers/') || isOpen(pathname) || pathname === '/api/tv') return false;
+	return method !== 'OPTIONS' && method !== 'HEAD';
+}
 
 export const handle: Handle = async ({ event, resolve }) => {
 	const config = loadConfig();
@@ -104,16 +111,11 @@ export const handle: Handle = async ({ event, resolve }) => {
 	if (authed && pathname === '/pin') {
 		throw redirect(307, '/');
 	}
-	const acceptsHtml = event.request.headers.get('accept')?.includes('text/html') ?? false;
-	if (user && event.request.method === 'GET' && acceptsHtml) {
+	if (user && shouldRenewAuth(pathname, event.request.method)) {
 		const renewed =
-			user.id === 'legacy'
+			user.kind === 'legacy'
 				? cookieValue(event.locals.db, config)
-				: userCookieValue(
-						event.locals.db,
-						user.id,
-						config.users.find((candidate) => candidate.id === user.id)!.pinHash
-					);
+				: userCookieValue(event.locals.db, user.id, user.pinHash);
 		event.cookies.set(AUTH_COOKIE, renewed, authCookieOptions(config, event.request.headers));
 	}
 

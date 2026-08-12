@@ -24,6 +24,15 @@ export function loginIdentifierTaken(users: LoginIdentity[], value: string, exce
 	);
 }
 
+export function wouldLockOutCurrentAdmin(
+	currentUserId: string | undefined,
+	targetUserId: string,
+	role: 'admin' | 'user',
+	enabled: boolean
+): boolean {
+	return currentUserId === targetUserId && (role !== 'admin' || !enabled);
+}
+
 export function requireAdmin(event: Pick<RequestEvent, 'locals'>): void {
 	if (event.locals.user?.role !== 'admin') throw error(403, event.locals.t('settings.errorAdminRequired'));
 }

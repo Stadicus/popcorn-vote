@@ -69,6 +69,8 @@ jobs:
       # the same server would meet a database the first one filled. One job per
       # engine gets one server per engine, and the tests stay as they are.
       - run: npx playwright test --project=${{ matrix.browser }}
+        env:
+          PW_SETUP_BROWSER: ${{ matrix.browser }}
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: failure()
         with:
