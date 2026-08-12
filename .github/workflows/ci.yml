@@ -17,10 +17,6 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx svelte-kit sync
-      # The generated site is committed for direct static deployment. Regenerate it
-      # in CI so source/output drift cannot merge unnoticed.
-      - run: node docs/website-src/generate.mjs
-      - run: git diff --exit-code -- docs/website
       # Before lint: a German comment that slipped back in should be named as
       # such, not buried under whatever else a full run turns up.
       - run: .github/no-german-characters.sh

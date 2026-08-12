@@ -30,6 +30,19 @@ exit 1
 fi
 done
 
+# The static website is deployed directly from its committed generated output.
+# Regenerate it before scanning so CI also catches changed, missing, untracked,
+# or obsolete locale pages instead of reviewing source and deploying stale files.
+node docs/website-src/generate.mjs
+untracked_website=$(git ls-files --others --exclude-standard -- docs/website)
+if ! git diff --quiet -- docs/website || [ -n "$untracked_website" ]; then
+	echo "$0: docs/website is not in sync with docs/website-src." >&2
+	git diff --name-status -- docs/website >&2
+	printf '%s\n' "$untracked_website" >&2
+	echo "Run 'node docs/website-src/generate.mjs' and commit the generated output." >&2
+	exit 1
+fi
+
 # Paths that carry German characters on purpose. Every entry is a decision, not
 # a leftover; extending this list needs a reason in the same commit.
 allow=(

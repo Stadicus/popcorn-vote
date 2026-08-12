@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -43,6 +43,12 @@ sourceMessages.forEach((message, index) => {
 	const pattern = new RegExp(escapeRegExp(message).replace(/\s+/g, '\\s+'));
 	if (!pattern.test(template)) fail(`English source message ${index} does not occur in the template`);
 });
+
+await mkdir(output, { recursive: true });
+for (const entry of await readdir(output, { withFileTypes: true })) {
+	if (entry.isDirectory() && entry.name !== 'assets')
+		await rm(resolve(output, entry.name), { recursive: true, force: true });
+}
 
 const nativeName = (locale) => catalogue.locales[locale].name;
 const urlSlug = (locale) => catalogue.locales[locale].slug;
@@ -180,7 +186,10 @@ const gateway = `<!doctype html>
 		<main>
 			<div class="mark" aria-hidden="true">🍿</div>
 			<h1 translate="no">Popcorn Vote</h1>
-			<p>Choose your language · Sprache wählen · Elige tu idioma · Choisissez votre langue</p>
+			<p>
+				<span lang="en">Choose your language</span> · <span lang="de">Sprache wählen</span> ·
+				<span lang="es">Elige tu idioma</span> · <span lang="fr">Choisissez votre langue</span>
+			</p>
 			<nav class="languages" aria-label="Language">
 			${gatewayLinks}
 			</nav>
