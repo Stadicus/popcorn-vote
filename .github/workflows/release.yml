@@ -40,6 +40,12 @@ jobs:
       release_sha: ${{ steps.target.outputs.release_sha }}
       publish: ${{ steps.target.outputs.publish }}
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          # The first parent is enough to tell which files the successful main
+          # commit introduced, for both squash commits and merge commits.
+          fetch-depth: 2
       - id: target
         shell: bash
         env:
@@ -51,6 +57,20 @@ jobs:
           if [ "$CI_CONCLUSION" != success ]; then
             echo "::error::CI finished with conclusion '$CI_CONCLUSION'; release is blocked."
             exit 1
+          fi
+
+          # The marketing website shares the repository but not the app's
+          # release lifecycle. It still gets the full CI run; a website-only
+          # commit simply stops here, before waiting for Security or building
+          # Docker images.
+          if git rev-parse "$CI_HEAD_SHA^1" > /dev/null 2>&1; then
+            scope=$(git diff-tree --no-commit-id --name-only -r -z "$CI_HEAD_SHA^1" "$CI_HEAD_SHA" | bash .github/release-scope.sh)
+            if [ "$scope" = website-only ]; then
+              echo "::notice::$CI_HEAD_SHA changes only the independent marketing website. No app release is built."
+              echo "publish=false" >> "$GITHUB_OUTPUT"
+              echo "release_sha=$CI_HEAD_SHA" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
           fi
 
           main_sha=$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)
@@ -430,14 +450,7 @@ jobs:
           notes="$RUNNER_TEMP/notes.md"
           .github/release-notes.sh "$VERSION" > "$notes"
 
-          # Title assigned as before: "v1.3.0 – what is in it". The description
-          # comes from the subject line of the squash commit; without the usual
-          # prefix it simply stays whole.
-          subject=$(git log -1 --pretty=%s)
-          subject=${subject% (#*)}
-          subject=${subject#Version "$VERSION": }
-
           gh release create "$tag" \
             --target "${{ needs.gate.outputs.release_sha }}" \
-            --title "$tag – $subject" \
+            --title "$tag" \
             --notes-file "$notes"
