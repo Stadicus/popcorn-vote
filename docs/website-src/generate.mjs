@@ -140,8 +140,7 @@ for (const [locale, details] of locales) {
 		.replaceAll('{{LANGUAGE_MENU}}', languageMenu(locale));
 	if (/{{[A-Z_]+}}/.test(html)) fail(`${locale} output contains an unresolved placeholder`);
 
-	const languageScript = `
-		<script>
+	const languageScript = `\t<script>
 			document.querySelectorAll('[data-language]').forEach((link) =>
 				link.addEventListener('click', () => {
 					try { localStorage.setItem('pv_website_language', link.dataset.language); } catch {}
