@@ -4,7 +4,7 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<meta name="theme-color" content="#ffbe36" />
+		<meta name="theme-color" content="#f7f4ed" />
 		<meta
 			name="robots"
 			content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
@@ -85,6 +85,17 @@
 		/>
 		<script>
 			document.documentElement.classList.add('js');
+			try {
+				const theme = localStorage.getItem('pv_website_theme');
+				if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+			} catch {}
+			const explicitTheme = document.documentElement.dataset.theme;
+			const dark =
+				explicitTheme === 'dark' ||
+				(explicitTheme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+			document
+				.querySelector('meta[name="theme-color"]')
+				.setAttribute('content', dark ? '#0b1218' : '#f7f4ed');
 		</script>
 		<style>
 			@font-face {
@@ -172,6 +183,7 @@
 					U+A720-A7FF;
 			}
 			:root {
+				color-scheme: light;
 				--ink: #101923;
 				--paper: #f7f4ed;
 				--cream: #fffdf8;
@@ -180,7 +192,105 @@
 				--aqua: #08736f;
 				--coral: #ee4658;
 				--line: #e5ded2;
+				--muted: #59636c;
+				--nav-muted: #53606c;
+				--soft: #65717b;
+				--control-line: #b9b3a8;
+				--menu-hover: #efeae0;
+				--menu-active: #f3e4b6;
+				--menu-active-ink: #55451e;
+				--screen: #e9e5dd;
+				--screen-aqua: #eff5f3;
+				--feature-gold: #f3e4b6;
+				--feature-gold-line: #e6ce85;
+				--feature-gold-ink: #55451e;
+				--deep-panel: #101923;
+				--deep-panel-raised: #243342;
+				--on-deep: #fff;
+				--on-deep-muted: #b7c2cb;
+				--button-bg: #101923;
+				--button-ink: #fff;
+				--ticker-glow: rgb(255 190 54 / 0.14);
+				--video-bg: #ffbe36;
+				--video-ink: #101923;
+				--video-shadow: rgb(83 60 0 / 0.2);
+				--self-host-bg: #ece7dd;
+				--hero-glow: radial-gradient(circle, #ffd871 0 20%, #ffca49 21% 45%, transparent 46%);
 				--shadow: 0 18px 50px rgb(16 25 35 / 0.12);
+			}
+			:root[data-theme='dark'] {
+				color-scheme: dark;
+				--ink: #f4f0e7;
+				--paper: #0b1218;
+				--cream: #141e27;
+				--orange: #ffae57;
+				--gold: #ffc44d;
+				--aqua: #69d4cd;
+				--coral: #ff6675;
+				--line: #2b3945;
+				--muted: #aeb9c3;
+				--nav-muted: #a8b4be;
+				--soft: #93a2ae;
+				--control-line: #465663;
+				--menu-hover: #202d38;
+				--menu-active: #3a321d;
+				--menu-active-ink: #ffe096;
+				--screen: #1b2731;
+				--screen-aqua: #142b2c;
+				--feature-gold: #302a1a;
+				--feature-gold-line: #594a24;
+				--feature-gold-ink: #eadcae;
+				--deep-panel: #080e14;
+				--deep-panel-raised: #1c2a36;
+				--on-deep: #f7f4ed;
+				--on-deep-muted: #b7c2cb;
+				--button-bg: #ffc44d;
+				--button-ink: #332500;
+				--ticker-glow: rgb(255 196 77 / 0.24);
+				--video-bg: #30270d;
+				--video-ink: #f4f0e7;
+				--video-shadow: rgb(0 0 0 / 0.45);
+				--self-host-bg: #101a22;
+				--hero-glow: radial-gradient(circle, #6b5017 0 20%, #443715 21% 45%, transparent 46%);
+				--shadow: 0 18px 50px rgb(0 0 0 / 0.38);
+			}
+			@media (prefers-color-scheme: dark) {
+				:root:not([data-theme='light']) {
+					color-scheme: dark;
+					--ink: #f4f0e7;
+					--paper: #0b1218;
+					--cream: #141e27;
+					--orange: #ffae57;
+					--gold: #ffc44d;
+					--aqua: #69d4cd;
+					--coral: #ff6675;
+					--line: #2b3945;
+					--muted: #aeb9c3;
+					--nav-muted: #a8b4be;
+					--soft: #93a2ae;
+					--control-line: #465663;
+					--menu-hover: #202d38;
+					--menu-active: #3a321d;
+					--menu-active-ink: #ffe096;
+					--screen: #1b2731;
+					--screen-aqua: #142b2c;
+					--feature-gold: #302a1a;
+					--feature-gold-line: #594a24;
+					--feature-gold-ink: #eadcae;
+					--deep-panel: #080e14;
+					--deep-panel-raised: #1c2a36;
+					--on-deep: #f7f4ed;
+					--on-deep-muted: #b7c2cb;
+					--button-bg: #ffc44d;
+					--button-ink: #332500;
+					--ticker-glow: rgb(255 196 77 / 0.24);
+					--video-bg: #30270d;
+					--video-ink: #f4f0e7;
+					--video-shadow: rgb(0 0 0 / 0.45);
+					--self-host-bg: #101a22;
+					--hero-glow: radial-gradient(circle, #6b5017 0 20%, #443715 21% 45%, transparent 46%);
+					--shadow: 0 18px 50px rgb(0 0 0 / 0.38);
+				}
 			}
 			* {
 				box-sizing: border-box;
@@ -198,6 +308,9 @@
 				font:
 					600 16px/1.6 'Nunito Sans',
 					sans-serif;
+				transition:
+					color 0.2s ease,
+					background-color 0.2s ease;
 			}
 			a {
 				color: inherit;
@@ -211,8 +324,8 @@
 				position: absolute;
 				left: 1rem;
 				top: -5rem;
-				background: var(--ink);
-				color: white;
+				background: var(--button-bg);
+				color: var(--button-ink);
 				padding: 0.7rem 1rem;
 				z-index: 10;
 			}
@@ -236,9 +349,10 @@
 				margin-bottom: 0.6rem;
 			}
 			.nav {
-				display: flex;
+				display: grid;
+				grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
 				align-items: center;
-				justify-content: space-between;
+				gap: 1rem;
 				min-height: 82px;
 			}
 			.brand {
@@ -267,11 +381,17 @@
 				gap: clamp(0.75rem, 2vw, 1.4rem);
 				font-size: 0.86rem;
 			}
-			.nav-links a:not(.nav-cta) {
-				color: #53606c;
+			.nav-links a {
+				color: var(--nav-muted);
 			}
-			.nav-links a:not(.nav-cta):hover {
+			.nav-links a:hover {
 				color: var(--ink);
+			}
+			.nav-actions {
+				display: flex;
+				align-items: center;
+				justify-content: flex-end;
+				gap: clamp(0.65rem, 1.4vw, 1rem);
 			}
 			.nav-cta,
 			.button {
@@ -283,8 +403,8 @@
 				padding: 0.7rem 1rem;
 				border: 0;
 				border-radius: 999px;
-				background: var(--ink);
-				color: #fff;
+				background: var(--button-bg);
+				color: var(--button-ink);
 				font-weight: 800;
 				box-shadow: 0 8px 18px rgb(16 25 35 / 0.15);
 				transition:
@@ -295,6 +415,47 @@
 			.button:hover {
 				transform: translateY(-2px);
 				box-shadow: 0 11px 22px rgb(16 25 35 / 0.19);
+			}
+			.theme-toggle {
+				display: grid;
+				place-items: center;
+				width: 44px;
+				height: 44px;
+				flex: 0 0 auto;
+				padding: 0;
+				border: 1px solid var(--control-line);
+				border-radius: 50%;
+				background: var(--cream);
+				color: var(--ink);
+				cursor: pointer;
+				box-shadow: 0 4px 12px rgb(16 25 35 / 0.08);
+				transition:
+					transform 0.18s ease,
+					border-color 0.18s ease,
+					background-color 0.2s ease;
+			}
+			.theme-toggle:hover {
+				border-color: var(--orange);
+				transform: rotate(-8deg);
+			}
+			.theme-toggle:focus-visible {
+				outline: 3px solid var(--aqua);
+				outline-offset: 3px;
+			}
+			.theme-toggle .sun,
+			:root[data-theme='dark'] .theme-toggle .moon {
+				display: none;
+			}
+			:root[data-theme='dark'] .theme-toggle .sun {
+				display: inline;
+			}
+			@media (prefers-color-scheme: dark) {
+				:root:not([data-theme='light']) .theme-toggle .moon {
+					display: none;
+				}
+				:root:not([data-theme='light']) .theme-toggle .sun {
+					display: inline;
+				}
 			}
 			.hero {
 				position: relative;
@@ -309,7 +470,7 @@
 				height: 38rem;
 				right: -15rem;
 				top: -12rem;
-				background: radial-gradient(circle, #ffd871 0 20%, #ffca49 21% 45%, transparent 46%);
+				background: var(--hero-glow);
 				opacity: 0.62;
 			}
 			.hero-grid {
@@ -347,10 +508,10 @@
 				gap: 0.4rem;
 				min-height: 44px;
 				padding: 0.55rem 0.75rem;
-				border: 1px solid #b9b3a8;
+				border: 1px solid var(--control-line);
 				border-radius: 999px;
 				background: var(--cream);
-				color: #45515d;
+				color: var(--nav-muted);
 				font:
 					500 0.72rem/1 'DM Mono',
 					monospace;
@@ -406,15 +567,15 @@
 			}
 			.language-options a:hover,
 			.language-options a:focus-visible {
-				background: #efeae0;
+				background: var(--menu-hover);
 			}
 			.language-options a[aria-current='page'] {
-				background: #f3e4b6;
-				color: #55451e;
+				background: var(--menu-active);
+				color: var(--menu-active-ink);
 				font-weight: 800;
 			}
 			.language-code {
-				color: #65717b;
+				color: var(--soft);
 				font:
 					500 0.63rem/1 'DM Mono',
 					monospace;
@@ -423,7 +584,7 @@
 			.lede {
 				max-width: 540px;
 				margin: 1.15rem 0 1.35rem;
-				color: #53606c;
+				color: var(--nav-muted);
 				font-size: 1.08rem;
 			}
 			.hero-actions {
@@ -435,12 +596,12 @@
 			.button.alt {
 				background: transparent;
 				color: var(--ink);
-				border: 1px solid #b9b3a8;
+				border: 1px solid var(--control-line);
 				box-shadow: none;
 			}
 			.note {
 				margin: 1.1rem 0 0;
-				color: #59636c;
+				color: var(--muted);
 				font-size: 0.82rem;
 			}
 			.note b {
@@ -494,7 +655,7 @@
 				border: 0;
 				padding: 0.3rem 0;
 				background: transparent;
-				color: #59636c;
+				color: var(--muted);
 				cursor: pointer;
 				font:
 					500 0.78rem 'DM Mono',
@@ -505,8 +666,13 @@
 				color: var(--orange);
 			}
 			.stripe {
-				background: var(--ink);
-				color: var(--cream);
+				position: relative;
+				z-index: 1;
+				background: var(--deep-panel);
+				color: var(--on-deep);
+				box-shadow:
+					0 -9px 24px var(--ticker-glow),
+					0 9px 24px var(--ticker-glow);
 				overflow: hidden;
 			}
 			.stripe p {
@@ -536,7 +702,7 @@
 			.section-head p:last-child {
 				max-width: 540px;
 				margin: 0;
-				color: #59636c;
+				color: var(--muted);
 				font-size: 1.06rem;
 			}
 			.journey {
@@ -590,7 +756,7 @@
 				font-size: clamp(2rem, 3.8vw, 3.5rem);
 			}
 			.story-copy p:last-child {
-				color: #59636c;
+				color: var(--muted);
 			}
 			.screen {
 				position: relative;
@@ -598,7 +764,7 @@
 				place-items: center;
 				min-height: 300px;
 				padding: 2rem;
-				background: #e9e5dd;
+				background: var(--screen);
 			}
 			.screen img {
 				width: auto;
@@ -660,7 +826,7 @@
 			}
 			.story:nth-child(2) .screen {
 				order: -1;
-				background: #eff5f3;
+				background: var(--screen-aqua);
 			}
 			.story:nth-child(3) .screen {
 				background: #101923;
@@ -673,14 +839,14 @@
 				margin-top: 1.4rem;
 				padding: clamp(1.5rem, 4vw, 3rem);
 				border-radius: 26px;
-				background: var(--ink);
-				color: white;
+				background: var(--deep-panel);
+				color: var(--on-deep);
 			}
 			.tv-mode h3 {
 				font-size: clamp(2rem, 3.5vw, 3.25rem);
 			}
 			.tv-mode p:last-child {
-				color: #b7c2cb;
+				color: var(--on-deep-muted);
 			}
 			.tv-mode .eyebrow,
 			.closer .eyebrow {
@@ -702,7 +868,8 @@
 					0 0 44px rgb(255 190 54 / 0.14);
 			}
 			.video-section {
-				background: var(--gold);
+				background: var(--video-bg);
+				color: var(--video-ink);
 				padding: 7rem 0;
 			}
 			.video-layout {
@@ -725,7 +892,7 @@
 				display: block;
 				width: 100%;
 				height: auto;
-				box-shadow: 0 18px 38px rgb(83 60 0 / 0.2);
+				box-shadow: 0 18px 38px var(--video-shadow);
 			}
 			.demo-top {
 				display: flex;
@@ -854,13 +1021,13 @@
 				border: 1px solid var(--line);
 			}
 			.feature:nth-child(2) {
-				background: #f3e4b6;
-				border-color: #e6ce85;
+				background: var(--feature-gold);
+				border-color: var(--feature-gold-line);
 			}
 			.feature:nth-child(3) {
-				background: #243342;
-				border-color: #243342;
-				color: white;
+				background: var(--deep-panel-raised);
+				border-color: var(--deep-panel-raised);
+				color: var(--on-deep);
 			}
 			.feature .icon {
 				display: grid;
@@ -877,21 +1044,25 @@
 			}
 			.feature p {
 				margin: 0;
-				color: #59636c;
+				color: var(--muted);
 				font-size: 0.91rem;
 			}
 			.feature:nth-child(2) p {
-				color: #55451e;
+				color: var(--feature-gold-ink);
 			}
 			.feature:nth-child(3) p {
 				color: #c8d2dc;
+			}
+			.self-hosting-section {
+				padding: 7rem 0;
+				border-block: 1px solid var(--line);
+				background: var(--self-host-bg);
 			}
 			.nerd-panel {
 				position: relative;
 				display: grid;
 				grid-template-columns: minmax(230px, 0.72fr) minmax(0, 1.28fr);
 				gap: clamp(2rem, 5vw, 5rem);
-				margin-top: 1rem;
 				padding: clamp(2rem, 5vw, 4rem);
 				overflow: hidden;
 				border: 1px solid #344353;
@@ -997,8 +1168,8 @@
 				position: relative;
 				overflow: hidden;
 				padding: 7rem 0;
-				background: var(--ink);
-				color: #fff;
+				background: var(--deep-panel);
+				color: var(--on-deep);
 				text-align: center;
 			}
 			.closer:before {
@@ -1024,7 +1195,7 @@
 			.closer p {
 				max-width: 550px;
 				margin: 1.5rem auto 2rem;
-				color: #b7c2cb;
+				color: var(--on-deep-muted);
 			}
 			.closer .button {
 				background: var(--gold);
@@ -1032,7 +1203,7 @@
 			}
 			.footer {
 				padding: 1.5rem 0;
-				color: #65717b;
+				color: var(--soft);
 				font-size: 0.8rem;
 			}
 			.footer-row {
@@ -1046,7 +1217,8 @@
 				flex-wrap: wrap;
 				gap: 0.35rem;
 			}
-			.footer-project-link {
+			.footer-project-link,
+			.footer-license-link {
 				display: inline-flex;
 				align-items: center;
 				gap: 0.4rem;
@@ -1073,7 +1245,7 @@
 				margin-top: 1.2rem;
 				padding-top: 1rem;
 				border-top: 1px solid var(--line);
-				color: #65717b;
+				color: var(--soft);
 				font-size: 0.67rem;
 				font-weight: 500;
 				line-height: 1.5;
@@ -1150,7 +1322,10 @@
 				}
 			}
 			@media (max-width: 900px) {
-				.nav-links > a:not(.nav-cta) {
+				.nav {
+					grid-template-columns: minmax(0, 1fr) auto;
+				}
+				.nav-links {
 					display: none;
 				}
 			}
@@ -1205,7 +1380,8 @@
 					min-height: auto;
 				}
 				.section,
-				.video-section {
+				.video-section,
+				.self-hosting-section {
 					padding: 4.6rem 0;
 				}
 				.section-head {
@@ -1231,6 +1407,7 @@
 				*:after {
 					animation-duration: 0.01ms !important;
 					animation-iteration-count: 1 !important;
+					transition-duration: 0.01ms !important;
 				}
 			}
 		</style>
@@ -1302,11 +1479,15 @@
 				<span class="mark" aria-hidden="true">🍿</span> <span translate="no">Popcorn Vote</span>
 			</button>
 			<nav class="nav-links" aria-label="Navegación principal">
-				<a href="#story">como funciona</a><a href="#features">Por qué las familias lo usan</a
-				><a class="nav-cta" href="https://demo.popcornvote.org" target="_blank" rel="noreferrer"
-					>Probar la demo en vivo ↗</a
-				><details class="language-menu"><summary aria-label="Elegir idioma"><span aria-hidden="true">◎</span><span lang="es">Español</span></summary><ul class="language-options"><li><a href="/en/" hreflang="en" lang="en" data-language="en"><span>English</span><span class="language-code">en</span></a></li><li><a href="/de/" hreflang="de" lang="de" data-language="de"><span>Deutsch</span><span class="language-code">de</span></a></li><li><a href="/es/" hreflang="es" lang="es" data-language="es" aria-current="page"><span>Español</span><span class="language-code">es</span></a></li><li><a href="/fr/" hreflang="fr" lang="fr" data-language="fr"><span>Français</span><span class="language-code">fr</span></a></li><li><a href="/pt-br/" hreflang="pt-BR" lang="pt-BR" data-language="pt-BR"><span>Português (Brasil)</span><span class="language-code">pt-BR</span></a></li><li><a href="/it/" hreflang="it" lang="it" data-language="it"><span>Italiano</span><span class="language-code">it</span></a></li><li><a href="/pl/" hreflang="pl" lang="pl" data-language="pl"><span>Polski</span><span class="language-code">pl</span></a></li><li><a href="/tr/" hreflang="tr" lang="tr" data-language="tr"><span>Türkçe</span><span class="language-code">tr</span></a></li><li><a href="/ja/" hreflang="ja" lang="ja" data-language="ja"><span>日本語</span><span class="language-code">ja</span></a></li></ul></details>
+				<a href="#story">como funciona</a><a href="#features">Por qué las familias lo usan</a>
 			</nav>
+			<div class="nav-actions">
+				<a class="nav-cta" href="https://demo.popcornvote.org" target="_blank" rel="noreferrer"
+					>Probar la demo en vivo ↗</a
+				><details class="language-menu"><summary aria-label="Elegir idioma"><span aria-hidden="true">◎</span><span lang="es">Español</span></summary><ul class="language-options"><li><a href="/en/" hreflang="en" lang="en" data-language="en"><span>English</span><span class="language-code">en</span></a></li><li><a href="/de/" hreflang="de" lang="de" data-language="de"><span>Deutsch</span><span class="language-code">de</span></a></li><li><a href="/es/" hreflang="es" lang="es" data-language="es" aria-current="page"><span>Español</span><span class="language-code">es</span></a></li><li><a href="/fr/" hreflang="fr" lang="fr" data-language="fr"><span>Français</span><span class="language-code">fr</span></a></li><li><a href="/pt-br/" hreflang="pt-BR" lang="pt-BR" data-language="pt-BR"><span>Português (Brasil)</span><span class="language-code">pt-BR</span></a></li><li><a href="/it/" hreflang="it" lang="it" data-language="it"><span>Italiano</span><span class="language-code">it</span></a></li><li><a href="/pl/" hreflang="pl" lang="pl" data-language="pl"><span>Polski</span><span class="language-code">pl</span></a></li><li><a href="/tr/" hreflang="tr" lang="tr" data-language="tr"><span>Türkçe</span><span class="language-code">tr</span></a></li><li><a href="/ja/" hreflang="ja" lang="ja" data-language="ja"><span>日本語</span><span class="language-code">ja</span></a></li></ul></details><button class="theme-toggle" type="button" aria-label="Cambiar el tema de color">
+					<span class="moon" aria-hidden="true">☾</span><span class="sun" aria-hidden="true">☀</span>
+				</button>
+			</div>
 		</header>
 		<main id="content">
 			<section class="hero" id="top">
@@ -1499,7 +1680,9 @@
 						</p>
 					</article>
 				</div>
-				<aside class="nerd-panel" aria-labelledby="self-hosting-title">
+			</section>
+			<section class="self-hosting-section" aria-labelledby="self-hosting-title">
+				<div class="shell nerd-panel">
 					<div class="nerd-intro">
 						<p class="nerd-kicker">Notas para self-hosters</p>
 						<h3 id="self-hosting-title">Stack pequeño. Valores predeterminados bien pensados.</h3>
@@ -1539,7 +1722,7 @@
 							</p>
 						</article>
 					</div>
-				</aside>
+				</div>
 			</section>
 			<section class="closer">
 				<div class="shell">
@@ -1555,7 +1738,14 @@
 		<footer class="shell footer">
 			<div class="footer-row">
 				<span class="footer-note"
-					>Un proyecto familiar de Stadicus <span aria-hidden="true">·</span> licencia MIT</span
+					>Un proyecto familiar de Stadicus <span aria-hidden="true">·</span>
+					<a
+						class="footer-license-link"
+						href="https://github.com/Stadicus/popcorn-vote/blob/main/LICENSE"
+						target="_blank"
+						rel="noreferrer"
+						>licencia MIT</a
+					></span
 				>
 				<div class="footer-actions">
 					<a
@@ -1588,6 +1778,26 @@
 			</div>
 		</footer>
 		<script>
+			const themeToggle = document.querySelector('.theme-toggle');
+			const systemTheme = window.matchMedia('(prefers-color-scheme: dark)');
+			const syncTheme = () => {
+				const explicitTheme = document.documentElement.dataset.theme;
+				const dark = explicitTheme === 'dark' || (explicitTheme !== 'light' && systemTheme.matches);
+				themeToggle.setAttribute('aria-pressed', String(dark));
+				const paper = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim();
+				document.querySelector('meta[name="theme-color"]').setAttribute('content', paper);
+			};
+			themeToggle.addEventListener('click', () => {
+				const dark = themeToggle.getAttribute('aria-pressed') === 'true';
+				const theme = dark ? 'light' : 'dark';
+				document.documentElement.dataset.theme = theme;
+				try {
+					localStorage.setItem('pv_website_theme', theme);
+				} catch {}
+				syncTheme();
+			});
+			systemTheme.addEventListener('change', syncTheme);
+			syncTheme();
 			const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 			function supernova(target, scale = 1, anchor = null) {
 				if (reducedMotion) return;

@@ -142,7 +142,8 @@
 			"The Popcorn Vote wheel of fortune resolving a tied vote",
 			"The winning film displayed on the Popcorn Vote Movie Night screen",
 			"Popcorn Vote TV mode showing the winning movie on a television-friendly screen",
-			"Try live demo"
+			"Try live demo",
+			"Toggle color theme"
 		],
 		"de": [
 			"Popcorn Vote ist eine kostenlose, selbst gehostete App für den Familienfilmabend. Schlagen Sie Filme vor, sammeln Sie Stimmen, lösen Sie Stimmengleichheit mit einem Rad auf und führen Sie ein gemeinsames Filmtagebuch.",
@@ -228,7 +229,8 @@
 			"Das Popcorn Vote-Glücksrad entscheidet über eine Stimmengleichheit",
 			"Der Gewinnerfilm wird auf dem Bildschirm „PV⟧ Movie Night“ angezeigt",
 			"Popcorn Vote TV-Modus, der den Gewinnerfilm auf einem fernsehfreundlichen Bildschirm zeigt",
-			"Live-Demo testen"
+			"Live-Demo testen",
+			"Farbschema wechseln"
 		],
 		"es": [
 			"Popcorn Vote es una aplicación gratuita y autohospedada para una noche de cine familiar. Sugiera películas, acumule votos, resuelva empates con una rueda y lleve un diario cinematográfico compartido.",
@@ -314,7 +316,8 @@
 			"La rueda de la fortuna Popcorn Vote que resuelve un empate en la votación",
 			"La película ganadora se exhibirá en la pantalla Popcorn Vote Movie Night",
 			"Popcorn Vote Modo TV que muestra la película ganadora en una pantalla compatible con televisión",
-			"Probar la demo en vivo"
+			"Probar la demo en vivo",
+			"Cambiar el tema de color"
 		],
 		"fr": [
 			"Popcorn Vote est une application gratuite et auto-hébergée pour une soirée cinéma en famille. Suggérez des films, accumulez des votes, résolvez les votes à égalité avec une roue et tenez un journal de film partagé.",
@@ -400,7 +403,8 @@
 			"La roue de la fortune Popcorn Vote résout un vote à égalité",
 			"Le film gagnant affiché sur l'écran Popcorn Vote Movie Night",
 			"Mode TV Popcorn Vote montrant le film gagnant sur un écran compatible avec la télévision",
-			"Essayer la démo en direct"
+			"Essayer la démo en direct",
+			"Changer le thème de couleur"
 		],
 		"pt-BR": [
 			"Popcorn Vote é um aplicativo gratuito e auto-hospedado para noites de cinema em família. Sugira filmes, acumule votos, resolva votos empatados com uma roda e mantenha um diário de filmes compartilhado.",
@@ -486,7 +490,8 @@
 			"A roda da fortuna Popcorn Vote resolvendo uma votação empatada",
 			"O filme vencedor exibido na tela Popcorn Vote Movie Night",
 			"Popcorn Vote Modo TV mostrando o filme vencedor em uma tela adequada para televisão",
-			"Testar demonstração ao vivo"
+			"Testar demonstração ao vivo",
+			"Alternar tema de cores"
 		],
 		"it": [
 			"Popcorn Vote è un'app gratuita e self-hosted per serate di cinema in famiglia. Suggerisci film, accumula voti, risolvi i voti in parità con una ruota e tieni un diario cinematografico condiviso.",
@@ -572,7 +577,8 @@
 			"La ruota della fortuna Popcorn Vote risolve un voto in parità",
 			"Il film vincitore verrà visualizzato sullo schermo Popcorn Vote Movie Night",
 			"Popcorn Vote Modalità TV che mostra il film vincitore su uno schermo adatto alla televisione",
-			"Prova la demo online"
+			"Prova la demo online",
+			"Cambia il tema dei colori"
 		],
 		"pl": [
 			"Popcorn Vote to bezpłatna aplikacja hostowana na własnym serwerze, przeznaczona na rodzinny wieczór filmowy. Sugeruj filmy, zbieraj głosy, rozstrzygaj remisowe głosy za pomocą koła i prowadź wspólny dziennik filmowy.",
@@ -658,7 +664,8 @@
 			"Koło fortuny Popcorn Vote rozstrzygające remisową liczbę głosów",
 			"Zwycięski film wyświetlany na ekranie Nocy Filmowej Popcorn Vote",
 			"Popcorn Vote Tryb telewizyjny pokazujący zwycięski film na ekranie przyjaznym dla telewizji",
-			"Wypróbuj demo na żywo"
+			"Wypróbuj demo na żywo",
+			"Zmień motyw kolorystyczny"
 		],
 		"tr": [
 			"Popcorn Vote aile film geceleri için ücretsiz, kendi kendine barındırılan bir uygulamadır. Film önerin, oy toplayın, eşit oyları çarkla çözün ve ortak bir film günlüğü tutun.",
@@ -744,7 +751,8 @@
 			"Eşit oylu bir oyu çözen Popcorn Vote çarkıfelek",
 			"Kazanan film Popcorn Vote Film Gecesi ekranında gösteriliyor",
 			"Popcorn Vote Kazanan filmi televizyona uygun bir ekranda gösteren TV modu",
-			"Canlı demoyu dene"
+			"Canlı demoyu dene",
+			"Renk temasını değiştir"
 		],
 		"ja": [
 			"Popcorn Vote は、家族で映画鑑賞をするための無料の自己ホスト型アプリです。映画を提案し、投票を蓄積し、ホイールで同数の票を解決し、共有の映画日記を付けます。",
@@ -830,7 +838,8 @@
 			"同数票を解決するPopcorn Vote運命の輪",
 			"Popcorn Vote Movie Night スクリーンに表示される受賞作品",
 			"Popcorn Vote 受賞映画をテレビ向けの画面で表示する TV モード",
-			"ライブデモを試す"
+			"ライブデモを試す",
+			"カラーテーマを切り替える"
 		]
 	}
 }
