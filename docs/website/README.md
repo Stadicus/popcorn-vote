@@ -2,7 +2,7 @@
 
 This directory is the generated, self-contained static marketing site. Upload its contents (including `assets/` and the language directories) to the document root on the VPS; no build step, app runtime, or third-party font request is required there. The bundled DM Mono, DM Sans, and Nunito Sans files are licensed under the SIL Open Font License; copies are stored alongside the fonts in `assets/fonts/`.
 
-The maintainable source lives in `docs/website-src/`. After changing its template, messages, or reviewed translation overrides, regenerate the deployable files from the repository root:
+The maintainable source lives in `docs/website-src/`. After changing its template, messages, reviewed translation overrides, or the FAQ catalogue, regenerate the deployable files from the repository root:
 
 ```sh
 node docs/website-src/generate.mjs

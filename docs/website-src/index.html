@@ -353,7 +353,7 @@
 			.site-header.is-hidden {
 				transform: translateY(calc(-100% - 1px));
 			}
-			.site-header.is-hidden:focus-within {
+			.site-header.is-hidden:has(:focus-visible) {
 				transform: translateY(0);
 			}
 			.nav {
@@ -1092,6 +1092,80 @@
 			.feature:nth-child(3) p {
 				color: #c8d2dc;
 			}
+			.faq-section {
+				position: relative;
+				overflow: hidden;
+			}
+			.faq-section::before {
+				content: '?' / '';
+				position: absolute;
+				top: -4rem;
+				right: max(1rem, calc((100vw - 1180px) / 2));
+				z-index: 0;
+				color: var(--line);
+				font:
+					700 clamp(12rem, 25vw, 23rem)/1 'DM Sans',
+					sans-serif;
+				pointer-events: none;
+			}
+			.faq-section .section-head {
+				position: relative;
+				z-index: 1;
+			}
+			.faq-list {
+				position: relative;
+				display: grid;
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+				gap: 0 2rem;
+				border-top: 1px solid var(--line);
+			}
+			.faq-item {
+				border-bottom: 1px solid var(--line);
+			}
+			.faq-item summary {
+				display: grid;
+				grid-template-columns: 1fr auto;
+				gap: 1rem;
+				align-items: center;
+				min-height: 5.25rem;
+				padding: 1rem 0;
+				font:
+					700 1.05rem/1.3 'DM Sans',
+					sans-serif;
+				cursor: pointer;
+				list-style: none;
+			}
+			.faq-item summary::-webkit-details-marker {
+				display: none;
+			}
+			.faq-item summary::after {
+				content: '+';
+				display: grid;
+				place-items: center;
+				width: 2rem;
+				height: 2rem;
+				border: 1px solid var(--line);
+				border-radius: 50%;
+				color: var(--orange);
+				font-size: 1.4rem;
+				transition:
+					rotate 180ms ease,
+					background 180ms ease;
+			}
+			.faq-item[open] summary::after {
+				rotate: 45deg;
+				background: var(--gold);
+				color: #101923;
+			}
+			.faq-item summary:focus-visible {
+				outline: 3px solid var(--aqua);
+				outline-offset: 4px;
+			}
+			.faq-answer {
+				max-width: 62ch;
+				margin: -0.25rem 3rem 1.5rem 0;
+				color: var(--muted);
+			}
 			.self-hosting-section {
 				padding: 7rem 0;
 				border-block: 1px solid var(--line);
@@ -1424,6 +1498,9 @@
 				.features {
 					grid-template-columns: 1fr;
 				}
+				.faq-list {
+					grid-template-columns: 1fr;
+				}
 				.nerd-panel,
 				.nerd-grid {
 					grid-template-columns: 1fr;
@@ -1433,7 +1510,8 @@
 				}
 				.section,
 				.video-section,
-				.self-hosting-section {
+				.self-hosting-section,
+				.faq-section {
 					padding: 4.6rem 0;
 				}
 				.section-head {
@@ -1528,6 +1606,14 @@
 						"applicationCategory": "LifestyleApplication",
 						"operatingSystem": "Any operating system with a modern web browser",
 						"softwareRequirements": "Docker on linux/amd64 or linux/arm64",
+						"inLanguage": "{{HTML_LANG}}",
+						"featureList": [
+							"Shared movie suggestions",
+							"Equal and saveable votes",
+							"Tie-breaking wheel",
+							"Shared family film diary",
+							"Television display mode"
+						],
 						"isAccessibleForFree": true,
 						"image": { "@id": "https://popcornvote.org/#primaryimage" },
 						"sameAs": "https://github.com/Stadicus/popcorn-vote",
@@ -1543,7 +1629,8 @@
 							"price": 0,
 							"priceCurrency": "USD"
 						}
-					}
+					},
+					{{FAQ_JSON_LD}}
 				]
 			}
 		</script>
@@ -1556,7 +1643,7 @@
 					<span class="mark" aria-hidden="true">🍿</span> <span translate="no">Popcorn Vote</span>
 				</button>
 				<nav class="nav-links" aria-label="Main navigation">
-					<a href="#story">How it works</a><a href="#features">Why families use it</a>
+					<a href="#story">How it works</a><a href="#features">Why families use it</a><a href="#faq">FAQ</a>
 				</nav>
 				<div class="nav-actions">
 					<a class="nav-cta" href="https://demo.popcornvote.org" target="_blank" rel="noreferrer"
@@ -1825,6 +1912,18 @@
 							</p>
 						</article>
 					</div>
+				</div>
+			</section>
+			<section class="section faq-section" id="faq" aria-labelledby="faq-title">
+				<div class="shell">
+					<div class="section-head">
+						<div>
+							<p class="eyebrow">{{FAQ_EYEBROW}}</p>
+							<h2 id="faq-title">{{FAQ_TITLE}}</h2>
+						</div>
+						<p>{{FAQ_INTRO}}</p>
+					</div>
+					<div class="faq-list">{{FAQ_ITEMS}}</div>
 				</div>
 			</section>
 			<section class="closer">

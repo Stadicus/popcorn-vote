@@ -26,8 +26,8 @@ if (!building) {
 	}
 }
 
-// Reachable without a PIN: the PIN page itself, the health address and the app's
-// basic equipment.
+// Reachable without a PIN: the PIN page itself, the health address, and the
+// app's basic equipment.
 // /offline.html has to be open: the service worker puts the page into the cache
 // while installing, and behind the PIN guard the redirect to /pin would arrive
 // there instead.
@@ -35,6 +35,11 @@ if (!building) {
 // change the language before signing in. The endpoint only writes a cookie from
 // the known list of languages, holds no server state and gives nothing away .
 // the same class as /api/pin itself.
+// /robots.txt, /manifest.webmanifest, /service-worker.js and /offline.html are
+// files under static/: adapter-node serves them ahead of this hook (sirv, then
+// prerendered routes, then SSR), so this guard never actually runs for them in
+// production. They are listed here only so `handle` behaves the same way in
+// `vite dev`, which has no such static layer in front of it.
 const OPEN_PATHS = new Set([
 	'/pin',
 	'/setup',
@@ -42,6 +47,7 @@ const OPEN_PATHS = new Set([
 	'/api/setup',
 	'/api/language',
 	'/healthz',
+	'/robots.txt',
 	'/manifest.webmanifest',
 	'/service-worker.js',
 	'/offline.html'
@@ -147,6 +153,12 @@ export const handle: Handle = async ({ event, resolve }) => {
 	response.headers.set('X-Content-Type-Options', 'nosniff');
 	response.headers.set('Referrer-Policy', 'no-referrer');
 	response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+	// The app contains private family state. Keep resolved dynamic responses out
+	// of search indexes even when a crawler ignores the HTML meta tag. robots.txt
+	// allows crawling on purpose: a Disallow would stop crawlers from ever
+	// reading this header or the HTML meta tag, and an externally linked page
+	// blocked that way can still surface in results as a bare URL.
+	response.headers.set('X-Robots-Tag', 'noindex, nofollow');
 	return response;
 };
 

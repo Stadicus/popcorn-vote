@@ -1,0 +1,353 @@
+{
+	"en": {
+		"eyebrow": "Questions before the trailers",
+		"title": "The short version, before movie night.",
+		"intro": "Everything families and self-hosters usually want to know about Popcorn Vote.",
+		"items": [
+			{
+				"question": "What is Popcorn Vote?",
+				"answer": "Popcorn Vote is a free, open-source web app that helps families choose a film together. Everyone can suggest films, cast and save votes, break ties with a wheel, and keep a shared film diary."
+			},
+			{
+				"question": "How does the voting work?",
+				"answer": "Each family member receives the same number of votes on a shared schedule. Votes can be saved, placed on one or several films, and moved until movie night. The film with the most votes wins; a wheel settles ties."
+			},
+			{
+				"question": "Do family members need an account?",
+				"answer": "No. A family shares one installation and one four-digit PIN; each person then simply chooses their name on any phone, tablet, or computer. Named accounts with individual PINs can be added later under Settings, for families who prefer separate sign-ins."
+			},
+			{
+				"question": "Is Popcorn Vote free and open source?",
+				"answer": "Yes. Popcorn Vote is free software released under the MIT License. The source code, container images, setup instructions, and issue tracker are available on GitHub."
+			},
+			{
+				"question": "Where is our data stored?",
+				"answer": "Your film list, votes, ratings, settings, covers, and backups remain on the server you control. Popcorn Vote has no advertising and requires no external user accounts."
+			},
+			{
+				"question": "How do I install Popcorn Vote?",
+				"answer": "Run the published Docker image on a Linux AMD64 or ARM64 server, NAS, Raspberry Pi, or VPS. Popcorn Vote uses SQLite and needs no separate database service. Public installations should use an HTTPS reverse proxy."
+			},
+			{
+				"question": "Which film information does it use?",
+				"answer": "Film search, metadata, posters, and trailers come from The Movie Database; IMDb ratings come from the optional OMDb integration. Popcorn Vote is not endorsed or certified by TMDB."
+			},
+			{
+				"question": "Which languages are supported?",
+				"answer": "The app and website are available in English, German, Spanish, French, Brazilian Portuguese, Italian, Polish, Turkish, and Japanese."
+			}
+		]
+	},
+	"de": {
+		"eyebrow": "Fragen vor den Trailern",
+		"title": "Die Kurzfassung vor dem Filmabend.",
+		"intro": "Alles, was Familien und Self-Hoster meist über Popcorn Vote wissen möchten.",
+		"items": [
+			{
+				"question": "Was ist Popcorn Vote?",
+				"answer": "Popcorn Vote ist eine kostenlose Open-Source-Web-App, mit der Familien gemeinsam einen Film auswählen. Alle können Filme vorschlagen, Stimmen abgeben und sparen, Gleichstände mit einem Glücksrad lösen und ein gemeinsames Filmtagebuch führen."
+			},
+			{
+				"question": "Wie funktioniert die Abstimmung?",
+				"answer": "Jedes Familienmitglied erhält nach demselben Zeitplan gleich viele Stimmen. Stimmen lassen sich sparen, auf einen oder mehrere Filme verteilen und bis zum Filmabend verschieben. Der Film mit den meisten Stimmen gewinnt; bei Gleichstand entscheidet das Glücksrad."
+			},
+			{
+				"question": "Brauchen Familienmitglieder ein Konto?",
+				"answer": "Nein. Eine Familie teilt sich eine Installation und eine vierstellige PIN; danach wählt jede Person auf Smartphone, Tablet oder Computer einfach ihren Namen aus. Wer lieber einzelne PINs möchte, kann später unter Einstellungen benannte Konten anlegen."
+			},
+			{
+				"question": "Ist Popcorn Vote kostenlos und Open Source?",
+				"answer": "Ja. Popcorn Vote ist kostenlose Software unter der MIT-Lizenz. Quellcode, Container-Images, Installationsanleitung und Issue-Tracker sind auf GitHub verfügbar."
+			},
+			{
+				"question": "Wo werden unsere Daten gespeichert?",
+				"answer": "Filmliste, Stimmen, Bewertungen, Einstellungen, Cover und Backups bleiben auf dem Server unter deiner Kontrolle. Popcorn Vote enthält keine Werbung und benötigt keine externen Benutzerkonten."
+			},
+			{
+				"question": "Wie installiere ich Popcorn Vote?",
+				"answer": "Starte das veröffentlichte Docker-Image auf einem Linux-AMD64- oder ARM64-Server, NAS, Raspberry Pi oder VPS. Popcorn Vote verwendet SQLite und benötigt keinen separaten Datenbankdienst. Öffentliche Installationen sollten einen HTTPS-Reverse-Proxy verwenden."
+			},
+			{
+				"question": "Welche Filminformationen werden verwendet?",
+				"answer": "Filmsuche, Metadaten, Poster und Trailer stammen von The Movie Database; IMDb-Bewertungen kommen über die optionale OMDb-Integration. Popcorn Vote wird von TMDB weder unterstützt noch zertifiziert."
+			},
+			{
+				"question": "Welche Sprachen werden unterstützt?",
+				"answer": "App und Website sind auf Englisch, Deutsch, Spanisch, Französisch, brasilianischem Portugiesisch, Italienisch, Polnisch, Türkisch und Japanisch verfügbar."
+			}
+		]
+	},
+	"es": {
+		"eyebrow": "Preguntas antes de los tráilers",
+		"title": "La versión corta antes de la noche de cine.",
+		"intro": "Todo lo que las familias y quienes alojan la aplicación suelen querer saber sobre Popcorn Vote.",
+		"items": [
+			{
+				"question": "¿Qué es Popcorn Vote?",
+				"answer": "Popcorn Vote es una aplicación web gratuita y de código abierto que ayuda a las familias a elegir una película juntas. Todos pueden proponer películas, emitir y guardar votos, resolver empates con una ruleta y mantener un diario de cine compartido."
+			},
+			{
+				"question": "¿Cómo funciona la votación?",
+				"answer": "Cada miembro de la familia recibe el mismo número de votos con un calendario común. Los votos se pueden guardar, repartir entre una o varias películas y mover hasta la noche de cine. Gana la película con más votos; una ruleta resuelve los empates."
+			},
+			{
+				"question": "¿Los miembros de la familia necesitan una cuenta?",
+				"answer": "No. La familia comparte una instalación y un PIN de cuatro cifras; después, cada persona solo elige su nombre desde cualquier teléfono, tableta u ordenador. Quien prefiera PIN individuales puede crear más adelante cuentas con nombre en Ajustes."
+			},
+			{
+				"question": "¿Popcorn Vote es gratis y de código abierto?",
+				"answer": "Sí. Popcorn Vote es software gratuito publicado bajo la licencia MIT. El código fuente, las imágenes de contenedor, las instrucciones de instalación y el seguimiento de incidencias están disponibles en GitHub."
+			},
+			{
+				"question": "¿Dónde se guardan nuestros datos?",
+				"answer": "La lista de películas, los votos, las valoraciones, los ajustes, las carátulas y las copias de seguridad permanecen en el servidor que controlas. Popcorn Vote no tiene publicidad ni requiere cuentas externas."
+			},
+			{
+				"question": "¿Cómo instalo Popcorn Vote?",
+				"answer": "Ejecuta la imagen de Docker publicada en un servidor Linux AMD64 o ARM64, NAS, Raspberry Pi o VPS. Popcorn Vote usa SQLite y no necesita un servicio de base de datos separado. Las instalaciones públicas deben usar un proxy inverso HTTPS."
+			},
+			{
+				"question": "¿Qué información cinematográfica utiliza?",
+				"answer": "La búsqueda, los metadatos, los pósteres y los tráilers proceden de The Movie Database; las valoraciones de IMDb llegan mediante la integración opcional con OMDb. Popcorn Vote no está respaldado ni certificado por TMDB."
+			},
+			{
+				"question": "¿Qué idiomas están disponibles?",
+				"answer": "La aplicación y el sitio web están disponibles en inglés, alemán, español, francés, portugués de Brasil, italiano, polaco, turco y japonés."
+			}
+		]
+	},
+	"fr": {
+		"eyebrow": "Questions avant les bandes-annonces",
+		"title": "La version courte avant la soirée cinéma.",
+		"intro": "Tout ce que les familles et les adeptes de l’auto-hébergement veulent généralement savoir sur Popcorn Vote.",
+		"items": [
+			{
+				"question": "Qu’est-ce que Popcorn Vote ?",
+				"answer": "Popcorn Vote est une application web gratuite et open source qui aide les familles à choisir un film ensemble. Chacun peut proposer des films, voter et économiser ses voix, départager les égalités avec une roue et tenir un journal de films commun."
+			},
+			{
+				"question": "Comment fonctionne le vote ?",
+				"answer": "Chaque membre de la famille reçoit le même nombre de voix selon un calendrier commun. Les voix peuvent être économisées, réparties entre un ou plusieurs films et déplacées jusqu’à la soirée. Le film ayant le plus de voix gagne ; une roue départage les égalités."
+			},
+			{
+				"question": "Les membres de la famille ont-ils besoin d’un compte ?",
+				"answer": "Non. Une famille partage une installation et un code PIN à quatre chiffres ; ensuite, chacun choisit simplement son nom sur un téléphone, une tablette ou un ordinateur. Il est possible de créer plus tard, depuis les Réglages, des comptes nommés avec un code PIN individuel pour les familles qui préfèrent des connexions séparées."
+			},
+			{
+				"question": "Popcorn Vote est-il gratuit et open source ?",
+				"answer": "Oui. Popcorn Vote est un logiciel gratuit publié sous licence MIT. Le code source, les images de conteneur, les instructions d’installation et le suivi des problèmes sont disponibles sur GitHub."
+			},
+			{
+				"question": "Où nos données sont-elles stockées ?",
+				"answer": "La liste des films, les votes, les notes, les réglages, les affiches et les sauvegardes restent sur le serveur que vous contrôlez. Popcorn Vote ne contient aucune publicité et ne nécessite aucun compte externe."
+			},
+			{
+				"question": "Comment installer Popcorn Vote ?",
+				"answer": "Exécutez l’image Docker publiée sur un serveur Linux AMD64 ou ARM64, un NAS, un Raspberry Pi ou un VPS. Popcorn Vote utilise SQLite et ne nécessite aucun service de base de données séparé. Les installations publiques doivent utiliser un proxy inverse HTTPS."
+			},
+			{
+				"question": "Quelles informations sur les films sont utilisées ?",
+				"answer": "La recherche, les métadonnées, les affiches et les bandes-annonces proviennent de The Movie Database ; les notes IMDb viennent de l’intégration OMDb facultative. Popcorn Vote n’est ni approuvé ni certifié par TMDB."
+			},
+			{
+				"question": "Quelles langues sont disponibles ?",
+				"answer": "L’application et le site sont disponibles en anglais, allemand, espagnol, français, portugais brésilien, italien, polonais, turc et japonais."
+			}
+		]
+	},
+	"pt-BR": {
+		"eyebrow": "Perguntas antes dos trailers",
+		"title": "A versão curta antes da noite de cinema.",
+		"intro": "Tudo o que famílias e quem hospeda o aplicativo geralmente querem saber sobre o Popcorn Vote.",
+		"items": [
+			{
+				"question": "O que é o Popcorn Vote?",
+				"answer": "O Popcorn Vote é um aplicativo web gratuito e de código aberto que ajuda famílias a escolher um filme juntas. Todos podem sugerir filmes, dar e guardar votos, resolver empates com uma roleta e manter um diário de filmes compartilhado."
+			},
+			{
+				"question": "Como funciona a votação?",
+				"answer": "Cada membro da família recebe o mesmo número de votos em um cronograma comum. Os votos podem ser guardados, distribuídos entre um ou vários filmes e movidos até a noite do filme. O filme com mais votos vence; uma roleta resolve empates."
+			},
+			{
+				"question": "Os familiares precisam de uma conta?",
+				"answer": "Não. A família compartilha uma instalação e um PIN de quatro dígitos; depois, cada pessoa apenas escolhe seu nome em qualquer celular, tablet ou computador. Contas nomeadas com PIN individual podem ser criadas depois em Configurações, para quem preferir logins separados."
+			},
+			{
+				"question": "O Popcorn Vote é gratuito e de código aberto?",
+				"answer": "Sim. O Popcorn Vote é um software gratuito publicado sob a licença MIT. O código-fonte, as imagens de contêiner, as instruções de instalação e o rastreador de problemas estão disponíveis no GitHub."
+			},
+			{
+				"question": "Onde nossos dados são armazenados?",
+				"answer": "A lista de filmes, os votos, as avaliações, as configurações, as capas e os backups permanecem no servidor que você controla. O Popcorn Vote não tem anúncios e não exige contas externas."
+			},
+			{
+				"question": "Como instalar o Popcorn Vote?",
+				"answer": "Execute a imagem Docker publicada em um servidor Linux AMD64 ou ARM64, NAS, Raspberry Pi ou VPS. O Popcorn Vote usa SQLite e não precisa de um serviço de banco de dados separado. Instalações públicas devem usar um proxy reverso HTTPS."
+			},
+			{
+				"question": "Quais informações de filmes são usadas?",
+				"answer": "A busca, os metadados, os pôsteres e os trailers vêm do The Movie Database; as avaliações do IMDb vêm da integração opcional com o OMDb. O Popcorn Vote não é endossado nem certificado pelo TMDB."
+			},
+			{
+				"question": "Quais idiomas estão disponíveis?",
+				"answer": "O aplicativo e o site estão disponíveis em inglês, alemão, espanhol, francês, português do Brasil, italiano, polonês, turco e japonês."
+			}
+		]
+	},
+	"it": {
+		"eyebrow": "Domande prima dei trailer",
+		"title": "La versione breve prima della serata cinema.",
+		"intro": "Tutto ciò che famiglie e self-hoster vogliono solitamente sapere su Popcorn Vote.",
+		"items": [
+			{
+				"question": "Che cos’è Popcorn Vote?",
+				"answer": "Popcorn Vote è un’app web gratuita e open source che aiuta le famiglie a scegliere insieme un film. Tutti possono proporre film, assegnare e risparmiare voti, risolvere i pareggi con una ruota e tenere un diario cinematografico condiviso."
+			},
+			{
+				"question": "Come funziona la votazione?",
+				"answer": "Ogni membro della famiglia riceve lo stesso numero di voti secondo un calendario comune. I voti si possono conservare, distribuire su uno o più film e spostare fino alla serata. Vince il film con più voti; una ruota risolve i pareggi."
+			},
+			{
+				"question": "I familiari devono creare un account?",
+				"answer": "No. La famiglia condivide un’installazione e un PIN di quattro cifre; poi ogni persona sceglie semplicemente il proprio nome da telefono, tablet o computer. In seguito è possibile creare account con nome e PIN individuale da Impostazioni, per chi preferisce accessi separati."
+			},
+			{
+				"question": "Popcorn Vote è gratuito e open source?",
+				"answer": "Sì. Popcorn Vote è software gratuito pubblicato con licenza MIT. Il codice sorgente, le immagini container, le istruzioni di installazione e il sistema di segnalazione sono disponibili su GitHub."
+			},
+			{
+				"question": "Dove vengono archiviati i nostri dati?",
+				"answer": "L’elenco dei film, i voti, le valutazioni, le impostazioni, le copertine e i backup restano sul server che controlli. Popcorn Vote non contiene pubblicità e non richiede account esterni."
+			},
+			{
+				"question": "Come si installa Popcorn Vote?",
+				"answer": "Esegui l’immagine Docker pubblicata su un server Linux AMD64 o ARM64, NAS, Raspberry Pi o VPS. Popcorn Vote usa SQLite e non richiede un servizio database separato. Le installazioni pubbliche devono usare un reverse proxy HTTPS."
+			},
+			{
+				"question": "Quali informazioni sui film utilizza?",
+				"answer": "Ricerca, metadati, locandine e trailer provengono da The Movie Database; le valutazioni IMDb arrivano dall’integrazione OMDb facoltativa. Popcorn Vote non è approvato né certificato da TMDB."
+			},
+			{
+				"question": "Quali lingue sono disponibili?",
+				"answer": "L’app e il sito sono disponibili in inglese, tedesco, spagnolo, francese, portoghese brasiliano, italiano, polacco, turco e giapponese."
+			}
+		]
+	},
+	"pl": {
+		"eyebrow": "Pytania przed zwiastunami",
+		"title": "Krótka wersja przed wieczorem filmowym.",
+		"intro": "Wszystko, co rodziny i osoby samodzielnie hostujące aplikację zwykle chcą wiedzieć o Popcorn Vote.",
+		"items": [
+			{
+				"question": "Czym jest Popcorn Vote?",
+				"answer": "Popcorn Vote to bezpłatna aplikacja internetowa o otwartym kodzie źródłowym, która pomaga rodzinom wspólnie wybrać film. Każdy może proponować filmy, oddawać i oszczędzać głosy, rozstrzygać remisy kołem losującym oraz prowadzić wspólny dziennik filmowy."
+			},
+			{
+				"question": "Jak działa głosowanie?",
+				"answer": "Każdy członek rodziny otrzymuje tyle samo głosów według wspólnego harmonogramu. Głosy można oszczędzać, rozdzielać między jeden lub kilka filmów i przenosić aż do wieczoru filmowego. Wygrywa film z największą liczbą głosów; remisy rozstrzyga koło."
+			},
+			{
+				"question": "Czy członkowie rodziny potrzebują konta?",
+				"answer": "Nie. Rodzina korzysta ze wspólnej instalacji i czterocyfrowego kodu PIN; następnie każda osoba po prostu wybiera swoje imię na telefonie, tablecie lub komputerze. Później można utworzyć osobne konta z indywidualnym kodem PIN w Ustawieniach, dla rodzin, które wolą oddzielne logowanie."
+			},
+			{
+				"question": "Czy Popcorn Vote jest bezpłatny i open source?",
+				"answer": "Tak. Popcorn Vote to bezpłatne oprogramowanie udostępniane na licencji MIT. Kod źródłowy, obrazy kontenerów, instrukcja instalacji i system zgłoszeń są dostępne w serwisie GitHub."
+			},
+			{
+				"question": "Gdzie są przechowywane nasze dane?",
+				"answer": "Lista filmów, głosy, oceny, ustawienia, okładki i kopie zapasowe pozostają na kontrolowanym przez Ciebie serwerze. Popcorn Vote nie zawiera reklam i nie wymaga zewnętrznych kont użytkowników."
+			},
+			{
+				"question": "Jak zainstalować Popcorn Vote?",
+				"answer": "Uruchom opublikowany obraz Docker na serwerze Linux AMD64 lub ARM64, urządzeniu NAS, Raspberry Pi albo VPS. Popcorn Vote używa SQLite i nie wymaga osobnej usługi bazy danych. Instalacje publiczne powinny korzystać z odwrotnego proxy HTTPS."
+			},
+			{
+				"question": "Z jakich informacji o filmach korzysta aplikacja?",
+				"answer": "Wyszukiwanie, metadane, plakaty i zwiastuny pochodzą z The Movie Database; oceny IMDb zapewnia opcjonalna integracja z OMDb. Popcorn Vote nie jest wspierany ani certyfikowany przez TMDB."
+			},
+			{
+				"question": "Jakie języki są dostępne?",
+				"answer": "Aplikacja i strona są dostępne w języku angielskim, niemieckim, hiszpańskim, francuskim, portugalskim brazylijskim, włoskim, polskim, tureckim i japońskim."
+			}
+		]
+	},
+	"tr": {
+		"eyebrow": "Fragmanlardan önce sorular",
+		"title": "Film gecesinden önce kısa özet.",
+		"intro": "Ailelerin ve kendi sunucusunda barındıranların Popcorn Vote hakkında genellikle bilmek istediği her şey.",
+		"items": [
+			{
+				"question": "Popcorn Vote nedir?",
+				"answer": "Popcorn Vote, ailelerin birlikte film seçmesine yardımcı olan ücretsiz ve açık kaynaklı bir web uygulamasıdır. Herkes film önerebilir, oy verebilir ve oylarını biriktirebilir, eşitlikleri çarkla bozabilir ve ortak bir film günlüğü tutabilir."
+			},
+			{
+				"question": "Oylama nasıl çalışır?",
+				"answer": "Her aile üyesi ortak bir programa göre aynı sayıda oy alır. Oylar biriktirilebilir, bir veya birkaç filme dağıtılabilir ve film gecesine kadar taşınabilir. En çok oy alan film kazanır; eşitlikleri çark çözer."
+			},
+			{
+				"question": "Aile üyelerinin hesaba ihtiyacı var mı?",
+				"answer": "Hayır. Aile tek bir kurulumu ve dört haneli PIN’i paylaşır; ardından herkes telefon, tablet veya bilgisayarda yalnızca kendi adını seçer. Ayrı girişleri tercih eden aileler için daha sonra Ayarlar’dan kendi PIN’ine sahip adlandırılmış hesaplar oluşturulabilir."
+			},
+			{
+				"question": "Popcorn Vote ücretsiz ve açık kaynaklı mı?",
+				"answer": "Evet. Popcorn Vote, MIT Lisansı altında yayımlanan ücretsiz bir yazılımdır. Kaynak kodu, konteyner imajları, kurulum talimatları ve sorun takipçisi GitHub’da bulunur."
+			},
+			{
+				"question": "Verilerimiz nerede saklanır?",
+				"answer": "Film listeniz, oylarınız, puanlarınız, ayarlarınız, kapaklarınız ve yedekleriniz kontrol ettiğiniz sunucuda kalır. Popcorn Vote reklam içermez ve harici kullanıcı hesapları gerektirmez."
+			},
+			{
+				"question": "Popcorn Vote nasıl kurulur?",
+				"answer": "Yayımlanan Docker imajını Linux AMD64 veya ARM64 sunucu, NAS, Raspberry Pi ya da VPS üzerinde çalıştırın. Popcorn Vote SQLite kullanır ve ayrı bir veritabanı hizmetine ihtiyaç duymaz. Herkese açık kurulumlarda HTTPS ters proxy kullanılmalıdır."
+			},
+			{
+				"question": "Hangi film bilgileri kullanılır?",
+				"answer": "Film araması, meta veriler, posterler ve fragmanlar The Movie Database üzerinden sağlanır; IMDb puanları isteğe bağlı OMDb entegrasyonundan gelir. Popcorn Vote, TMDB tarafından desteklenmez veya onaylanmaz."
+			},
+			{
+				"question": "Hangi diller destekleniyor?",
+				"answer": "Uygulama ve web sitesi İngilizce, Almanca, İspanyolca, Fransızca, Brezilya Portekizcesi, İtalyanca, Lehçe, Türkçe ve Japonca olarak kullanılabilir."
+			}
+		]
+	},
+	"ja": {
+		"eyebrow": "予告編の前によくある質問",
+		"title": "映画の夜を始める前に、要点だけ。",
+		"intro": "ご家族やセルフホストをする方が Popcorn Vote についてよく知りたいことをまとめました。",
+		"items": [
+			{
+				"question": "Popcorn Vote とは何ですか？",
+				"answer": "Popcorn Vote は、家族で一緒に映画を選ぶための無料でオープンソースのウェブアプリです。映画の提案、投票と票の貯蓄、ルーレットによる同点決着、共有映画日記の記録ができます。"
+			},
+			{
+				"question": "投票はどのように行われますか？",
+				"answer": "家族全員が共通のスケジュールで同じ数の票を受け取ります。票は貯めたり、1本または複数の映画に配分したり、映画の夜まで移動したりできます。最多得票の映画が選ばれ、同点の場合はルーレットで決めます。"
+			},
+			{
+				"question": "家族それぞれにアカウントが必要ですか？",
+				"answer": "いいえ。家族で1つのインストールと4桁のPINを共有し、参加後はスマートフォン、タブレット、パソコンから自分の名前を選ぶだけです。個別のログインを希望するご家庭は、後から「設定」で個々のPINを持つ名前付きアカウントを追加できます。"
+			},
+			{
+				"question": "Popcorn Vote は無料でオープンソースですか？",
+				"answer": "はい。Popcorn Vote は MIT ライセンスで公開されている無料ソフトウェアです。ソースコード、コンテナイメージ、セットアップ手順、課題トラッカーは GitHub で公開されています。"
+			},
+			{
+				"question": "データはどこに保存されますか？",
+				"answer": "映画リスト、投票、評価、設定、カバー画像、バックアップは、ご自身が管理するサーバー内に保存されます。Popcorn Vote に広告はなく、外部ユーザーアカウントも必要ありません。"
+			},
+			{
+				"question": "Popcorn Vote のインストール方法は？",
+				"answer": "公開されている Docker イメージを Linux AMD64 または ARM64 のサーバー、NAS、Raspberry Pi、VPS で実行します。Popcorn Vote は SQLite を使用するため、別のデータベースサービスは不要です。公開環境では HTTPS リバースプロキシを使用してください。"
+			},
+			{
+				"question": "どの映画情報を使用していますか？",
+				"answer": "映画検索、メタデータ、ポスター、予告編には The Movie Database のデータを使用し、IMDb の評価は任意の OMDb 連携から取得します。Popcorn Vote は TMDB が推奨または認定する製品ではありません。"
+			},
+			{
+				"question": "どの言語に対応していますか？",
+				"answer": "アプリとウェブサイトは、英語、ドイツ語、スペイン語、フランス語、ブラジルポルトガル語、イタリア語、ポーランド語、トルコ語、日本語に対応しています。"
+			}
+		]
+	}
+}
