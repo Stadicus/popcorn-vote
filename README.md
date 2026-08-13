@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/Stadicus/popcorn-vote/actions/workflows/ci.yml/badge.svg)](https://github.com/Stadicus/popcorn-vote/actions/workflows/ci.yml)
 [![Security](https://github.com/Stadicus/popcorn-vote/actions/workflows/security.yml/badge.svg)](https://github.com/Stadicus/popcorn-vote/actions/workflows/security.yml)
-[![Coverage](https://codecov.io/gh/Stadicus/popcorn-vote/graph/badge.svg)](https://app.codecov.io/gh/Stadicus/popcorn-vote)
+[![Coverage](https://img.shields.io/badge/coverage-%E2%89%A571%25-brightgreen)](https://github.com/Stadicus/popcorn-vote/actions/workflows/ci.yml)
 [![Latest release](https://img.shields.io/github/v/release/Stadicus/popcorn-vote?sort=semver)](https://github.com/Stadicus/popcorn-vote/releases/latest)
 [![Container](https://img.shields.io/badge/container-ghcr.io-2496ED?logo=github)](https://github.com/Stadicus/popcorn-vote/pkgs/container/popcorn-vote)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)

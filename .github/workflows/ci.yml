@@ -11,7 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
@@ -32,13 +31,6 @@ jobs:
       # Include every TypeScript source file, including files no unit test loads,
       # and fail if the established coverage floor regresses.
       - run: npm run test:coverage
-      # OIDC proves the GitHub workflow's identity to Codecov without a long-lived
-      # upload token. A Codecov outage should not hide the otherwise useful CI result.
-      - uses: codecov/codecov-action@cddd853df119a48c5be31a973f8cd97e12e35e16 # v6.0.1
-        with:
-          use_oidc: true
-          files: coverage/lcov.info
-          fail_ci_if_error: false
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
