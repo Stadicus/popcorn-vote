@@ -52,7 +52,9 @@ here, the [Code of Conduct](CODE_OF_CONDUCT.md) applies.
 ## Tests
 
 - Unit tests sit as `*.test.ts` beside the code they test (`npm test`). A rule
-  changes together with its tests.
+  changes together with its tests. `npm run test:coverage` covers every
+  TypeScript source file, writes the browsable report to `coverage/`, and
+  enforces the coverage floor used by CI.
 - **No unit test writes to the file system.** Configuration fixtures live
   under `src/lib/server/testdata/` and are selected via `PV_CONFIG`, the
   `npm test` suite has to run in read-only environments.

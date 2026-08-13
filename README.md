@@ -1,6 +1,10 @@
 # Popcorn Vote
 
 [![CI](https://github.com/Stadicus/popcorn-vote/actions/workflows/ci.yml/badge.svg)](https://github.com/Stadicus/popcorn-vote/actions/workflows/ci.yml)
+[![Security](https://github.com/Stadicus/popcorn-vote/actions/workflows/security.yml/badge.svg)](https://github.com/Stadicus/popcorn-vote/actions/workflows/security.yml)
+[![Coverage](https://codecov.io/gh/Stadicus/popcorn-vote/graph/badge.svg)](https://app.codecov.io/gh/Stadicus/popcorn-vote)
+[![Latest release](https://img.shields.io/github/v/release/Stadicus/popcorn-vote?sort=semver)](https://github.com/Stadicus/popcorn-vote/releases/latest)
+[![Container](https://img.shields.io/badge/container-ghcr.io-2496ED?logo=github)](https://github.com/Stadicus/popcorn-vote/pkgs/container/popcorn-vote)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 **No more arguing about who gets to pick the film.**
@@ -234,6 +238,7 @@ the time being.
 npm install
 DATA_DIR=./data PV_PIN=1234 npm run dev   # development server
 npm test                                   # unit tests (Vitest)
+npm run test:coverage                      # unit tests with HTML/LCOV coverage
 npm run test:e2e                           # end-to-end tests (Playwright)
 npm run check                              # type checking
 npm run build                              # production build
