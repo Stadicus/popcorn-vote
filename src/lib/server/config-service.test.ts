@@ -4,7 +4,7 @@ import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { parse } from 'yaml';
 import { loadConfig } from './config';
-import { replaceUsers, storedUsers, updateSettings } from './config-service';
+import { replaceUsers, saveInitialSetup, storedUsers, updateSettings } from './config-service';
 
 let directory: string;
 let previousConfig: string | undefined;
@@ -49,6 +49,39 @@ describe('writable configuration', () => {
 			security: { session_timeout: 3600 },
 			token: { cap: 9 },
 			sources: ['Cinema']
+		});
+	});
+
+	it('stores a complete initial family setup with stable, unique member ids', () => {
+		saveInitialSetup({
+			pin: '2611',
+			title: 'Friday films',
+			members: ['Ana', 'Ana', 'Béla'],
+			interfaceLanguage: 'de',
+			movieLanguage: 'latin',
+			movieFallbackLanguage: 'de-DE',
+			certificationCountry: 'CH',
+			trailerLanguages: ['original', 'de', 'en'],
+			tokenAmount: 2,
+			tokenWeekday: 5,
+			tokenHour: 19,
+			tokenCap: 7,
+			tokenStart: 4,
+			timezone: 'Europe/Zurich',
+			sources: ['Cinema', 'Home']
+		});
+		const raw = parse(fs.readFileSync(process.env.PV_CONFIG!, 'utf8'));
+		expect(raw).toMatchObject({
+			pin: '2611',
+			title: 'Friday films',
+			members: [
+				{ id: 'ana', name: 'Ana' },
+				{ id: 'ana-2', name: 'Ana' },
+				{ id: 'bela', name: 'Béla' }
+			],
+			token: { amount: 2, weekday: 5, hour: 19, cap: 7, start: 4 },
+			timezone: 'Europe/Zurich',
+			sources: ['Cinema', 'Home']
 		});
 	});
 

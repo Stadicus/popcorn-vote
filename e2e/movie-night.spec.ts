@@ -3,7 +3,6 @@ import { test, expect, type Page } from '@playwright/test';
 async function enterPin(page: Page) {
 	await page.goto('/');
 	await expect(page).toHaveURL(/\/pin$/);
-	await page.getByLabel('Name').fill('E2E Admin');
 	await page.getByLabel('PIN').fill('2611');
 	await page.waitForURL((url) => url.pathname === '/');
 }
@@ -209,8 +208,6 @@ test('the PIN can be typed on the keyboard, and ⌫ takes back one digit', async
 	// otherwise the first keystrokes go nowhere. The click tests wait longer
 	// implicitly.
 	await page.waitForLoadState('networkidle');
-	await page.getByLabel('Name').fill('E2E Admin');
-
 	const filled = page.locator('.pindot.filled');
 	await page.keyboard.type('261', { delay: 30 });
 	await expect(filled).toHaveCount(3);
@@ -242,7 +239,7 @@ test('authenticated API activity renews the server-enforced session', async ({ p
 	const authCookie = async () =>
 		(await page.context().cookies()).find((cookie) => cookie.name === 'pv_auth')?.value ?? '';
 	const before = await authCookie();
-	expect(before).toMatch(/^user\./);
+	expect(before).toMatch(/^legacy\./);
 
 	await page.waitForTimeout(1100);
 	await page.evaluate(async () => {
@@ -332,20 +329,14 @@ test('an unknown address lands on the error page', async ({ page }) => {
 	await expect(page.getByRole('heading', { name: 'Diese Seite gibt es nicht' })).toBeVisible();
 });
 
-test('a missing database key says so rather than finding nothing', async ({ page }) => {
+test('TMDB search is configured while optional OMDb may stay unavailable', async ({ page }) => {
 	await enterPin(page);
 	await choosePerson(page, 'David');
 
 	await page.goto('/propose');
-	// The consequence first, then the cause: the same bad key means something
-	// different depending on which page you meet it on.
-	await expect(page.getByText('Movie search is unavailable.')).toBeVisible();
-	await expect(page.getByText('No TMDB key is configured.')).toBeVisible();
-	await expect(page.getByRole('searchbox')).toBeDisabled();
-	// The way out is named, and it still works.
-	await expect(page.getByText('Adding a movie by hand still works.')).toBeVisible();
-	await addMovieByHand(page, 'Movie Without A Key');
-	await expect(page.getByRole('heading', { name: /Movie Without A Key/ })).toBeVisible();
+	await expect(page.getByRole('searchbox')).toBeEnabled();
+	await addMovieByHand(page, 'Movie With Setup Key');
+	await expect(page.getByRole('heading', { name: /Movie With Setup Key/ })).toBeVisible();
 
 	// The OMDb key costs the IMDb rating and nothing else, so it stays small
 	// print under "More" instead of getting in the way of the game.
@@ -357,9 +348,6 @@ test('a missing database key says so rather than finding nothing', async ({ page
 // Has to go last: the failed attempts lock the IP for the following seconds.
 test('a wrong PIN leads to a rising wait', async ({ page }) => {
 	await page.goto('/pin');
-	// Keep the real admin's account-scoped limiter untouched for other files in
-	// the suite, whose execution order Playwright does not promise.
-	await page.getByLabel('Name').fill('No Such Account');
 	for (let attempt = 0; attempt < 3; attempt++) {
 		for (const digit of ['9', '9', '9', '9']) {
 			await page.getByRole('button', { name: digit, exact: true }).click();

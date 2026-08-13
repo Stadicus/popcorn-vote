@@ -18,6 +18,11 @@
 	let busy = $state(false);
 	const standardTimeouts = [1800, 3600, 28800, 604800, 31536000];
 	const customTimeout = $derived(!standardTimeouts.includes(Number(sessionTimeout)));
+	const availableTabs = $derived(
+		settings.sharedFamilyPin
+			? ['general', 'security', 'advanced']
+			: ['general', 'users', 'security', 'advanced']
+	);
 
 	type User = (typeof settings.users)[number];
 	let editorOpen = $state(false);
@@ -142,7 +147,7 @@
 
 <div class="settings-layout">
 	<nav class="section-nav" aria-label={t('settings.sections')}>
-		{#each Object.entries(labels) as [key, label] (key)}
+		{#each Object.entries(labels).filter(([key]) => availableTabs.includes(key)) as [key, label] (key)}
 			<button class:active={tab === key} onclick={() => (tab = key as typeof tab)}
 				><span>{key === 'general' ? '⌂' : key === 'users' ? '♟' : key === 'security' ? '◇' : '⋯'}</span
 				>{label}</button
