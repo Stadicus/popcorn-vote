@@ -72,14 +72,20 @@ for (const [locale, details] of locales) {
 for (const locale of Object.keys(overrides)) {
 	if (!catalogue.locales[locale]) fail(`overrides exist for unknown locale ${locale}`);
 }
+const sourceFaqItemCount = faqCatalogue.en.items.length;
 for (const [locale] of locales) {
 	const faq = faqCatalogue[locale];
 	if (!faq || !Array.isArray(faq.items) || faq.items.length === 0) fail(`${locale} FAQ content is missing`);
+	if (faq.items.length !== sourceFaqItemCount)
+		fail(`${locale} must contain exactly ${sourceFaqItemCount} FAQ items`);
 	for (const key of ['eyebrow', 'title', 'intro']) requireSafeText(faq[key], `${locale} FAQ ${key}`);
 	for (const [index, item] of faq.items.entries()) {
 		requireSafeText(item.question, `${locale} FAQ question ${index}`);
 		requireSafeText(item.answer, `${locale} FAQ answer ${index}`);
 	}
+}
+for (const locale of Object.keys(faqCatalogue)) {
+	if (!catalogue.locales[locale]) fail(`FAQ content exists for unknown locale ${locale}`);
 }
 sourceMessages.forEach((message, index) => {
 	const pattern = new RegExp(escapeRegExp(message).replace(/\s+/g, '\\s+'));
@@ -201,6 +207,9 @@ const faqJsonLd = (locale) =>
 	JSON.stringify({
 		'@type': 'FAQPage',
 		'@id': `${localeUrl(locale)}#faq`,
+		url: localeUrl(locale),
+		inLanguage: locale,
+		isPartOf: { '@id': `${localeUrl(locale)}#website` },
 		mainEntity: faqCatalogue[locale].items.map(({ question, answer }) => ({
 			'@type': 'Question',
 			name: question,

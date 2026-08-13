@@ -1,6 +1,3 @@
-User-agent: OAI-SearchBot
-Allow: /
-
 User-agent: *
 Allow: /
 

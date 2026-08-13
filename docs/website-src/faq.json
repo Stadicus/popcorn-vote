@@ -14,7 +14,7 @@
 			},
 			{
 				"question": "Do family members need an account?",
-				"answer": "Not exactly. An administrator creates a named account with its own four-digit PIN for each family member, during setup or later under Settings. After signing in, everyone still simply chooses their name on any phone, tablet, or computer."
+				"answer": "No. A family shares one installation and one four-digit PIN; each person then simply chooses their name on any phone, tablet, or computer. Named accounts with individual PINs can be added later under Settings, for families who prefer separate sign-ins."
 			},
 			{
 				"question": "Is Popcorn Vote free and open source?",
@@ -53,7 +53,7 @@
 			},
 			{
 				"question": "Brauchen Familienmitglieder ein Konto?",
-				"answer": "Nicht ganz. Ein Administrator legt für jedes Familienmitglied ein eigenes Konto mit eigener vierstelliger PIN an – beim Einrichten oder später unter Einstellungen. Nach der Anmeldung wählt jede Person weiterhin einfach ihren Namen auf Smartphone, Tablet oder Computer."
+				"answer": "Nein. Eine Familie teilt sich eine Installation und eine vierstellige PIN; danach wählt jede Person auf Smartphone, Tablet oder Computer einfach ihren Namen aus. Wer lieber einzelne PINs möchte, kann später unter Einstellungen benannte Konten anlegen."
 			},
 			{
 				"question": "Ist Popcorn Vote kostenlos und Open Source?",
@@ -92,7 +92,7 @@
 			},
 			{
 				"question": "¿Los miembros de la familia necesitan una cuenta?",
-				"answer": "No exactamente. Un administrador crea una cuenta con nombre y un PIN de cuatro cifras propio para cada miembro de la familia, durante la configuración o después desde Ajustes. Tras iniciar sesión, cada persona simplemente elige su nombre en cualquier teléfono, tableta u ordenador."
+				"answer": "No. La familia comparte una instalación y un PIN de cuatro cifras; después, cada persona solo elige su nombre desde cualquier teléfono, tableta u ordenador. Quien prefiera PIN individuales puede crear más adelante cuentas con nombre en Ajustes."
 			},
 			{
 				"question": "¿Popcorn Vote es gratis y de código abierto?",
@@ -131,7 +131,7 @@
 			},
 			{
 				"question": "Les membres de la famille ont-ils besoin d’un compte ?",
-				"answer": "Pas exactement. Un administrateur crée un compte nommé avec son propre code PIN à quatre chiffres pour chaque membre de la famille, lors de la configuration ou plus tard depuis les Réglages. Après connexion, chacun continue de simplement choisir son nom sur un téléphone, une tablette ou un ordinateur."
+				"answer": "Non. Une famille partage une installation et un code PIN à quatre chiffres ; ensuite, chacun choisit simplement son nom sur un téléphone, une tablette ou un ordinateur. Il est possible de créer plus tard, depuis les Réglages, des comptes nommés avec un code PIN individuel pour les familles qui préfèrent des connexions séparées."
 			},
 			{
 				"question": "Popcorn Vote est-il gratuit et open source ?",
@@ -170,7 +170,7 @@
 			},
 			{
 				"question": "Os familiares precisam de uma conta?",
-				"answer": "Não exatamente. Um administrador cria uma conta nomeada com seu próprio PIN de quatro dígitos para cada familiar, durante a configuração ou depois em Configurações. Após entrar, cada pessoa continua apenas escolhendo seu nome em qualquer celular, tablet ou computador."
+				"answer": "Não. A família compartilha uma instalação e um PIN de quatro dígitos; depois, cada pessoa apenas escolhe seu nome em qualquer celular, tablet ou computador. Contas nomeadas com PIN individual podem ser criadas depois em Configurações, para quem preferir logins separados."
 			},
 			{
 				"question": "O Popcorn Vote é gratuito e de código aberto?",
@@ -209,7 +209,7 @@
 			},
 			{
 				"question": "I familiari devono creare un account?",
-				"answer": "Non esattamente. Un amministratore crea un account con nome e un proprio PIN di quattro cifre per ogni familiare, durante la configurazione o in seguito da Impostazioni. Dopo l’accesso, ogni persona continua semplicemente a scegliere il proprio nome da telefono, tablet o computer."
+				"answer": "No. La famiglia condivide un’installazione e un PIN di quattro cifre; poi ogni persona sceglie semplicemente il proprio nome da telefono, tablet o computer. In seguito è possibile creare account con nome e PIN individuale da Impostazioni, per chi preferisce accessi separati."
 			},
 			{
 				"question": "Popcorn Vote è gratuito e open source?",
@@ -248,7 +248,7 @@
 			},
 			{
 				"question": "Czy członkowie rodziny potrzebują konta?",
-				"answer": "Niedokładnie. Administrator tworzy dla każdego członka rodziny osobne konto z własnym czterocyfrowym kodem PIN – podczas konfiguracji lub później w Ustawieniach. Po zalogowaniu każda osoba nadal po prostu wybiera swoje imię na telefonie, tablecie lub komputerze."
+				"answer": "Nie. Rodzina korzysta ze wspólnej instalacji i czterocyfrowego kodu PIN; następnie każda osoba po prostu wybiera swoje imię na telefonie, tablecie lub komputerze. Później można utworzyć osobne konta z indywidualnym kodem PIN w Ustawieniach, dla rodzin, które wolą oddzielne logowanie."
 			},
 			{
 				"question": "Czy Popcorn Vote jest bezpłatny i open source?",
@@ -287,7 +287,7 @@
 			},
 			{
 				"question": "Aile üyelerinin hesaba ihtiyacı var mı?",
-				"answer": "Tam olarak değil. Bir yönetici, kurulum sırasında veya daha sonra Ayarlar’dan her aile üyesi için kendi dört haneli PIN’ine sahip, adlandırılmış bir hesap oluşturur. Giriş yaptıktan sonra herkes yine de telefon, tablet veya bilgisayarda yalnızca kendi adını seçer."
+				"answer": "Hayır. Aile tek bir kurulumu ve dört haneli PIN’i paylaşır; ardından herkes telefon, tablet veya bilgisayarda yalnızca kendi adını seçer. Ayrı girişleri tercih eden aileler için daha sonra Ayarlar’dan kendi PIN’ine sahip adlandırılmış hesaplar oluşturulabilir."
 			},
 			{
 				"question": "Popcorn Vote ücretsiz ve açık kaynaklı mı?",
@@ -326,7 +326,7 @@
 			},
 			{
 				"question": "家族それぞれにアカウントが必要ですか？",
-				"answer": "完全にはそうではありません。管理者がセットアップ時、または後から「設定」で、家族一人ひとりに専用の4桁PINを持つ名前付きアカウントを作成します。サインイン後は、これまでどおりスマートフォン、タブレット、パソコンで自分の名前を選ぶだけです。"
+				"answer": "いいえ。家族で1つのインストールと4桁のPINを共有し、参加後はスマートフォン、タブレット、パソコンから自分の名前を選ぶだけです。個別のログインを希望するご家庭は、後から「設定」で個々のPINを持つ名前付きアカウントを追加できます。"
 			},
 			{
 				"question": "Popcorn Vote は無料でオープンソースですか？",

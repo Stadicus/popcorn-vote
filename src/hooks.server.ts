@@ -26,8 +26,8 @@ if (!building) {
 	}
 }
 
-// Reachable without a PIN: the PIN page itself, the health address, the crawler
-// exclusion policy and the app's basic equipment.
+// Reachable without a PIN: the PIN page itself, the health address, and the
+// app's basic equipment.
 // /offline.html has to be open: the service worker puts the page into the cache
 // while installing, and behind the PIN guard the redirect to /pin would arrive
 // there instead.
@@ -35,6 +35,11 @@ if (!building) {
 // change the language before signing in. The endpoint only writes a cookie from
 // the known list of languages, holds no server state and gives nothing away .
 // the same class as /api/pin itself.
+// /robots.txt, /manifest.webmanifest, /service-worker.js and /offline.html are
+// files under static/: adapter-node serves them ahead of this hook (sirv, then
+// prerendered routes, then SSR), so this guard never actually runs for them in
+// production. They are listed here only so `handle` behaves the same way in
+// `vite dev`, which has no such static layer in front of it.
 const OPEN_PATHS = new Set([
 	'/pin',
 	'/setup',
