@@ -12,7 +12,6 @@ const checkOnly = arguments_[0] === '--check';
 const output = checkOnly ? await mkdtemp(resolve(tmpdir(), 'popcorn-vote-website-')) : deployedOutput;
 const template = await readFile(resolve(here, 'index.html'), 'utf8');
 const mediaKitTemplate = await readFile(resolve(here, 'media-kit.html'), 'utf8');
-const packageMetadata = JSON.parse(await readFile(resolve(here, '../../package.json'), 'utf8'));
 const catalogue = JSON.parse(await readFile(resolve(here, 'messages.json'), 'utf8'));
 const overrides = JSON.parse(await readFile(resolve(here, 'overrides.json'), 'utf8'));
 const faqCatalogue = JSON.parse(await readFile(resolve(here, 'faq.json'), 'utf8'));
@@ -228,7 +227,6 @@ const translate = (html, locale) => {
 for (const [locale, details] of locales) {
 	let html = translate(template, locale)
 		.replaceAll('{{HTML_LANG}}', locale)
-		.replaceAll('{{SOFTWARE_VERSION}}', escapeHtml(packageMetadata.version))
 		.replaceAll('{{CANONICAL_URL}}', localeUrl(locale))
 		.replaceAll('{{HREFLANG_LINKS}}', hreflangLinks)
 		.replaceAll('{{OG_LOCALE}}', details.ogLocale)
