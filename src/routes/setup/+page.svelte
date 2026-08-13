@@ -45,20 +45,20 @@
 		['pt-BR', 'Português (pt-BR)'],
 		['it-IT', 'Italiano (it-IT)'],
 		['pl-PL', 'Polski (pl-PL)'],
-		['tr-TR', 'Türkçe (tr-TR)'],
+		['tr-TR', 'T\u00fcrk\u00e7e (tr-TR)'],
 		['ja-JP', '日本語 (ja-JP)']
 	] as const;
 	const countries = [
 		['US', 'United States (US)'],
 		['DE', 'Deutschland (DE)'],
 		['CH', 'Schweiz (CH)'],
-		['AT', 'Österreich (AT)'],
+		['AT', '\u00d6sterreich (AT)'],
 		['ES', 'España (ES)'],
 		['FR', 'France (FR)'],
 		['BR', 'Brasil (BR)'],
 		['IT', 'Italia (IT)'],
 		['PL', 'Polska (PL)'],
-		['TR', 'Türkiye (TR)'],
+		['TR', 'T\u00fcrkiye (TR)'],
 		['JP', '日本 (JP)'],
 		['GB', 'United Kingdom (GB)']
 	] as const;
