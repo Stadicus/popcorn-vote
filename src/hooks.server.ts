@@ -150,7 +150,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 	response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
 	// The app contains private family state. Keep resolved dynamic responses out
 	// of search indexes even when a crawler ignores the HTML meta tag. robots.txt
-	// separately excludes static assets and requests rejected before resolve().
+	// allows crawling on purpose: a Disallow would stop crawlers from ever
+	// reading this header or the HTML meta tag, and an externally linked page
+	// blocked that way can still surface in results as a bare URL.
 	response.headers.set('X-Robots-Tag', 'noindex, nofollow');
 	return response;
 };
