@@ -9,6 +9,8 @@ jobs:
   quality:
     name: Lint, types, tests, build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
@@ -26,7 +28,15 @@ jobs:
       - run: npm run lint:secrets
       - run: npm run lint
       - run: npm run check
-      - run: npm test
+      # Include every TypeScript source file, including files no unit test loads,
+      # and fail if the established coverage floor regresses.
+      - run: npm run test:coverage
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: unit-test-coverage
+          path: coverage/
+          retention-days: 7
       - run: npm run build
       # Deliberately not blocking. A newly published advisory in some dependency
       # is not a reason to hold up a fix the family is waiting for, and there is

@@ -14,6 +14,7 @@ export default ts.config(
 			'node_modules/',
 			'playwright-report/',
 			'test-results/',
+			'coverage/',
 			'e2e/.data/',
 			// Working copies of the review subagents; otherwise ESLint checks the repo twice.
 			'.claude/'
