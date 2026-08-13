@@ -30,7 +30,7 @@
 			},
 			{
 				"question": "Which film information does it use?",
-				"answer": "Film search, metadata, ratings, posters, and trailers are sourced through The Movie Database. Popcorn Vote is not endorsed or certified by TMDB."
+				"answer": "Film search, metadata, posters, and trailers come from The Movie Database; IMDb ratings come from the optional OMDb integration. Popcorn Vote is not endorsed or certified by TMDB."
 			},
 			{
 				"question": "Which languages are supported?",
@@ -69,7 +69,7 @@
 			},
 			{
 				"question": "Welche Filminformationen werden verwendet?",
-				"answer": "Filmsuche, Metadaten, Bewertungen, Poster und Trailer stammen von The Movie Database. Popcorn Vote wird von TMDB weder unterstützt noch zertifiziert."
+				"answer": "Filmsuche, Metadaten, Poster und Trailer stammen von The Movie Database; IMDb-Bewertungen kommen über die optionale OMDb-Integration. Popcorn Vote wird von TMDB weder unterstützt noch zertifiziert."
 			},
 			{
 				"question": "Welche Sprachen werden unterstützt?",
@@ -108,7 +108,7 @@
 			},
 			{
 				"question": "¿Qué información cinematográfica utiliza?",
-				"answer": "La búsqueda, los metadatos, las valoraciones, los pósteres y los tráilers proceden de The Movie Database. Popcorn Vote no está respaldado ni certificado por TMDB."
+				"answer": "La búsqueda, los metadatos, los pósteres y los tráilers proceden de The Movie Database; las valoraciones de IMDb llegan mediante la integración opcional con OMDb. Popcorn Vote no está respaldado ni certificado por TMDB."
 			},
 			{
 				"question": "¿Qué idiomas están disponibles?",
@@ -147,7 +147,7 @@
 			},
 			{
 				"question": "Quelles informations sur les films sont utilisées ?",
-				"answer": "La recherche, les métadonnées, les notes, les affiches et les bandes-annonces proviennent de The Movie Database. Popcorn Vote n’est ni approuvé ni certifié par TMDB."
+				"answer": "La recherche, les métadonnées, les affiches et les bandes-annonces proviennent de The Movie Database ; les notes IMDb viennent de l’intégration OMDb facultative. Popcorn Vote n’est ni approuvé ni certifié par TMDB."
 			},
 			{
 				"question": "Quelles langues sont disponibles ?",
@@ -186,7 +186,7 @@
 			},
 			{
 				"question": "Quais informações de filmes são usadas?",
-				"answer": "A busca, os metadados, as avaliações, os pôsteres e os trailers vêm do The Movie Database. O Popcorn Vote não é endossado nem certificado pelo TMDB."
+				"answer": "A busca, os metadados, os pôsteres e os trailers vêm do The Movie Database; as avaliações do IMDb vêm da integração opcional com o OMDb. O Popcorn Vote não é endossado nem certificado pelo TMDB."
 			},
 			{
 				"question": "Quais idiomas estão disponíveis?",
@@ -225,7 +225,7 @@
 			},
 			{
 				"question": "Quali informazioni sui film utilizza?",
-				"answer": "Ricerca, metadati, valutazioni, locandine e trailer provengono da The Movie Database. Popcorn Vote non è approvato né certificato da TMDB."
+				"answer": "Ricerca, metadati, locandine e trailer provengono da The Movie Database; le valutazioni IMDb arrivano dall’integrazione OMDb facoltativa. Popcorn Vote non è approvato né certificato da TMDB."
 			},
 			{
 				"question": "Quali lingue sono disponibili?",
@@ -264,7 +264,7 @@
 			},
 			{
 				"question": "Z jakich informacji o filmach korzysta aplikacja?",
-				"answer": "Wyszukiwanie, metadane, oceny, plakaty i zwiastuny pochodzą z The Movie Database. Popcorn Vote nie jest wspierany ani certyfikowany przez TMDB."
+				"answer": "Wyszukiwanie, metadane, plakaty i zwiastuny pochodzą z The Movie Database; oceny IMDb zapewnia opcjonalna integracja z OMDb. Popcorn Vote nie jest wspierany ani certyfikowany przez TMDB."
 			},
 			{
 				"question": "Jakie języki są dostępne?",
@@ -303,7 +303,7 @@
 			},
 			{
 				"question": "Hangi film bilgileri kullanılır?",
-				"answer": "Film araması, meta veriler, puanlar, posterler ve fragmanlar The Movie Database üzerinden sağlanır. Popcorn Vote, TMDB tarafından desteklenmez veya onaylanmaz."
+				"answer": "Film araması, meta veriler, posterler ve fragmanlar The Movie Database üzerinden sağlanır; IMDb puanları isteğe bağlı OMDb entegrasyonundan gelir. Popcorn Vote, TMDB tarafından desteklenmez veya onaylanmaz."
 			},
 			{
 				"question": "Hangi diller destekleniyor?",
@@ -342,7 +342,7 @@
 			},
 			{
 				"question": "どの映画情報を使用していますか？",
-				"answer": "映画検索、メタデータ、評価、ポスター、予告編には The Movie Database のデータを使用しています。Popcorn Vote は TMDB が推奨または認定する製品ではありません。"
+				"answer": "映画検索、メタデータ、ポスター、予告編には The Movie Database のデータを使用し、IMDb の評価は任意の OMDb 連携から取得します。Popcorn Vote は TMDB が推奨または認定する製品ではありません。"
 			},
 			{
 				"question": "どの言語に対応していますか？",

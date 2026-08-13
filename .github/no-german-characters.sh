@@ -36,11 +36,24 @@ done
 node <<'NODE'
 const { messages } = require('./docs/website-src/messages.json');
 const overrides = require('./docs/website-src/overrides.json');
+const faq = require('./docs/website-src/faq.json');
 const germanCharacters = /[äöüÄÖÜß\u0308]/u;
 messages.en.forEach((message, index) => {
 	const effectiveMessage = overrides.en?.[index] ?? message;
 	if (germanCharacters.test(effectiveMessage)) {
 		console.error(`German characters found in English website message ${index}: ${effectiveMessage}`);
+		process.exitCode = 1;
+	}
+});
+const englishFaqStrings = [
+	faq.en.eyebrow,
+	faq.en.title,
+	faq.en.intro,
+	...faq.en.items.flatMap(({ question, answer }) => [question, answer])
+];
+englishFaqStrings.forEach((value, index) => {
+	if (germanCharacters.test(value)) {
+		console.error(`German characters found in English FAQ string ${index}: ${value}`);
 		process.exitCode = 1;
 	}
 });
@@ -79,7 +92,7 @@ allow=(
 	# The marketing-site source contains reviewed translations, while its generated
 	# output repeats native language names in every locale switcher. Both are
 	# deliberately multilingual user-facing content, not German implementation text.
-	'^docs/website-src/(messages|overrides)\.json:'
+	'^docs/website-src/(messages|overrides|faq)\.json:'
 	# The generated x-default gateway previews its language prompt in four
 	# languages so visitors can recognize the selector before auto-detection.
 	'^docs/website-src/generate\.mjs:[0-9]+:[^äöüÄÖÜß\x{0308}]*Sprache wählen[^äöüÄÖÜß\x{0308}]*$'

@@ -148,8 +148,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 	response.headers.set('X-Content-Type-Options', 'nosniff');
 	response.headers.set('Referrer-Policy', 'no-referrer');
 	response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
-	// The app contains private family state. Keep every route and non-HTML
-	// response out of search indexes even if a crawler ignores the HTML meta tag.
+	// The app contains private family state. Keep resolved dynamic responses out
+	// of search indexes even when a crawler ignores the HTML meta tag. robots.txt
+	// separately excludes static assets and requests rejected before resolve().
 	response.headers.set('X-Robots-Tag', 'noindex, nofollow');
 	return response;
 };
