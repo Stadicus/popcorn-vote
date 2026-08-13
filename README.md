@@ -9,12 +9,17 @@
 
 **No more arguing about who gets to pick the film.**
 
+**[Website](https://popcornvote.org) · [Live demo](https://demo.popcornvote.org) ·
+[Documentation](DOCUMENTATION.md) · [Latest release](https://github.com/Stadicus/popcorn-vote/releases/latest)**
+
 > **Project status:** a family project, shared publicly so that others can build
 > it themselves. No support and no pull requests for now; feature requests are
 > welcome .
 > [details at the bottom](#project-status).
 
-Popcorn Vote is a small, self-hosted web app for family movie night.
+Popcorn Vote is a free, open-source, self-hosted web app for fair family movie
+night voting. Families can suggest films, save and cast votes, settle ties with
+a wheel of fortune, and keep a shared film diary on their own server.
 
 **Mobile-first and installable as a PWA on Android and iOS. It works like a
 native app.**

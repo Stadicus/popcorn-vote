@@ -370,7 +370,7 @@
 			.site-header.is-hidden {
 				transform: translateY(calc(-100% - 1px));
 			}
-			.site-header.is-hidden:focus-within {
+			.site-header.is-hidden:has(:focus-visible) {
 				transform: translateY(0);
 			}
 			.nav {
@@ -1109,6 +1109,75 @@
 			.feature:nth-child(3) p {
 				color: #c8d2dc;
 			}
+			.faq-section {
+				position: relative;
+				overflow: hidden;
+			}
+			.faq-section::before {
+				content: '?';
+				position: absolute;
+				top: -4rem;
+				right: max(1rem, calc((100vw - 1180px) / 2));
+				color: var(--line);
+				font:
+					700 clamp(12rem, 25vw, 23rem)/1 'DM Sans',
+					sans-serif;
+				pointer-events: none;
+			}
+			.faq-list {
+				position: relative;
+				display: grid;
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+				gap: 0 2rem;
+				border-top: 1px solid var(--line);
+			}
+			.faq-item {
+				border-bottom: 1px solid var(--line);
+			}
+			.faq-item summary {
+				display: grid;
+				grid-template-columns: 1fr auto;
+				gap: 1rem;
+				align-items: center;
+				min-height: 5.25rem;
+				padding: 1rem 0;
+				font:
+					700 1.05rem/1.3 'DM Sans',
+					sans-serif;
+				cursor: pointer;
+				list-style: none;
+			}
+			.faq-item summary::-webkit-details-marker {
+				display: none;
+			}
+			.faq-item summary::after {
+				content: '+';
+				display: grid;
+				place-items: center;
+				width: 2rem;
+				height: 2rem;
+				border: 1px solid var(--line);
+				border-radius: 50%;
+				color: var(--orange);
+				font-size: 1.4rem;
+				transition:
+					rotate 180ms ease,
+					background 180ms ease;
+			}
+			.faq-item[open] summary::after {
+				rotate: 45deg;
+				background: var(--gold);
+				color: #101923;
+			}
+			.faq-item summary:focus-visible {
+				outline: 3px solid var(--aqua);
+				outline-offset: 4px;
+			}
+			.faq-answer {
+				max-width: 62ch;
+				margin: -0.25rem 3rem 1.5rem 0;
+				color: var(--muted);
+			}
 			.self-hosting-section {
 				padding: 7rem 0;
 				border-block: 1px solid var(--line);
@@ -1441,6 +1510,9 @@
 				.features {
 					grid-template-columns: 1fr;
 				}
+				.faq-list {
+					grid-template-columns: 1fr;
+				}
 				.nerd-panel,
 				.nerd-grid {
 					grid-template-columns: 1fr;
@@ -1450,7 +1522,8 @@
 				}
 				.section,
 				.video-section,
-				.self-hosting-section {
+				.self-hosting-section,
+				.faq-section {
 					padding: 4.6rem 0;
 				}
 				.section-head {
@@ -1545,6 +1618,15 @@
 						"applicationCategory": "LifestyleApplication",
 						"operatingSystem": "Any operating system with a modern web browser",
 						"softwareRequirements": "Docker on linux/amd64 or linux/arm64",
+						"softwareVersion": "1.1.0",
+						"inLanguage": "pt-BR",
+						"featureList": [
+							"Shared movie suggestions",
+							"Equal and saveable votes",
+							"Tie-breaking wheel",
+							"Shared family film diary",
+							"Television display mode"
+						],
 						"isAccessibleForFree": true,
 						"image": { "@id": "https://popcornvote.org/#primaryimage" },
 						"sameAs": "https://github.com/Stadicus/popcorn-vote",
@@ -1560,7 +1642,8 @@
 							"price": 0,
 							"priceCurrency": "USD"
 						}
-					}
+					},
+					{"@type":"FAQPage","@id":"https://popcornvote.org/pt-br/#faq","mainEntity":[{"@type":"Question","name":"O que é o Popcorn Vote?","acceptedAnswer":{"@type":"Answer","text":"O Popcorn Vote é um aplicativo web gratuito e de código aberto que ajuda famílias a escolher um filme juntas. Todos podem sugerir filmes, dar e guardar votos, resolver empates com uma roleta e manter um diário de filmes compartilhado."}},{"@type":"Question","name":"Como funciona a votação?","acceptedAnswer":{"@type":"Answer","text":"Cada membro da família recebe o mesmo número de votos em um cronograma comum. Os votos podem ser guardados, distribuídos entre um ou vários filmes e movidos até a noite do filme. O filme com mais votos vence; uma roleta resolve empates."}},{"@type":"Question","name":"Os familiares precisam de uma conta?","acceptedAnswer":{"@type":"Answer","text":"Não. A família compartilha uma instalação e um PIN de quatro dígitos. Depois, cada pessoa apenas escolhe seu nome em qualquer celular, tablet ou computador."}},{"@type":"Question","name":"O Popcorn Vote é gratuito e de código aberto?","acceptedAnswer":{"@type":"Answer","text":"Sim. O Popcorn Vote é um software gratuito publicado sob a licença MIT. O código-fonte, as imagens de contêiner, as instruções de instalação e o rastreador de problemas estão disponíveis no GitHub."}},{"@type":"Question","name":"Onde nossos dados são armazenados?","acceptedAnswer":{"@type":"Answer","text":"A lista de filmes, os votos, as avaliações, as configurações, as capas e os backups permanecem no servidor que você controla. O Popcorn Vote não tem anúncios e não exige contas externas."}},{"@type":"Question","name":"Como instalar o Popcorn Vote?","acceptedAnswer":{"@type":"Answer","text":"Execute a imagem Docker publicada em um servidor Linux AMD64 ou ARM64, NAS, Raspberry Pi ou VPS. O Popcorn Vote usa SQLite e não precisa de um serviço de banco de dados separado. Instalações públicas devem usar um proxy reverso HTTPS."}},{"@type":"Question","name":"Quais informações de filmes são usadas?","acceptedAnswer":{"@type":"Answer","text":"A busca, os metadados, as avaliações, os pôsteres e os trailers vêm do The Movie Database. O Popcorn Vote não é endossado nem certificado pelo TMDB."}},{"@type":"Question","name":"Quais idiomas estão disponíveis?","acceptedAnswer":{"@type":"Answer","text":"O aplicativo e o site estão disponíveis em inglês, alemão, espanhol, francês, português do Brasil, italiano, polonês, turco e japonês."}}]}
 				]
 			}
 		</script>
@@ -1825,6 +1908,18 @@
 							</p>
 						</article>
 					</div>
+				</div>
+			</section>
+			<section class="section faq-section" id="faq" aria-labelledby="faq-title">
+				<div class="shell">
+					<div class="section-head">
+						<div>
+							<p class="eyebrow">Perguntas antes dos trailers</p>
+							<h2 id="faq-title">A versão curta antes da noite de cinema.</h2>
+						</div>
+						<p>Tudo o que famílias e quem hospeda o aplicativo geralmente querem saber sobre o Popcorn Vote.</p>
+					</div>
+					<div class="faq-list"><details class="faq-item"><summary>O que é o Popcorn Vote?</summary><p class="faq-answer">O Popcorn Vote é um aplicativo web gratuito e de código aberto que ajuda famílias a escolher um filme juntas. Todos podem sugerir filmes, dar e guardar votos, resolver empates com uma roleta e manter um diário de filmes compartilhado.</p></details><details class="faq-item"><summary>Como funciona a votação?</summary><p class="faq-answer">Cada membro da família recebe o mesmo número de votos em um cronograma comum. Os votos podem ser guardados, distribuídos entre um ou vários filmes e movidos até a noite do filme. O filme com mais votos vence; uma roleta resolve empates.</p></details><details class="faq-item"><summary>Os familiares precisam de uma conta?</summary><p class="faq-answer">Não. A família compartilha uma instalação e um PIN de quatro dígitos. Depois, cada pessoa apenas escolhe seu nome em qualquer celular, tablet ou computador.</p></details><details class="faq-item"><summary>O Popcorn Vote é gratuito e de código aberto?</summary><p class="faq-answer">Sim. O Popcorn Vote é um software gratuito publicado sob a licença MIT. O código-fonte, as imagens de contêiner, as instruções de instalação e o rastreador de problemas estão disponíveis no GitHub.</p></details><details class="faq-item"><summary>Onde nossos dados são armazenados?</summary><p class="faq-answer">A lista de filmes, os votos, as avaliações, as configurações, as capas e os backups permanecem no servidor que você controla. O Popcorn Vote não tem anúncios e não exige contas externas.</p></details><details class="faq-item"><summary>Como instalar o Popcorn Vote?</summary><p class="faq-answer">Execute a imagem Docker publicada em um servidor Linux AMD64 ou ARM64, NAS, Raspberry Pi ou VPS. O Popcorn Vote usa SQLite e não precisa de um serviço de banco de dados separado. Instalações públicas devem usar um proxy reverso HTTPS.</p></details><details class="faq-item"><summary>Quais informações de filmes são usadas?</summary><p class="faq-answer">A busca, os metadados, as avaliações, os pôsteres e os trailers vêm do The Movie Database. O Popcorn Vote não é endossado nem certificado pelo TMDB.</p></details><details class="faq-item"><summary>Quais idiomas estão disponíveis?</summary><p class="faq-answer">O aplicativo e o site estão disponíveis em inglês, alemão, espanhol, francês, português do Brasil, italiano, polonês, turco e japonês.</p></details></div>
 				</div>
 			</section>
 			<section class="closer">

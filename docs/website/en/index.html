@@ -370,7 +370,7 @@
 			.site-header.is-hidden {
 				transform: translateY(calc(-100% - 1px));
 			}
-			.site-header.is-hidden:focus-within {
+			.site-header.is-hidden:has(:focus-visible) {
 				transform: translateY(0);
 			}
 			.nav {
@@ -1109,6 +1109,75 @@
 			.feature:nth-child(3) p {
 				color: #c8d2dc;
 			}
+			.faq-section {
+				position: relative;
+				overflow: hidden;
+			}
+			.faq-section::before {
+				content: '?';
+				position: absolute;
+				top: -4rem;
+				right: max(1rem, calc((100vw - 1180px) / 2));
+				color: var(--line);
+				font:
+					700 clamp(12rem, 25vw, 23rem)/1 'DM Sans',
+					sans-serif;
+				pointer-events: none;
+			}
+			.faq-list {
+				position: relative;
+				display: grid;
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+				gap: 0 2rem;
+				border-top: 1px solid var(--line);
+			}
+			.faq-item {
+				border-bottom: 1px solid var(--line);
+			}
+			.faq-item summary {
+				display: grid;
+				grid-template-columns: 1fr auto;
+				gap: 1rem;
+				align-items: center;
+				min-height: 5.25rem;
+				padding: 1rem 0;
+				font:
+					700 1.05rem/1.3 'DM Sans',
+					sans-serif;
+				cursor: pointer;
+				list-style: none;
+			}
+			.faq-item summary::-webkit-details-marker {
+				display: none;
+			}
+			.faq-item summary::after {
+				content: '+';
+				display: grid;
+				place-items: center;
+				width: 2rem;
+				height: 2rem;
+				border: 1px solid var(--line);
+				border-radius: 50%;
+				color: var(--orange);
+				font-size: 1.4rem;
+				transition:
+					rotate 180ms ease,
+					background 180ms ease;
+			}
+			.faq-item[open] summary::after {
+				rotate: 45deg;
+				background: var(--gold);
+				color: #101923;
+			}
+			.faq-item summary:focus-visible {
+				outline: 3px solid var(--aqua);
+				outline-offset: 4px;
+			}
+			.faq-answer {
+				max-width: 62ch;
+				margin: -0.25rem 3rem 1.5rem 0;
+				color: var(--muted);
+			}
 			.self-hosting-section {
 				padding: 7rem 0;
 				border-block: 1px solid var(--line);
@@ -1441,6 +1510,9 @@
 				.features {
 					grid-template-columns: 1fr;
 				}
+				.faq-list {
+					grid-template-columns: 1fr;
+				}
 				.nerd-panel,
 				.nerd-grid {
 					grid-template-columns: 1fr;
@@ -1450,7 +1522,8 @@
 				}
 				.section,
 				.video-section,
-				.self-hosting-section {
+				.self-hosting-section,
+				.faq-section {
 					padding: 4.6rem 0;
 				}
 				.section-head {
@@ -1545,6 +1618,15 @@
 						"applicationCategory": "LifestyleApplication",
 						"operatingSystem": "Any operating system with a modern web browser",
 						"softwareRequirements": "Docker on linux/amd64 or linux/arm64",
+						"softwareVersion": "1.1.0",
+						"inLanguage": "en",
+						"featureList": [
+							"Shared movie suggestions",
+							"Equal and saveable votes",
+							"Tie-breaking wheel",
+							"Shared family film diary",
+							"Television display mode"
+						],
 						"isAccessibleForFree": true,
 						"image": { "@id": "https://popcornvote.org/#primaryimage" },
 						"sameAs": "https://github.com/Stadicus/popcorn-vote",
@@ -1560,7 +1642,8 @@
 							"price": 0,
 							"priceCurrency": "USD"
 						}
-					}
+					},
+					{"@type":"FAQPage","@id":"https://popcornvote.org/en/#faq","mainEntity":[{"@type":"Question","name":"What is Popcorn Vote?","acceptedAnswer":{"@type":"Answer","text":"Popcorn Vote is a free, open-source web app that helps families choose a film together. Everyone can suggest films, cast and save votes, break ties with a wheel, and keep a shared film diary."}},{"@type":"Question","name":"How does the voting work?","acceptedAnswer":{"@type":"Answer","text":"Each family member receives the same number of votes on a shared schedule. Votes can be saved, placed on one or several films, and moved until movie night. The film with the most votes wins; a wheel settles ties."}},{"@type":"Question","name":"Do family members need an account?","acceptedAnswer":{"@type":"Answer","text":"No. A family shares one installation and one four-digit PIN. After joining, each person simply chooses their name on any phone, tablet, or computer."}},{"@type":"Question","name":"Is Popcorn Vote free and open source?","acceptedAnswer":{"@type":"Answer","text":"Yes. Popcorn Vote is free software released under the MIT License. The source code, container images, setup instructions, and issue tracker are available on GitHub."}},{"@type":"Question","name":"Where is our data stored?","acceptedAnswer":{"@type":"Answer","text":"Your film list, votes, ratings, settings, covers, and backups remain on the server you control. Popcorn Vote has no advertising and requires no external user accounts."}},{"@type":"Question","name":"How do I install Popcorn Vote?","acceptedAnswer":{"@type":"Answer","text":"Run the published Docker image on a Linux AMD64 or ARM64 server, NAS, Raspberry Pi, or VPS. Popcorn Vote uses SQLite and needs no separate database service. Public installations should use an HTTPS reverse proxy."}},{"@type":"Question","name":"Which film information does it use?","acceptedAnswer":{"@type":"Answer","text":"Film search, metadata, ratings, posters, and trailers are sourced through The Movie Database. Popcorn Vote is not endorsed or certified by TMDB."}},{"@type":"Question","name":"Which languages are supported?","acceptedAnswer":{"@type":"Answer","text":"The app and website are available in English, German, Spanish, French, Brazilian Portuguese, Italian, Polish, Turkish, and Japanese."}}]}
 				]
 			}
 		</script>
@@ -1842,6 +1925,18 @@
 							</p>
 						</article>
 					</div>
+				</div>
+			</section>
+			<section class="section faq-section" id="faq" aria-labelledby="faq-title">
+				<div class="shell">
+					<div class="section-head">
+						<div>
+							<p class="eyebrow">Questions before the trailers</p>
+							<h2 id="faq-title">The short version, before movie night.</h2>
+						</div>
+						<p>Everything families and self-hosters usually want to know about Popcorn Vote.</p>
+					</div>
+					<div class="faq-list"><details class="faq-item"><summary>What is Popcorn Vote?</summary><p class="faq-answer">Popcorn Vote is a free, open-source web app that helps families choose a film together. Everyone can suggest films, cast and save votes, break ties with a wheel, and keep a shared film diary.</p></details><details class="faq-item"><summary>How does the voting work?</summary><p class="faq-answer">Each family member receives the same number of votes on a shared schedule. Votes can be saved, placed on one or several films, and moved until movie night. The film with the most votes wins; a wheel settles ties.</p></details><details class="faq-item"><summary>Do family members need an account?</summary><p class="faq-answer">No. A family shares one installation and one four-digit PIN. After joining, each person simply chooses their name on any phone, tablet, or computer.</p></details><details class="faq-item"><summary>Is Popcorn Vote free and open source?</summary><p class="faq-answer">Yes. Popcorn Vote is free software released under the MIT License. The source code, container images, setup instructions, and issue tracker are available on GitHub.</p></details><details class="faq-item"><summary>Where is our data stored?</summary><p class="faq-answer">Your film list, votes, ratings, settings, covers, and backups remain on the server you control. Popcorn Vote has no advertising and requires no external user accounts.</p></details><details class="faq-item"><summary>How do I install Popcorn Vote?</summary><p class="faq-answer">Run the published Docker image on a Linux AMD64 or ARM64 server, NAS, Raspberry Pi, or VPS. Popcorn Vote uses SQLite and needs no separate database service. Public installations should use an HTTPS reverse proxy.</p></details><details class="faq-item"><summary>Which film information does it use?</summary><p class="faq-answer">Film search, metadata, ratings, posters, and trailers are sourced through The Movie Database. Popcorn Vote is not endorsed or certified by TMDB.</p></details><details class="faq-item"><summary>Which languages are supported?</summary><p class="faq-answer">The app and website are available in English, German, Spanish, French, Brazilian Portuguese, Italian, Polish, Turkish, and Japanese.</p></details></div>
 				</div>
 			</section>
 			<section class="closer">

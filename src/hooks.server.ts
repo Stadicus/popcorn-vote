@@ -26,8 +26,8 @@ if (!building) {
 	}
 }
 
-// Reachable without a PIN: the PIN page itself, the health address and the app's
-// basic equipment.
+// Reachable without a PIN: the PIN page itself, the health address, the crawler
+// exclusion policy and the app's basic equipment.
 // /offline.html has to be open: the service worker puts the page into the cache
 // while installing, and behind the PIN guard the redirect to /pin would arrive
 // there instead.
@@ -42,6 +42,7 @@ const OPEN_PATHS = new Set([
 	'/api/setup',
 	'/api/language',
 	'/healthz',
+	'/robots.txt',
 	'/manifest.webmanifest',
 	'/service-worker.js',
 	'/offline.html'
@@ -147,6 +148,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 	response.headers.set('X-Content-Type-Options', 'nosniff');
 	response.headers.set('Referrer-Policy', 'no-referrer');
 	response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+	// The app contains private family state. Keep every route and non-HTML
+	// response out of search indexes even if a crawler ignores the HTML meta tag.
+	response.headers.set('X-Robots-Tag', 'noindex, nofollow');
 	return response;
 };
 
