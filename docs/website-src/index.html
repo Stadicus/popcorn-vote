@@ -1097,15 +1097,20 @@
 				overflow: hidden;
 			}
 			.faq-section::before {
-				content: '?';
+				content: '?' / '';
 				position: absolute;
 				top: -4rem;
 				right: max(1rem, calc((100vw - 1180px) / 2));
+				z-index: 0;
 				color: var(--line);
 				font:
 					700 clamp(12rem, 25vw, 23rem)/1 'DM Sans',
 					sans-serif;
 				pointer-events: none;
+			}
+			.faq-section .section-head {
+				position: relative;
+				z-index: 1;
 			}
 			.faq-list {
 				position: relative;
