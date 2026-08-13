@@ -9,7 +9,10 @@
 	// The language names deliberately come from `locales.ts` rather than from the
 	// catalogue, each written in its own language: "Deutsch" stays "Deutsch" on an
 	// English screen, so that everyone recognises their own.
-	let { chosen = null }: { chosen?: string | null } = $props();
+	let { chosen = null, allowAppDefault = true }: { chosen?: string | null; allowAppDefault?: boolean } =
+		$props();
+
+	const appliedValue = () => chosen ?? (allowAppDefault ? '' : 'en');
 
 	const t = getI18n();
 
@@ -42,7 +45,7 @@
 			await invalidateAll();
 		} catch {
 			failed = true;
-			select.value = chosen ?? '';
+			select.value = appliedValue();
 			select.focus();
 		} finally {
 			busy = false;
@@ -52,8 +55,8 @@
 
 <label class="langswitch">
 	<span>{t('language.label')}</span>
-	<select disabled={busy} value={chosen ?? ''} onchange={(event) => change(event.currentTarget)}>
-		<option value="">{t('language.follow')}</option>
+	<select disabled={busy} value={appliedValue()} onchange={(event) => change(event.currentTarget)}>
+		{#if allowAppDefault}<option value="">{t('language.follow')}</option>{/if}
 		{#each LOCALES as code (code)}
 			<option value={code}>{LOCALE_NAMES[code]}</option>
 		{/each}
