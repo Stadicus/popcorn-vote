@@ -501,6 +501,7 @@
 				top: -12rem;
 				background: var(--hero-glow);
 				opacity: 0.62;
+				transform: translate3d(0, var(--hero-glow-parallax, 0), 0);
 			}
 			.hero-grid {
 				display: grid;
@@ -646,7 +647,7 @@
 				box-shadow:
 					0 26px 42px rgb(17 29 39 / 0.28),
 					inset 0 0 0 1px rgb(255 255 255 /0.28);
-				transform: rotate(5deg);
+				transform: translate3d(0, var(--hero-phone-parallax, 0), 0) rotate(5deg);
 			}
 			.phone:after {
 				content: '';
@@ -721,14 +722,28 @@
 			.section-head {
 				display: grid;
 				grid-template-columns: 2fr 1fr;
-				gap: 2rem;
+				grid-template-rows: auto auto;
+				column-gap: 2rem;
 				margin-bottom: 3.5rem;
+			}
+			.section-head > div {
+				display: contents;
+			}
+			.section-head .eyebrow {
+				grid-column: 1;
+				grid-row: 1;
+			}
+			.section-head h2 {
+				grid-column: 1;
+				grid-row: 2;
 			}
 			h2 {
 				margin: 0;
 				font-size: clamp(2.5rem, 4.6vw, 4.35rem);
 			}
 			.section-head p:last-child {
+				grid-column: 2;
+				grid-row: 2;
 				max-width: 540px;
 				margin: 0;
 				color: var(--muted);
@@ -910,7 +925,15 @@
 			.video-head {
 				margin: 0;
 			}
-			.video-head p {
+			.video-head .eyebrow {
+				max-width: none;
+				margin: 0 0 0.55rem;
+			}
+			.video-head h2 {
+				margin: 0 0 1.75rem;
+				line-height: 0.92;
+			}
+			.video-head > p {
 				max-width: 420px;
 				margin: 0;
 			}
@@ -1214,7 +1237,8 @@
 				font-size: 20rem;
 				line-height: 1;
 				opacity: 0.12;
-				transform: translateX(-50%);
+				transform: translate3d(-50%, var(--closer-parallax, 0), 0)
+					rotate(var(--closer-parallax-rotation, 0deg));
 			}
 			.closer h2,
 			.closer p,
@@ -1406,8 +1430,8 @@
 				.video-layout {
 					display: block;
 				}
-				.video-head p {
-					margin-top: 1rem;
+				.video-head h2 {
+					margin-bottom: 1.35rem;
 				}
 				.video-layout .demo {
 					max-width: 360px;
@@ -1429,7 +1453,23 @@
 					padding: 4.6rem 0;
 				}
 				.section-head {
+					row-gap: 0;
 					margin-bottom: 2rem;
+				}
+				.section-head .eyebrow,
+				.section-head h2,
+				.section-head p:last-child {
+					grid-column: 1;
+				}
+				.section-head .eyebrow {
+					grid-row: 1;
+				}
+				.section-head h2 {
+					grid-row: 2;
+				}
+				.section-head p:last-child {
+					grid-row: 3;
+					margin-top: 1rem;
 				}
 				.footer-row,
 				.media-credits {
@@ -1547,10 +1587,10 @@
 			<section class="hero" id="top">
 				<div class="shell hero-grid">
 					<div class="hero-copy">
-						<p class="eyebrow">Uma forma mais justa de escolher o filme</p>
-						<h1>Noite de cinema,<br /><em>escolhido por você.</em></h1>
+						<p class="eyebrow">Deixe o drama para a tela.</p>
+						<h1>Noite de cinema,<br /><em>escolhida por todos.</em></h1>
 						<p class="lede">
-							Todos sugerem filmes e recebem votos no mesmo cronograma. Acumule-os, apoie um favorito e deixe o Popcorn Vote escolher o vencedor desta noite.
+							Cada pessoa sugere um filme e recebe a mesma quantidade de votos. Guarde, use, mude de lado e deixe o Popcorn Vote decidir o que passa hoje.
 						</p>
 						<div class="hero-actions">
 							<a class="button" href="https://demo.popcornvote.org" target="_blank" rel="noreferrer"
@@ -1563,8 +1603,11 @@
 								>Auto-hospedar Popcorn Vote <span aria-hidden="true">↗</span></a
 							>
 						</div>
-						<p class="note"><b>Gratuito e de código aberto.</b> O diário cinematográfico da sua família permanece no seu servidor.</p>
-						<button class="pop-trigger" type="button" aria-live="polite">Faça a pipoca estourar</button>
+						<p class="note">
+							<b>Grátis. Código aberto. Todo seu.</b><br />
+							A história cinematográfica da sua família fica exatamente onde deve estar: com vocês.
+						</p>
+						<button class="pop-trigger" type="button" aria-live="polite">Faça a pipoca</button>
 					</div>
 					<div class="phone" aria-label="Prévia da tela da lista de filmes Popcorn Vote">
 						<img
@@ -1586,19 +1629,19 @@
 				<div class="section-head">
 					<div>
 						<p class="eyebrow">Como funciona</p>
-						<h2>Quatro etapas da lista restrita à tela.</h2>
+						<h2>Quatro passos. Zero arqueologia no grupo de mensagens.</h2>
 					</div>
 					<p>
-						Popcorn Vote mantém sugestões, votações, formas de resolver votos empatados e filmes assistidos em um só lugar — sem adicionar outra assinatura de streaming.
+						Sugestões, votos, desempates memoráveis e todos os filmes já vistos, sem mais uma assinatura entrando nos créditos.
 					</p>
 				</div>
 				<div class="journey">
 					<article class="story" data-reveal>
 						<div class="story-copy">
 							<span class="story-number">01</span>
-							<h3>Encontre um filme. Adicione.</h3>
+							<h3>Achou? Adicione.</h3>
 							<p>
-								Pesquise por título e adicione-o à lista compartilhada, incluindo pôster, resumo, tempo de execução, classificações e trailer. Chega de perder boas sugestões em um chat em grupo.
+								Busque pelo título e adicione à lista compartilhada com pôster, resumo, duração, avaliações e trailer. Porque “alguém sugeriu um ótimo filme na terça passada” não é um sistema de arquivo.
 							</p>
 						</div>
 						<div class="screen">
@@ -1614,9 +1657,9 @@
 					<article class="story story-votes" data-reveal>
 						<div class="story-copy">
 							<span class="story-number">02</span>
-							<h3>Acumule votos. Apoie um favorito.</h3>
+							<h3>Distribua seus votos. Monte sua estratégia.</h3>
 							<p>
-								Todos começam em igualdade de condições e recebem novos votos no mesmo horário. Acumule-os, coloque vários em um filme ou mova-os a qualquer momento.
+								Todos começam em igualdade e recebem novos votos no mesmo ritmo. Guarde para depois, coloque vários em um favorito ou mude de ideia quando o roteiro pedir.
 							</p>
 						</div>
 						<div class="screen">
@@ -1632,9 +1675,9 @@
 					<article class="story" data-reveal>
 						<div class="story-copy">
 							<span class="story-number">03</span>
-							<h3>Deixe a roda resolver uma votação empatada.</h3>
+							<h3>Empate? Deixe a roda decidir.</h3>
 							<p>
-								O filme com mais votos vence. Se vários filmes tiverem o mesmo número de votos, a roda faz a escolha final e o resultado é registrado no diário.
+								O filme com mais votos vence. Empate? A roda entrega a primeira reviravolta da noite.
 							</p>
 						</div>
 						<div class="screen">
@@ -1650,9 +1693,9 @@
 					<article class="story" data-reveal>
 						<div class="story-copy">
 							<span class="story-number">04</span>
-							<h3>Assista. Guarde a memória.</h3>
+							<h3>Assista. Avalie. Lembre.</h3>
 							<p>
-								Após os créditos, marque o vencedor como assistido e avalie de 1 a 5 estrelas. Com o tempo, o arquivo se torna o diário cinematográfico da sua família.
+								Depois dos créditos, marque o vencedor como assistido e dê de 1 a 5 estrelas. Logo vocês terão um diário de cinema da família, incluindo a prova de quem deu cinco estrelas para aquele desastre.
 							</p>
 						</div>
 						<div class="screen">
@@ -1668,9 +1711,9 @@
 					<aside class="tv-mode">
 						<div>
 							<p class="eyebrow">Modo televisão</p>
-							<h3>Coloque a noite de cinema na tela grande.</h3>
+							<h3>Leve a decisão para a tela grande.</h3>
 							<p>
-								Abra o modo TV em uma televisão ou espelhe-o em um telefone ou laptop. A classificação, a roda de desempate e o vencedor preenchem a tela para todos no sofá.
+								Abra o modo TV ou espelhe de outro dispositivo. Os votos, a roda e a grande revelação tomam conta da tela, como deve ser.
 							</p>
 						</div>
 						<img
@@ -1687,10 +1730,12 @@
 				<div class="shell video-layout">
 					<div class="video-head">
 						<div>
-							<p class="eyebrow">Veja o aplicativo em ação</p>
-							<h2>Da votação ao vencedor.</h2>
+							<p class="eyebrow">Veja o Popcorn Vote em ação</p>
+							<h2>Do empate aos créditos iniciais.</h2>
 						</div>
-						<p>Assista ao aplicativo real avaliar a classificação, resolver um empate na votação e revelar o que acontecerá esta noite.</p>
+						<p>
+							Veja o Popcorn Vote contar os votos, resolver o empate e revelar a atração de hoje. Sem spoilers do trailer.
+						</p>
 						<div class="video-actions">
 							<a class="button" href="https://demo.popcornvote.org" target="_blank" rel="noreferrer"
 								>Testar demonstração ao vivo <span aria-hidden="true">↗</span></a
@@ -1710,32 +1755,30 @@
 				<div class="section-head">
 					<div>
 						<p class="eyebrow">Construído para uma família</p>
-						<h2>Simples do telefone para a TV.</h2>
+						<h2>Todos estão convidados. Sem conta.</h2>
 					</div>
 					<p>
-						Um endereço compartilhado e um PIN familiar. Escolha seu nome após fazer login e use Popcorn Vote em um telefone, tablet ou computador.
+						Um endereço, um PIN familiar e nenhum obstáculo para criar contas. Escolha seu nome e entre por qualquer celular, tablet ou computador.
 					</p>
 				</div>
 				<div class="features">
 					<article class="feature">
 						<span class="icon" aria-hidden="true">🗳️</span>
-						<h3>Justo desde o início</h3>
+						<h3>Votos que pedem estratégia</h3>
 						<p>
-							Acumule votos para um filme que você realmente deseja, use vários de uma vez ou mova-os antes da noite de cinema.
+							Guarde seus votos, aposte tudo em um favorito ou redistribua antes da sessão. Discursos de campanha são opcionais.
 						</p>
 					</article>
 					<article class="feature">
 						<span class="icon" aria-hidden="true">🎡</span>
-						<h3>Empates viram espetáculo</h3>
-						<p>
-							Em caso de empate, os filmes líderes vão para a roda e a decisão vira parte da noite.
-						</p>
+						<h3>Empates merecem drama</h3>
+						<p>Se os filmes líderes empatarem, a roda dá a palavra final para todos no sofá.</p>
 					</article>
 					<article class="feature">
 						<span class="icon" aria-hidden="true">🏠</span>
-						<h3>Sua família, seu servidor</h3>
+						<h3>Cinema em família fica em família.</h3>
 						<p>
-							Execute-o em casa ou em um VPS. Não há anúncios ou contas de usuário, e sua lista, votos, classificações e arquivo permanecem em sua própria pasta de dados.
+							Rode em casa ou em um VPS. Sem anúncios, sem contas externas e sem algoritmo misterioso insistindo em outra comédia romântica de Natal.
 						</p>
 					</article>
 				</div>
@@ -1743,31 +1786,31 @@
 			<section class="self-hosting-section" aria-labelledby="self-hosting-title">
 				<div class="shell nerd-panel">
 					<div class="nerd-intro">
-						<p class="nerd-kicker">Notas para self-hosters</p>
-						<h2 id="self-hosting-title">Stack enxuto. Padrões bem pensados.</h2>
+						<p class="nerd-kicker">Para quem prefere self-hosting</p>
+						<h2 id="self-hosting-title">Stack pequeno. Padrões sensatos.</h2>
 						<p class="nerd-summary">
-							A configuração permanece deliberadamente enfadonha, enquanto os detalhes que protegem os dados de uma família recebem a devida atenção.
+							Fácil de implantar, simples de operar e cuidadoso com os dados deixados pela sua família.
 						</p>
 						<p class="nerd-stack" translate="no">Docker · SvelteKit · SQLite · PWA</p>
 					</div>
 					<div class="nerd-grid">
 						<article class="nerd-item">
 							<span class="nerd-code">01 / Acesso</span>
-							<h4>Bloqueado até configurar um PIN</h4>
+							<h4>Sem PIN, sem sessão.</h4>
 							<p>
 								Sem um PIN familiar válido de quatro dígitos, apenas o health check responde. Tentativas malsucedidas geram esperas crescentes por endereço e em toda a instalação.
 							</p>
 						</article>
 						<article class="nerd-item">
 							<span class="nerd-code">02 / Rede</span>
-							<h4>Público significa HTTPS</h4>
+							<h4>Em casa, HTTP. Em qualquer outro lugar, HTTPS.</h4>
 							<p>
 								O HTTP simples é compatível com uma rede doméstica confiável. As instâncias públicas pertencem a um proxy reverso HTTPS, com a porta do contêiner mantida privada.
 							</p>
 						</article>
 						<article class="nerd-item">
 							<span class="nerd-code">03 / Dados</span>
-							<h4>Um volume, backups noturnos</h4>
+							<h4>Backups noturnos. Por precaução.</h4>
 							<p>
 								O banco de dados, coberturas, configuração e backups residem em <code translate="no">/data</code>.
 								Quatorze estados noturnos são mantidos por padrão, incluindo recuperação após tempo de inatividade.
@@ -1775,7 +1818,7 @@
 						</article>
 						<article class="nerd-item">
 							<span class="nerd-code">04 / Tempo de execução</span>
-							<h4>Uma imagem de contêiner, duas arquiteturas</h4>
+							<h4>Uma imagem. Escolha sua arquitetura.</h4>
 							<p>
 								As imagens de contêiner prontas para baixar funcionam <code translate="no">linux/amd64</code> em NAS Intel ou AMD e <code translate="no">linux/arm64</code> em Raspberry Pi e servidores ARM. Não é necessário um serviço de banco de dados separado.
 							</p>
@@ -1785,9 +1828,9 @@
 			</section>
 			<section class="closer">
 				<div class="shell">
-					<p class="eyebrow">Sua próxima noite de cinema começa aqui</p>
-					<h2>Uma escolha justa. Uma noite divertida.</h2>
-					<p>Popcorn Vote é gratuito, de código aberto e pronto para ser executado em seu próprio servidor.</p>
+					<p class="eyebrow">Sua próxima noite de cinema precisa de um vencedor.</p>
+					<h2>Escolham juntos. Apertem o play mais cedo.</h2>
+					<p>Auto-hospedado, de código aberto e pronto para resolver a pergunta mais importante da noite.</p>
 					<div class="closer-actions">
 						<a class="button" href="https://demo.popcornvote.org" target="_blank" rel="noreferrer"
 							>Testar demonstração ao vivo <span aria-hidden="true">↗</span></a
@@ -1796,7 +1839,7 @@
 							href="https://github.com/Stadicus/popcorn-vote"
 							target="_blank"
 							rel="noreferrer"
-							>Veja a configuração no GitHub <span aria-hidden="true">↗</span></a
+							>Baixe o Popcorn Vote no GitHub <span aria-hidden="true">↗</span></a
 						>
 					</div>
 				</div>
@@ -1815,6 +1858,7 @@
 					></span
 				>
 				<div class="footer-actions">
+					<a class="footer-project-link" href="/media-kit/" translate="no">Media kit</a>
 					<a
 						class="footer-project-link"
 						href="https://github.com/Stadicus/popcorn-vote"
@@ -1854,7 +1898,7 @@
 				const paper = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim();
 				document.querySelector('meta[name="theme-color"]').setAttribute('content', paper);
 			};
-			themeToggle.addEventListener('click', () => {
+			themeToggle.addEventListener('click', (event) => {
 				const dark = themeToggle.getAttribute('aria-pressed') === 'true';
 				const theme = dark ? 'light' : 'dark';
 				document.documentElement.dataset.theme = theme;
@@ -1862,13 +1906,40 @@
 					localStorage.setItem('pv_website_theme', theme);
 				} catch {}
 				syncTheme();
+				if (event.detail > 0) themeToggle.blur();
 			});
 			systemTheme.addEventListener('change', syncTheme);
 			syncTheme();
 			const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+			const parallaxViewport = window.matchMedia('(min-width: 721px)');
 			const siteHeader = document.querySelector('.site-header');
+			const hero = document.querySelector('.hero');
+			const closer = document.querySelector('.closer');
 			let previousScrollY = Math.max(window.scrollY, 0);
 			let headerUpdatePending = false;
+			const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
+			const updateParallax = (scrollY) => {
+				if (reducedMotion || !parallaxViewport.matches) {
+					hero.style.removeProperty('--hero-phone-parallax');
+					hero.style.removeProperty('--hero-glow-parallax');
+					closer.style.removeProperty('--closer-parallax');
+					closer.style.removeProperty('--closer-parallax-rotation');
+					return;
+				}
+				const heroProgress = clamp(scrollY / hero.offsetHeight, 0, 1);
+				hero.style.setProperty('--hero-phone-parallax', `${(heroProgress * 18).toFixed(2)}px`);
+				hero.style.setProperty('--hero-glow-parallax', `${(heroProgress * -12).toFixed(2)}px`);
+
+				const closerRect = closer.getBoundingClientRect();
+				const closerRange = (window.innerHeight + closerRect.height) / 2;
+				const closerProgress = clamp(
+					(window.innerHeight / 2 - (closerRect.top + closerRect.height / 2)) / closerRange,
+					-1,
+					1
+				);
+				closer.style.setProperty('--closer-parallax', `${(closerProgress * 18).toFixed(2)}px`);
+				closer.style.setProperty('--closer-parallax-rotation', `${(closerProgress * 1.2).toFixed(2)}deg`);
+			};
 			const updateHeader = () => {
 				const currentScrollY = Math.max(window.scrollY, 0);
 				siteHeader.classList.toggle('is-scrolled', currentScrollY > 0);
@@ -1877,18 +1948,18 @@
 				} else if (currentScrollY > previousScrollY && currentScrollY > siteHeader.offsetHeight) {
 					siteHeader.classList.add('is-hidden');
 				}
+				updateParallax(currentScrollY);
 				previousScrollY = currentScrollY;
 				headerUpdatePending = false;
 			};
-			window.addEventListener(
-				'scroll',
-				() => {
-					if (headerUpdatePending) return;
-					headerUpdatePending = true;
-					requestAnimationFrame(updateHeader);
-				},
-				{ passive: true }
-			);
+			const scheduleHeaderUpdate = () => {
+				if (headerUpdatePending) return;
+				headerUpdatePending = true;
+				requestAnimationFrame(updateHeader);
+			};
+			window.addEventListener('scroll', scheduleHeaderUpdate, { passive: true });
+			window.addEventListener('resize', scheduleHeaderUpdate);
+			parallaxViewport.addEventListener('change', scheduleHeaderUpdate);
 			updateHeader();
 			function supernova(target, scale = 1, anchor = null) {
 				if (reducedMotion) return;
@@ -1945,10 +2016,9 @@
 			}
 			const trigger = document.querySelector('.pop-trigger');
 			const brandTrigger = document.querySelector('.brand');
-			const hero = document.querySelector('.hero');
 			const celebrate = () => supernova(hero, 0.48);
 			trigger.addEventListener('click', () => {
-				trigger.textContent = 'Recém estourado!';
+				trigger.textContent = 'Pipoca pronta!';
 				celebrate();
 			});
 			brandTrigger.addEventListener('click', celebrate);

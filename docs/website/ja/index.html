@@ -501,6 +501,7 @@
 				top: -12rem;
 				background: var(--hero-glow);
 				opacity: 0.62;
+				transform: translate3d(0, var(--hero-glow-parallax, 0), 0);
 			}
 			.hero-grid {
 				display: grid;
@@ -646,7 +647,7 @@
 				box-shadow:
 					0 26px 42px rgb(17 29 39 / 0.28),
 					inset 0 0 0 1px rgb(255 255 255 /0.28);
-				transform: rotate(5deg);
+				transform: translate3d(0, var(--hero-phone-parallax, 0), 0) rotate(5deg);
 			}
 			.phone:after {
 				content: '';
@@ -721,14 +722,28 @@
 			.section-head {
 				display: grid;
 				grid-template-columns: 2fr 1fr;
-				gap: 2rem;
+				grid-template-rows: auto auto;
+				column-gap: 2rem;
 				margin-bottom: 3.5rem;
+			}
+			.section-head > div {
+				display: contents;
+			}
+			.section-head .eyebrow {
+				grid-column: 1;
+				grid-row: 1;
+			}
+			.section-head h2 {
+				grid-column: 1;
+				grid-row: 2;
 			}
 			h2 {
 				margin: 0;
 				font-size: clamp(2.5rem, 4.6vw, 4.35rem);
 			}
 			.section-head p:last-child {
+				grid-column: 2;
+				grid-row: 2;
 				max-width: 540px;
 				margin: 0;
 				color: var(--muted);
@@ -910,7 +925,15 @@
 			.video-head {
 				margin: 0;
 			}
-			.video-head p {
+			.video-head .eyebrow {
+				max-width: none;
+				margin: 0 0 0.55rem;
+			}
+			.video-head h2 {
+				margin: 0 0 1.75rem;
+				line-height: 0.92;
+			}
+			.video-head > p {
 				max-width: 420px;
 				margin: 0;
 			}
@@ -1214,7 +1237,8 @@
 				font-size: 20rem;
 				line-height: 1;
 				opacity: 0.12;
-				transform: translateX(-50%);
+				transform: translate3d(-50%, var(--closer-parallax, 0), 0)
+					rotate(var(--closer-parallax-rotation, 0deg));
 			}
 			.closer h2,
 			.closer p,
@@ -1406,8 +1430,8 @@
 				.video-layout {
 					display: block;
 				}
-				.video-head p {
-					margin-top: 1rem;
+				.video-head h2 {
+					margin-bottom: 1.35rem;
 				}
 				.video-layout .demo {
 					max-width: 360px;
@@ -1429,7 +1453,23 @@
 					padding: 4.6rem 0;
 				}
 				.section-head {
+					row-gap: 0;
 					margin-bottom: 2rem;
+				}
+				.section-head .eyebrow,
+				.section-head h2,
+				.section-head p:last-child {
+					grid-column: 1;
+				}
+				.section-head .eyebrow {
+					grid-row: 1;
+				}
+				.section-head h2 {
+					grid-row: 2;
+				}
+				.section-head p:last-child {
+					grid-row: 3;
+					margin-top: 1rem;
 				}
 				.footer-row,
 				.media-credits {
@@ -1547,10 +1587,10 @@
 			<section class="hero" id="top">
 				<div class="shell hero-grid">
 					<div class="hero-copy">
-						<p class="eyebrow">映画をもっと公平に選ぶ方法</p>
+						<p class="eyebrow">ドラマはスクリーンの中だけに。</p>
 						<h1>映画の夜、<br /><em>みんなで選ぶ。</em></h1>
 						<p class="lede">
-							全員が映画を提案し、同じスケジュールで投票権を受け取ります。投票を貯めてお気に入りを応援し、今夜の一本を Popcorn Vote に決めてもらいましょう。
+							みんなが映画を1本ずつ提案し、同じ数の票を受け取ります。貯めるも使うも、推しを変えるも自由。あとは今夜の一本をPopcorn Voteに決めてもらいましょう。
 						</p>
 						<div class="hero-actions">
 							<a class="button" href="https://demo.popcornvote.org" target="_blank" rel="noreferrer"
@@ -1563,8 +1603,11 @@
 								>Popcorn Voteをセルフホストする <span aria-hidden="true">↗</span></a
 							>
 						</div>
-						<p class="note"><b>無料でオープンソース。</b> 家族の映画日記はサーバーに残ります。</p>
-						<button class="pop-trigger" type="button" aria-live="polite">ポップコーンを弾けさせる</button>
+						<p class="note">
+							<b>無料。オープンソース。すべてあなたのもの。</b><br />
+							家族の映画の記録は、あるべき場所、つまりあなたの手元に残ります。
+						</p>
+						<button class="pop-trigger" type="button" aria-live="polite">ポップコーンを作る</button>
 					</div>
 					<div class="phone" aria-label="Popcorn Vote映画一覧画面のプレビュー">
 						<img
@@ -1586,19 +1629,19 @@
 				<div class="section-head">
 					<div>
 						<p class="eyebrow">仕組み</p>
-						<h2>候補リストから画面に至るまでの 4 つのステップ。</h2>
+						<h2>4ステップ。グループチャットの発掘作業はゼロ。</h2>
 					</div>
 					<p>
-						Popcorn Vote は、ストリーミング サブスクリプションを追加することなく、提案、投票、同数票の解決方法、視聴した映画を 1 か所にまとめます。
+						候補、投票、楽しい同点決着、これまで観た映画をすべてひとまとめに。新たなサブスクリプションがエンドロールに紛れ込むこともありません。
 					</p>
 				</div>
 				<div class="journey">
 					<article class="story" data-reveal>
 						<div class="story-copy">
 							<span class="story-number">01</span>
-							<h3>フィルムを見つけてください。追加してください。</h3>
+							<h3>見つけたら追加。</h3>
 							<p>
-								タイトルで検索し、ポスター、概要、ランタイム、評価、予告編とともに共有リストに追加します。グループ チャットで良い提案を失うことはもうありません。
+								タイトルで検索し、ポスター、あらすじ、上映時間、評価、予告編とともに共有リストへ追加できます。「先週の火曜に誰かがいい映画を勧めていた」は整理方法とは言えません。
 							</p>
 						</div>
 						<div class="screen">
@@ -1614,9 +1657,9 @@
 					<article class="story story-votes" data-reveal>
 						<div class="story-copy">
 							<span class="story-number">02</span>
-							<h3>投票を貯める。お気に入りを応援する。</h3>
+							<h3>票を投じる。作戦を練る。</h3>
 							<p>
-								誰もが平等な条件で開始し、同じスケジュールで新しい投票を受け取ります。それらを蓄積したり、1 つのフィルムに複数を配置したり、いつでも移動したりできます。
+								全員が同じ条件で始め、同じペースで新しい票を受け取ります。後のために貯めるも、推しにまとめて投じるも、展開に合わせて心変わりするも自由です。
 							</p>
 						</div>
 						<div class="screen">
@@ -1632,9 +1675,9 @@
 					<article class="story" data-reveal>
 						<div class="story-copy">
 							<span class="story-number">03</span>
-							<h3>同票ならホイールで決める。</h3>
+							<h3>同点？ルーレットに決めてもらおう。</h3>
 							<p>
-								最も多くの票を獲得した映画が優勝します。複数の映画の投票数が同じ場合、ホイールが最終選択を行い、結果がログに記録されます。
+								最多得票の映画が勝ち。同点なら、ルーレットが今夜最初のどんでん返しを届けます。
 							</p>
 						</div>
 						<div class="screen">
@@ -1650,9 +1693,9 @@
 					<article class="story" data-reveal>
 						<div class="story-copy">
 							<span class="story-number">04</span>
-							<h3>見てください。思い出を残しておいてください。</h3>
+							<h3>観る。評価する。覚えておく。</h3>
 							<p>
-								クレジットの後、勝者を視聴済みとしてマークし、1 つ星から 5 つ星までの評価を付けます。時間が経つにつれて、アーカイブは家族の映画日記になります。
+								エンドロールの後、勝者を視聴済みにして1〜5つ星で評価します。やがて家族の映画日記ができあがり、あの残念な一本に誰が5つ星を付けたかも証拠として残ります。
 							</p>
 						</div>
 						<div class="screen">
@@ -1668,9 +1711,9 @@
 					<aside class="tv-mode">
 						<div>
 							<p class="eyebrow">TVモード</p>
-							<h3>ムービーナイトを大スクリーンで演出しましょう。</h3>
+							<h3>決定の瞬間を大画面で。</h3>
 							<p>
-								テレビで TV モードを開くか、携帯電話またはラップトップからミラーリングします。順位表、タイブレークホイール、勝者がソファにいる全員の画面に表示されます。
+								TVモードを開くか、別の端末からミラーリング。票、ルーレット、そして結果発表が画面いっぱいに広がります。
 							</p>
 						</div>
 						<img
@@ -1687,10 +1730,12 @@
 				<div class="shell video-layout">
 					<div class="video-head">
 						<div>
-							<p class="eyebrow">アプリの動作を確認する</p>
-							<h2>投票から勝者まで。</h2>
+							<p class="eyebrow">Popcorn Voteの動きを見る</p>
+							<h2>同点から上映開始まで。</h2>
 						</div>
-						<p>実際のアプリが順位を評価し、同数の投票を解決し、今夜何が行われるかを明らかにするのを見てください。</p>
+						<p>
+							Popcorn Voteが票を数え、同点を解消し、今夜の一本を発表する様子をご覧ください。予告編のネタバレはありません。
+						</p>
 						<div class="video-actions">
 							<a class="button" href="https://demo.popcornvote.org" target="_blank" rel="noreferrer"
 								>ライブデモを試す <span aria-hidden="true">↗</span></a
@@ -1710,32 +1755,30 @@
 				<div class="section-head">
 					<div>
 						<p class="eyebrow">1つの家族のために建てられました</p>
-						<h2>電話からテレビまでシンプル。</h2>
+						<h2>みんな参加できる。アカウントは不要。</h2>
 					</div>
 					<p>
-						1 つの共有アドレスと 1 つの家族用 PIN。サインイン後に名前を選択し、携帯電話、タブレット、またはコンピューターから Popcorn Vote を使用します。
+						共通のアドレスと家族用PINだけ。面倒なアカウント作成なしで、名前を選び、スマートフォン、タブレット、パソコンから参加できます。
 					</p>
 				</div>
 				<div class="features">
 					<article class="feature">
 						<span class="icon" aria-hidden="true">🗳️</span>
-						<h3>公平さを最初から設計</h3>
+						<h3>作戦を練りたくなる投票</h3>
 						<p>
-							本当に欲しい映画への投票を貯めたり、一度に複数を使用したり、映画鑑賞の前に投票を移動したりできます。
+							票を貯め、推しに全票を投じ、映画の夜が始まる前に配分し直せます。選挙演説はお好みで。
 						</p>
 					</article>
 					<article class="feature">
 						<span class="icon" aria-hidden="true">🎡</span>
-						<h3>同票もショーの一部に</h3>
-						<p>
-							同票なら首位の映画がホイールへ。決める瞬間まで映画の夜のイベントになります。
-						</p>
+						<h3>同点にはドラマが必要</h3>
+						<p>首位の映画が同点なら、ソファにいる全員に代わってルーレットが最終決定を下します。</p>
 					</article>
 					<article class="feature">
 						<span class="icon" aria-hidden="true">🏠</span>
-						<h3>あなたの家族、あなたのサーバー</h3>
+						<h3>家族の映画時間は、家族の中だけで。</h3>
 						<p>
-							自宅または VPS 上で実行します。広告やユーザー アカウントはなく、リスト、投票、評価、アーカイブは独自のデータ フォルダーに残ります。
+							自宅またはVPSで運用できます。広告も外部アカウントも、次のクリスマス恋愛映画を勧め続ける謎のアルゴリズムもありません。
 						</p>
 					</article>
 				</div>
@@ -1743,31 +1786,31 @@
 			<section class="self-hosting-section" aria-labelledby="self-hosting-title">
 				<div class="shell nerd-panel">
 					<div class="nerd-intro">
-						<p class="nerd-kicker">セルフホスト向けメモ</p>
-						<h2 id="self-hosting-title">小さな構成。考え抜かれた初期設定。</h2>
+						<p class="nerd-kicker">セルフホスト派のために</p>
+						<h2 id="self-hosting-title">小さなスタック。堅実なデフォルト設定。</h2>
 						<p class="nerd-summary">
-							設定は意図的に退屈なままですが、家族のデータを保護するための詳細には適切な注目が集まっています。
+							導入しやすく、運用しやすく、家族が残すデータを丁寧に扱います。
 						</p>
 						<p class="nerd-stack" translate="no">Docker · SvelteKit · SQLite · PWA</p>
 					</div>
 					<div class="nerd-grid">
 						<article class="nerd-item">
 							<span class="nerd-code">01 / アクセス</span>
-							<h4>PIN を設定するまでロック</h4>
+							<h4>PINがなければ上映なし。</h4>
 							<p>
 								有効な 4 桁の家族 PIN がなければ、health check だけが応答します。失敗が続くと、アドレスごと・システム全体の待ち時間が段階的に延びます。
 							</p>
 						</article>
 						<article class="nerd-item">
 							<span class="nerd-code">02 / ネットワーク</span>
-							<h4>公開するなら HTTPS</h4>
+							<h4>自宅ではHTTP。それ以外ではHTTPS。</h4>
 							<p>
 								プレーン HTTP は、信頼されたホーム ネットワークでサポートされます。パブリック インスタンスは HTTPS リバース プロキシの背後に属し、コンテナ ポートはプライベートに保たれます。
 							</p>
 						</article>
 						<article class="nerd-item">
 							<span class="nerd-code">03 / データ</span>
-							<h4>1 ボリューム、夜間バックアップ</h4>
+							<h4>毎晩バックアップ。念のため。</h4>
 							<p>
 								データベース、カバー、構成、バックアップは次の場所にあります。 <code translate="no">/data</code>.
 								ダウンタイム後のキャッチアップを含め、14 の夜間状態がデフォルトで保持されます。
@@ -1775,7 +1818,7 @@
 						</article>
 						<article class="nerd-item">
 							<span class="nerd-code">04 / ランタイム</span>
-							<h4>1 つのコンテナイメージ、2 つのアーキテクチャ</h4>
+							<h4>イメージは1つ。アーキテクチャを選ぶだけ。</h4>
 							<p>
 								すぐに使えるコンテナイメージは <code translate="no">linux/amd64</code> Intel／AMD NAS と <code translate="no">linux/arm64</code> Raspberry Pi／ARM サーバーに対応。別途データベースサービスは不要です。
 							</p>
@@ -1785,9 +1828,9 @@
 			</section>
 			<section class="closer">
 				<div class="shell">
-					<p class="eyebrow">次の映画の夜はここから始まります</p>
-					<h2>公平に選ぶ。楽しい夜を過ごす。</h2>
-					<p>Popcorn Vote は無料のオープンソースで、独自のサーバー上ですぐに実行できます。</p>
+					<p class="eyebrow">次の映画の夜には勝者が必要です。</p>
+					<h2>みんなで選んで、早く再生。</h2>
+					<p>セルフホスト、オープンソース。今夜いちばん大切な問いに答える準備はできています。</p>
 					<div class="closer-actions">
 						<a class="button" href="https://demo.popcornvote.org" target="_blank" rel="noreferrer"
 							>ライブデモを試す <span aria-hidden="true">↗</span></a
@@ -1796,7 +1839,7 @@
 							href="https://github.com/Stadicus/popcorn-vote"
 							target="_blank"
 							rel="noreferrer"
-							>GitHub でセットアップを表示する <span aria-hidden="true">↗</span></a
+							>GitHubでPopcorn Voteを入手 <span aria-hidden="true">↗</span></a
 						>
 					</div>
 				</div>
@@ -1815,6 +1858,7 @@
 					></span
 				>
 				<div class="footer-actions">
+					<a class="footer-project-link" href="/media-kit/" translate="no">Media kit</a>
 					<a
 						class="footer-project-link"
 						href="https://github.com/Stadicus/popcorn-vote"
@@ -1854,7 +1898,7 @@
 				const paper = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim();
 				document.querySelector('meta[name="theme-color"]').setAttribute('content', paper);
 			};
-			themeToggle.addEventListener('click', () => {
+			themeToggle.addEventListener('click', (event) => {
 				const dark = themeToggle.getAttribute('aria-pressed') === 'true';
 				const theme = dark ? 'light' : 'dark';
 				document.documentElement.dataset.theme = theme;
@@ -1862,13 +1906,40 @@
 					localStorage.setItem('pv_website_theme', theme);
 				} catch {}
 				syncTheme();
+				if (event.detail > 0) themeToggle.blur();
 			});
 			systemTheme.addEventListener('change', syncTheme);
 			syncTheme();
 			const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+			const parallaxViewport = window.matchMedia('(min-width: 721px)');
 			const siteHeader = document.querySelector('.site-header');
+			const hero = document.querySelector('.hero');
+			const closer = document.querySelector('.closer');
 			let previousScrollY = Math.max(window.scrollY, 0);
 			let headerUpdatePending = false;
+			const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
+			const updateParallax = (scrollY) => {
+				if (reducedMotion || !parallaxViewport.matches) {
+					hero.style.removeProperty('--hero-phone-parallax');
+					hero.style.removeProperty('--hero-glow-parallax');
+					closer.style.removeProperty('--closer-parallax');
+					closer.style.removeProperty('--closer-parallax-rotation');
+					return;
+				}
+				const heroProgress = clamp(scrollY / hero.offsetHeight, 0, 1);
+				hero.style.setProperty('--hero-phone-parallax', `${(heroProgress * 18).toFixed(2)}px`);
+				hero.style.setProperty('--hero-glow-parallax', `${(heroProgress * -12).toFixed(2)}px`);
+
+				const closerRect = closer.getBoundingClientRect();
+				const closerRange = (window.innerHeight + closerRect.height) / 2;
+				const closerProgress = clamp(
+					(window.innerHeight / 2 - (closerRect.top + closerRect.height / 2)) / closerRange,
+					-1,
+					1
+				);
+				closer.style.setProperty('--closer-parallax', `${(closerProgress * 18).toFixed(2)}px`);
+				closer.style.setProperty('--closer-parallax-rotation', `${(closerProgress * 1.2).toFixed(2)}deg`);
+			};
 			const updateHeader = () => {
 				const currentScrollY = Math.max(window.scrollY, 0);
 				siteHeader.classList.toggle('is-scrolled', currentScrollY > 0);
@@ -1877,18 +1948,18 @@
 				} else if (currentScrollY > previousScrollY && currentScrollY > siteHeader.offsetHeight) {
 					siteHeader.classList.add('is-hidden');
 				}
+				updateParallax(currentScrollY);
 				previousScrollY = currentScrollY;
 				headerUpdatePending = false;
 			};
-			window.addEventListener(
-				'scroll',
-				() => {
-					if (headerUpdatePending) return;
-					headerUpdatePending = true;
-					requestAnimationFrame(updateHeader);
-				},
-				{ passive: true }
-			);
+			const scheduleHeaderUpdate = () => {
+				if (headerUpdatePending) return;
+				headerUpdatePending = true;
+				requestAnimationFrame(updateHeader);
+			};
+			window.addEventListener('scroll', scheduleHeaderUpdate, { passive: true });
+			window.addEventListener('resize', scheduleHeaderUpdate);
+			parallaxViewport.addEventListener('change', scheduleHeaderUpdate);
 			updateHeader();
 			function supernova(target, scale = 1, anchor = null) {
 				if (reducedMotion) return;
@@ -1945,10 +2016,9 @@
 			}
 			const trigger = document.querySelector('.pop-trigger');
 			const brandTrigger = document.querySelector('.brand');
-			const hero = document.querySelector('.hero');
 			const celebrate = () => supernova(hero, 0.48);
 			trigger.addEventListener('click', () => {
-				trigger.textContent = 'はじけたばかり！';
+				trigger.textContent = 'ポップコーン完成！';
 				celebrate();
 			});
 			brandTrigger.addEventListener('click', celebrate);
