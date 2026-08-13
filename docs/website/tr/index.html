@@ -501,6 +501,7 @@
 				top: -12rem;
 				background: var(--hero-glow);
 				opacity: 0.62;
+				transform: translate3d(0, var(--hero-glow-parallax, 0), 0);
 			}
 			.hero-grid {
 				display: grid;
@@ -646,7 +647,7 @@
 				box-shadow:
 					0 26px 42px rgb(17 29 39 / 0.28),
 					inset 0 0 0 1px rgb(255 255 255 /0.28);
-				transform: rotate(5deg);
+				transform: translate3d(0, var(--hero-phone-parallax, 0), 0) rotate(5deg);
 			}
 			.phone:after {
 				content: '';
@@ -721,14 +722,28 @@
 			.section-head {
 				display: grid;
 				grid-template-columns: 2fr 1fr;
-				gap: 2rem;
+				grid-template-rows: auto auto;
+				column-gap: 2rem;
 				margin-bottom: 3.5rem;
+			}
+			.section-head > div {
+				display: contents;
+			}
+			.section-head .eyebrow {
+				grid-column: 1;
+				grid-row: 1;
+			}
+			.section-head h2 {
+				grid-column: 1;
+				grid-row: 2;
 			}
 			h2 {
 				margin: 0;
 				font-size: clamp(2.5rem, 4.6vw, 4.35rem);
 			}
 			.section-head p:last-child {
+				grid-column: 2;
+				grid-row: 2;
 				max-width: 540px;
 				margin: 0;
 				color: var(--muted);
@@ -910,7 +925,15 @@
 			.video-head {
 				margin: 0;
 			}
-			.video-head p {
+			.video-head .eyebrow {
+				max-width: none;
+				margin: 0 0 0.55rem;
+			}
+			.video-head h2 {
+				margin: 0 0 1.75rem;
+				line-height: 0.92;
+			}
+			.video-head > p {
 				max-width: 420px;
 				margin: 0;
 			}
@@ -1214,7 +1237,8 @@
 				font-size: 20rem;
 				line-height: 1;
 				opacity: 0.12;
-				transform: translateX(-50%);
+				transform: translate3d(-50%, var(--closer-parallax, 0), 0)
+					rotate(var(--closer-parallax-rotation, 0deg));
 			}
 			.closer h2,
 			.closer p,
@@ -1406,8 +1430,8 @@
 				.video-layout {
 					display: block;
 				}
-				.video-head p {
-					margin-top: 1rem;
+				.video-head h2 {
+					margin-bottom: 1.35rem;
 				}
 				.video-layout .demo {
 					max-width: 360px;
@@ -1429,7 +1453,23 @@
 					padding: 4.6rem 0;
 				}
 				.section-head {
+					row-gap: 0;
 					margin-bottom: 2rem;
+				}
+				.section-head .eyebrow,
+				.section-head h2,
+				.section-head p:last-child {
+					grid-column: 1;
+				}
+				.section-head .eyebrow {
+					grid-row: 1;
+				}
+				.section-head h2 {
+					grid-row: 2;
+				}
+				.section-head p:last-child {
+					grid-row: 3;
+					margin-top: 1rem;
 				}
 				.footer-row,
 				.media-credits {
@@ -1547,10 +1587,10 @@
 			<section class="hero" id="top">
 				<div class="shell hero-grid">
 					<div class="hero-copy">
-						<p class="eyebrow">Filmi seçmenin daha adil bir yolu</p>
-						<h1>Film gecesi,<br /><em>birlikte seçilir.</em></h1>
+						<p class="eyebrow">Drama ekranda kalsın.</p>
+						<h1>Film gecesi,<br /><em>herkesin seçimi.</em></h1>
 						<p class="lede">
-							Herkes film önerir ve aynı programa göre oy alır. Oylarını biriktir, favorini destekle ve bu gecenin kazananını Popcorn Vote seçsin.
+							Herkes bir film önerir ve aynı sayıda oy alır. Oylarını sakla, kullan, taraf değiştir; bu gece ne izleneceğine Popcorn Vote karar versin.
 						</p>
 						<div class="hero-actions">
 							<a class="button" href="https://demo.popcornvote.org" target="_blank" rel="noreferrer"
@@ -1563,8 +1603,11 @@
 								>Popcorn Vote’u kendin barındır <span aria-hidden="true">↗</span></a
 							>
 						</div>
-						<p class="note"><b>Ücretsiz ve açık kaynak.</b> Ailenin film günlüğü kendi sunucunda kalır.</p>
-						<button class="pop-trigger" type="button" aria-live="polite">Patlamış mısırı patlat</button>
+						<p class="note">
+							<b>Ücretsiz. Açık kaynak. Tamamen sizin.</b><br />
+							Ailenizin film geçmişi tam olması gereken yerde, sizde kalır.
+						</p>
+						<button class="pop-trigger" type="button" aria-live="polite">Patlamış mısırı hazırla</button>
 					</div>
 					<div class="phone" aria-label="Popcorn Vote film listesi ekranının önizlemesi">
 						<img
@@ -1586,19 +1629,19 @@
 				<div class="section-head">
 					<div>
 						<p class="eyebrow">Nasıl çalışır?</p>
-						<h2>Kısa listeden ekrana dört adım.</h2>
+						<h2>Dört adım. Grup sohbetinde arkeolojiye sıfır ihtiyaç.</h2>
 					</div>
 					<p>
-						Popcorn Vote önerileri, oylamayı, eşit oyları çözme yollarını ve izlenen filmleri başka bir yayın aboneliği eklemeye gerek kalmadan tek bir yerde tutar.
+						Öneriler, oylar, heyecanlı eşitlik çözümleri ve izlediğiniz tüm filmler bir arada; jeneriğe sızan yeni bir abonelik olmadan.
 					</p>
 				</div>
 				<div class="journey">
 					<article class="story" data-reveal>
 						<div class="story-copy">
 							<span class="story-number">01</span>
-							<h3>Bir film bul. Ekle.</h3>
+							<h3>Buldun mu? Ekle.</h3>
 							<p>
-								Başlığa göre ara ve filmi posteri, özeti, süresi, puanları ve fragmanıyla ortak listeye ekle. İyi öneriler artık grup sohbetinde kaybolmasın.
+								Başlığa göre ara; afişi, özeti, süresi, puanları ve fragmanıyla ortak listeye ekle. Çünkü “geçen salı biri harika bir film önermişti” bir dosyalama sistemi değildir.
 							</p>
 						</div>
 						<div class="screen">
@@ -1614,9 +1657,9 @@
 					<article class="story story-votes" data-reveal>
 						<div class="story-copy">
 							<span class="story-number">02</span>
-							<h3>Oylarını biriktir. Favorini destekle.</h3>
+							<h3>Oylarını kullan. Stratejini kur.</h3>
 							<p>
-								Herkes eşit şartlarda başlar ve aynı takvime göre yeni oylar alır. Oylarını biriktir, birkaçını tek filme ver veya istediğin zaman taşı.
+								Herkes eşit şartlarda başlar ve aynı düzende yeni oylar alır. Sonraya sakla, bir favoriye birkaç oy ver veya senaryo gerektirdiğinde fikrini değiştir.
 							</p>
 						</div>
 						<div class="screen">
@@ -1632,9 +1675,9 @@
 					<article class="story" data-reveal>
 						<div class="story-copy">
 							<span class="story-number">03</span>
-							<h3>Eşitliği çark çözsün.</h3>
+							<h3>Berabere mi? Çark karar versin.</h3>
 							<p>
-								En çok oyu alan film kazanır. Birkaç filmin aynı sayıda oyu alması durumunda, çark son seçimi yapar ve sonuç günlüğe kaydedilir.
+								En çok oyu alan film kazanır. Beraberlik mi? Gecenin ilk sürprizini çark getirir.
 							</p>
 						</div>
 						<div class="screen">
@@ -1650,9 +1693,9 @@
 					<article class="story" data-reveal>
 						<div class="story-copy">
 							<span class="story-number">04</span>
-							<h3>Dikkat et. Hafızayı koru.</h3>
+							<h3>İzle. Puanla. Hatırla.</h3>
 							<p>
-								Jenerikten sonra kazananı izlendi olarak işaretle ve 1–5 yıldızla değerlendir. Arşiv zamanla ailenin film günlüğüne dönüşür.
+								Jenerikten sonra kazananı izlendi olarak işaretle ve 1 ile 5 yıldız arasında puanla. Çok geçmeden, o fiyaskoya kimin beş yıldız verdiğinin kanıtını da içeren bir aile film günlüğünüz olur.
 							</p>
 						</div>
 						<div class="screen">
@@ -1668,9 +1711,9 @@
 					<aside class="tv-mode">
 						<div>
 							<p class="eyebrow">televizyon modu</p>
-							<h3>Film gecesini büyük ekrana taşı.</h3>
+							<h3>Kararı büyük ekrana taşı.</h3>
 							<p>
-								TV modunu televizyonda aç veya telefonundan ya da dizüstü bilgisayarından yansıt. Sıralama, eşitlik çarkı ve kazanan, kanepedeki herkes için ekranı doldurur.
+								TV modunu aç veya başka bir cihazdan yansıt. Oylar, çark ve büyük açıklama tüm ekranı kaplar; olması gerektiği gibi.
 							</p>
 						</div>
 						<img
@@ -1687,10 +1730,12 @@
 				<div class="shell video-layout">
 					<div class="video-head">
 						<div>
-							<p class="eyebrow">Uygulamayı çalışırken gör</p>
-							<h2>Oy vermekten kazanana.</h2>
+							<p class="eyebrow">Popcorn Vote’u çalışırken gör</p>
+							<h2>Beraberlikten açılış jeneriğine.</h2>
 						</div>
-						<p>Uygulamanın sıralamayı değerlendirmesini, eşitliği çözmesini ve bu geceki filmi açıklamasını izle.</p>
+						<p>
+							Popcorn Vote’un oyları saymasını, eşitliği bozmasını ve bu gecenin filmini açıklamasını izle. Fragman sürprizini bozmadan.
+						</p>
 						<div class="video-actions">
 							<a class="button" href="https://demo.popcornvote.org" target="_blank" rel="noreferrer"
 								>Canlı demoyu dene <span aria-hidden="true">↗</span></a
@@ -1710,32 +1755,30 @@
 				<div class="section-head">
 					<div>
 						<p class="eyebrow">Bir aile için tasarlandı</p>
-						<h2>Telefondan TV'ye kadar basit.</h2>
+						<h2>Herkes davetli. Hesap gerekmiyor.</h2>
 					</div>
 					<p>
-						Tek ortak adres ve bir aile PIN’i. Giriş yaptıktan sonra adını seç; Popcorn Vote’u telefon, tablet veya bilgisayardan kullan.
+						Tek adres, tek aile PIN’i ve hesap açma engeli yok. Adını seçip telefon, tablet veya bilgisayardan katıl.
 					</p>
 				</div>
 				<div class="features">
 					<article class="feature">
 						<span class="icon" aria-hidden="true">🗳️</span>
-						<h3>Baştan sona adil</h3>
+						<h3>Strateji kurmaya değer oylar</h3>
 						<p>
-							Gerçekten izlemek istediğin film için oy biriktir, birkaçını birden kullan veya film gecesinden önce taşı.
+							Oylarını sakla, bir favoriye hepsini yatır veya film gecesinden önce yeniden dağıt. Seçim konuşmaları isteğe bağlı.
 						</p>
 					</article>
 					<article class="feature">
 						<span class="icon" aria-hidden="true">🎡</span>
-						<h3>Eşitlik eğlenceye dönüşür</h3>
-						<p>
-							Eşitlikte öndeki filmler çarka gider; karar da gecenin bir parçasına dönüşür.
-						</p>
+						<h3>Beraberlik biraz drama ister</h3>
+						<p>Öndeki filmler berabere kalırsa kanepedeki herkes için son sözü çark söyler.</p>
 					</article>
 					<article class="feature">
 						<span class="icon" aria-hidden="true">🏠</span>
-						<h3>Ailen, sunucun</h3>
+						<h3>Aile film gecesi ailede kalır.</h3>
 						<p>
-							Evde veya bir VPS’de çalıştır. Reklam ve kullanıcı hesabı yoktur; listen, oyların, puanların ve arşivin kendi veri klasöründe kalır.
+							Evde veya bir VPS üzerinde çalıştır. Reklam yok, harici hesap yok, bir Noel romantik komedisi daha izlemeniz için ısrar eden gizemli algoritma yok.
 						</p>
 					</article>
 				</div>
@@ -1743,31 +1786,31 @@
 			<section class="self-hosting-section" aria-labelledby="self-hosting-title">
 				<div class="shell nerd-panel">
 					<div class="nerd-intro">
-						<p class="nerd-kicker">Self-hosting notları</p>
-						<h2 id="self-hosting-title">Küçük teknoloji yığını. Düşünülmüş varsayılanlar.</h2>
+						<p class="nerd-kicker">Kendi sunucusunda çalıştıranlar için</p>
+						<h2 id="self-hosting-title">Küçük teknoloji yığını. Mantıklı varsayılanlar.</h2>
 						<p class="nerd-summary">
-							Bir ailenin verilerini koruyan ayrıntılar gereken ilgiyi çekerken, kurulum kasıtlı olarak sıkıcı olmaya devam ediyor.
+							Kurması kolay, işletmesi sade ve ailenizin bıraktığı veriler konusunda dikkatli.
 						</p>
 						<p class="nerd-stack" translate="no">Docker · SvelteKit · SQLite · PWA</p>
 					</div>
 					<div class="nerd-grid">
 						<article class="nerd-item">
 							<span class="nerd-code">01 / Erişim</span>
-							<h4>PIN ayarlanana kadar kilitli</h4>
+							<h4>PIN yoksa gösterim yok.</h4>
 							<p>
 								Geçerli dört haneli aile PIN’i olmadan yalnızca health check yanıt verir. Başarısız denemeler adres başına ve kurulum genelinde giderek artan bekleme sürelerini tetikler.
 							</p>
 						</article>
 						<article class="nerd-item">
 							<span class="nerd-code">02 / Ağ</span>
-							<h4>İnternete açık kullanım HTTPS gerektirir</h4>
+							<h4>Evde HTTP. Diğer her yerde HTTPS.</h4>
 							<p>
 								Düz HTTP, güvenilir bir ev ağında desteklenir. Genel örnekler, konteyner bağlantı noktasının gizli tutulduğu bir HTTPS ters proxy'sinin arkasına aittir.
 							</p>
 						</article>
 						<article class="nerd-item">
 							<span class="nerd-code">03 / Veri</span>
-							<h4>Tek birim, gecelik yedeklemeler</h4>
+							<h4>Her gece yedek. Ne olur ne olmaz.</h4>
 							<p>
 								Veritabanı, kapaklar, yapılandırma ve yedeklemeler, <code translate="no">/data</code>.
 								Arıza süresinden sonra telafi de dahil olmak üzere, varsayılan olarak on dört gecelik durum korunur.
@@ -1775,7 +1818,7 @@
 						</article>
 						<article class="nerd-item">
 							<span class="nerd-code">04 / Çalışma Zamanı</span>
-							<h4>Tek container image, iki mimari</h4>
+							<h4>Tek imaj. Mimarini seç.</h4>
 							<p>
 								Hazır container image’ları <code translate="no">linux/amd64</code> Intel veya AMD NAS cihazlarında ve <code translate="no">linux/arm64</code> Raspberry Pi ile ARM sunucularda çalışır. Ayrı bir veritabanı hizmeti gerekmez.
 							</p>
@@ -1785,9 +1828,9 @@
 			</section>
 			<section class="closer">
 				<div class="shell">
-					<p class="eyebrow">Bir sonraki film gecen burada başlıyor</p>
-					<h2>Adil seçim. Keyifli akşam.</h2>
-					<p>Popcorn Vote ücretsiz, açık kaynaklı ve kendi sunucunda çalışmaya hazırdır.</p>
+					<p class="eyebrow">Sıradaki film gecenizin bir kazanana ihtiyacı var.</p>
+					<h2>Birlikte seçin. Oynat tuşuna daha erken basın.</h2>
+					<p>Kendi sunucunda, açık kaynak ve gecenin en önemli sorusunu çözmeye hazır.</p>
 					<div class="closer-actions">
 						<a class="button" href="https://demo.popcornvote.org" target="_blank" rel="noreferrer"
 							>Canlı demoyu dene <span aria-hidden="true">↗</span></a
@@ -1796,7 +1839,7 @@
 							href="https://github.com/Stadicus/popcorn-vote"
 							target="_blank"
 							rel="noreferrer"
-							>Kurulumu GitHub’da gör <span aria-hidden="true">↗</span></a
+							>Popcorn Vote’u GitHub’dan edin <span aria-hidden="true">↗</span></a
 						>
 					</div>
 				</div>
@@ -1815,6 +1858,7 @@
 					></span
 				>
 				<div class="footer-actions">
+					<a class="footer-project-link" href="/media-kit/" translate="no">Media kit</a>
 					<a
 						class="footer-project-link"
 						href="https://github.com/Stadicus/popcorn-vote"
@@ -1854,7 +1898,7 @@
 				const paper = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim();
 				document.querySelector('meta[name="theme-color"]').setAttribute('content', paper);
 			};
-			themeToggle.addEventListener('click', () => {
+			themeToggle.addEventListener('click', (event) => {
 				const dark = themeToggle.getAttribute('aria-pressed') === 'true';
 				const theme = dark ? 'light' : 'dark';
 				document.documentElement.dataset.theme = theme;
@@ -1862,13 +1906,40 @@
 					localStorage.setItem('pv_website_theme', theme);
 				} catch {}
 				syncTheme();
+				if (event.detail > 0) themeToggle.blur();
 			});
 			systemTheme.addEventListener('change', syncTheme);
 			syncTheme();
 			const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+			const parallaxViewport = window.matchMedia('(min-width: 721px)');
 			const siteHeader = document.querySelector('.site-header');
+			const hero = document.querySelector('.hero');
+			const closer = document.querySelector('.closer');
 			let previousScrollY = Math.max(window.scrollY, 0);
 			let headerUpdatePending = false;
+			const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
+			const updateParallax = (scrollY) => {
+				if (reducedMotion || !parallaxViewport.matches) {
+					hero.style.removeProperty('--hero-phone-parallax');
+					hero.style.removeProperty('--hero-glow-parallax');
+					closer.style.removeProperty('--closer-parallax');
+					closer.style.removeProperty('--closer-parallax-rotation');
+					return;
+				}
+				const heroProgress = clamp(scrollY / hero.offsetHeight, 0, 1);
+				hero.style.setProperty('--hero-phone-parallax', `${(heroProgress * 18).toFixed(2)}px`);
+				hero.style.setProperty('--hero-glow-parallax', `${(heroProgress * -12).toFixed(2)}px`);
+
+				const closerRect = closer.getBoundingClientRect();
+				const closerRange = (window.innerHeight + closerRect.height) / 2;
+				const closerProgress = clamp(
+					(window.innerHeight / 2 - (closerRect.top + closerRect.height / 2)) / closerRange,
+					-1,
+					1
+				);
+				closer.style.setProperty('--closer-parallax', `${(closerProgress * 18).toFixed(2)}px`);
+				closer.style.setProperty('--closer-parallax-rotation', `${(closerProgress * 1.2).toFixed(2)}deg`);
+			};
 			const updateHeader = () => {
 				const currentScrollY = Math.max(window.scrollY, 0);
 				siteHeader.classList.toggle('is-scrolled', currentScrollY > 0);
@@ -1877,18 +1948,18 @@
 				} else if (currentScrollY > previousScrollY && currentScrollY > siteHeader.offsetHeight) {
 					siteHeader.classList.add('is-hidden');
 				}
+				updateParallax(currentScrollY);
 				previousScrollY = currentScrollY;
 				headerUpdatePending = false;
 			};
-			window.addEventListener(
-				'scroll',
-				() => {
-					if (headerUpdatePending) return;
-					headerUpdatePending = true;
-					requestAnimationFrame(updateHeader);
-				},
-				{ passive: true }
-			);
+			const scheduleHeaderUpdate = () => {
+				if (headerUpdatePending) return;
+				headerUpdatePending = true;
+				requestAnimationFrame(updateHeader);
+			};
+			window.addEventListener('scroll', scheduleHeaderUpdate, { passive: true });
+			window.addEventListener('resize', scheduleHeaderUpdate);
+			parallaxViewport.addEventListener('change', scheduleHeaderUpdate);
 			updateHeader();
 			function supernova(target, scale = 1, anchor = null) {
 				if (reducedMotion) return;
@@ -1945,10 +2016,9 @@
 			}
 			const trigger = document.querySelector('.pop-trigger');
 			const brandTrigger = document.querySelector('.brand');
-			const hero = document.querySelector('.hero');
 			const celebrate = () => supernova(hero, 0.48);
 			trigger.addEventListener('click', () => {
-				trigger.textContent = 'Taze patladı!';
+				trigger.textContent = 'Patlamış mısır hazır!';
 				celebrate();
 			});
 			brandTrigger.addEventListener('click', celebrate);

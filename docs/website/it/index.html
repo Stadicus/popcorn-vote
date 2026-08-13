@@ -501,6 +501,7 @@
 				top: -12rem;
 				background: var(--hero-glow);
 				opacity: 0.62;
+				transform: translate3d(0, var(--hero-glow-parallax, 0), 0);
 			}
 			.hero-grid {
 				display: grid;
@@ -646,7 +647,7 @@
 				box-shadow:
 					0 26px 42px rgb(17 29 39 / 0.28),
 					inset 0 0 0 1px rgb(255 255 255 /0.28);
-				transform: rotate(5deg);
+				transform: translate3d(0, var(--hero-phone-parallax, 0), 0) rotate(5deg);
 			}
 			.phone:after {
 				content: '';
@@ -721,14 +722,28 @@
 			.section-head {
 				display: grid;
 				grid-template-columns: 2fr 1fr;
-				gap: 2rem;
+				grid-template-rows: auto auto;
+				column-gap: 2rem;
 				margin-bottom: 3.5rem;
+			}
+			.section-head > div {
+				display: contents;
+			}
+			.section-head .eyebrow {
+				grid-column: 1;
+				grid-row: 1;
+			}
+			.section-head h2 {
+				grid-column: 1;
+				grid-row: 2;
 			}
 			h2 {
 				margin: 0;
 				font-size: clamp(2.5rem, 4.6vw, 4.35rem);
 			}
 			.section-head p:last-child {
+				grid-column: 2;
+				grid-row: 2;
 				max-width: 540px;
 				margin: 0;
 				color: var(--muted);
@@ -910,7 +925,15 @@
 			.video-head {
 				margin: 0;
 			}
-			.video-head p {
+			.video-head .eyebrow {
+				max-width: none;
+				margin: 0 0 0.55rem;
+			}
+			.video-head h2 {
+				margin: 0 0 1.75rem;
+				line-height: 0.92;
+			}
+			.video-head > p {
 				max-width: 420px;
 				margin: 0;
 			}
@@ -1214,7 +1237,8 @@
 				font-size: 20rem;
 				line-height: 1;
 				opacity: 0.12;
-				transform: translateX(-50%);
+				transform: translate3d(-50%, var(--closer-parallax, 0), 0)
+					rotate(var(--closer-parallax-rotation, 0deg));
 			}
 			.closer h2,
 			.closer p,
@@ -1406,8 +1430,8 @@
 				.video-layout {
 					display: block;
 				}
-				.video-head p {
-					margin-top: 1rem;
+				.video-head h2 {
+					margin-bottom: 1.35rem;
 				}
 				.video-layout .demo {
 					max-width: 360px;
@@ -1429,7 +1453,23 @@
 					padding: 4.6rem 0;
 				}
 				.section-head {
+					row-gap: 0;
 					margin-bottom: 2rem;
+				}
+				.section-head .eyebrow,
+				.section-head h2,
+				.section-head p:last-child {
+					grid-column: 1;
+				}
+				.section-head .eyebrow {
+					grid-row: 1;
+				}
+				.section-head h2 {
+					grid-row: 2;
+				}
+				.section-head p:last-child {
+					grid-row: 3;
+					margin-top: 1rem;
 				}
 				.footer-row,
 				.media-credits {
@@ -1547,10 +1587,10 @@
 			<section class="hero" id="top">
 				<div class="shell hero-grid">
 					<div class="hero-copy">
-						<p class="eyebrow">Un modo più giusto per scegliere il film</p>
-						<h1>Serata al cinema,<br /><em>scelto da te.</em></h1>
+						<p class="eyebrow">Lascia il dramma sullo schermo.</p>
+						<h1>Serata al cinema,<br /><em>scelto da tutti.</em></h1>
 						<p class="lede">
-							Tutti propongono film e ricevono voti con lo stesso ritmo. Accumulali, sostieni un favorito e lascia che Popcorn Vote scelga il vincitore di stasera.
+							Ognuno propone un film e riceve lo stesso numero di voti. Conservali, usali, cambia schieramento e lascia che Popcorn Vote decida cosa guardare stasera.
 						</p>
 						<div class="hero-actions">
 							<a class="button" href="https://demo.popcornvote.org" target="_blank" rel="noreferrer"
@@ -1563,8 +1603,11 @@
 								>Ospita Popcorn Vote sul tuo server <span aria-hidden="true">↗</span></a
 							>
 						</div>
-						<p class="note"><b>Gratuito e open source.</b> Il diario cinematografico della tua famiglia rimane sul tuo server.</p>
-						<button class="pop-trigger" type="button" aria-live="polite">Fai scoppiare i popcorn</button>
+						<p class="note">
+							<b>Gratis. Open source. Tutto tuo.</b><br />
+							La storia cinematografica della tua famiglia resta esattamente dove deve stare: con voi.
+						</p>
+						<button class="pop-trigger" type="button" aria-live="polite">Prepara i popcorn</button>
 					</div>
 					<div class="phone" aria-label="Anteprima della schermata dell'elenco dei film Popcorn Vote">
 						<img
@@ -1586,19 +1629,19 @@
 				<div class="section-head">
 					<div>
 						<p class="eyebrow">Come funziona</p>
-						<h2>Quattro passaggi dalla rosa dei candidati allo schermo.</h2>
+						<h2>Quattro passi. Zero archeologia nella chat di gruppo.</h2>
 					</div>
 					<p>
-						Popcorn Vote conserva suggerimenti, votazioni, modi per risolvere voti in parità e guardare film in un unico posto, senza aggiungere un altro abbonamento di streaming.
+						Proposte, voti, spareggi memorabili e tutti i film già visti, senza che un altro abbonamento si intrufoli nei titoli di coda.
 					</p>
 				</div>
 				<div class="journey">
 					<article class="story" data-reveal>
 						<div class="story-copy">
 							<span class="story-number">01</span>
-							<h3>Trova un film. Aggiungilo.</h3>
+							<h3>Trovato? Aggiungilo.</h3>
 							<p>
-								Cerca per titolo e aggiungilo all'elenco condiviso, includendo poster, riepilogo, durata, valutazioni e trailer. Non perderai più buoni suggerimenti in una chat di gruppo.
+								Cerca il titolo e aggiungilo alla lista condivisa con locandina, trama, durata, valutazioni e trailer. Perché “qualcuno aveva proposto un bel film martedì scorso” non è un sistema di archiviazione.
 							</p>
 						</div>
 						<div class="screen">
@@ -1614,9 +1657,9 @@
 					<article class="story story-votes" data-reveal>
 						<div class="story-copy">
 							<span class="story-number">02</span>
-							<h3>Accumula voti. Sostieni un favorito.</h3>
+							<h3>Assegna i voti. Prepara la strategia.</h3>
 							<p>
-								Tutti iniziano ad armi pari e ricevono nuovi voti secondo lo stesso programma. Accumulali, inseriscine diversi su un film o spostali in qualsiasi momento.
+								Tutti partono alla pari e ricevono nuovi voti con lo stesso ritmo. Conservali, puntane diversi su un favorito o cambia idea quando la trama lo richiede.
 							</p>
 						</div>
 						<div class="screen">
@@ -1632,9 +1675,9 @@
 					<article class="story" data-reveal>
 						<div class="story-copy">
 							<span class="story-number">03</span>
-							<h3>Lascia che sia la ruota a risolvere un voto in parità.</h3>
+							<h3>Pareggio? Decide la ruota.</h3>
 							<p>
-								Vince il film che ottiene più voti. Se più film ottengono lo stesso numero di voti, la ruota fa la scelta finale e il risultato viene registrato nel registro.
+								Vince il film con più voti. Pareggio? La ruota regala il primo colpo di scena della serata.
 							</p>
 						</div>
 						<div class="screen">
@@ -1650,9 +1693,9 @@
 					<article class="story" data-reveal>
 						<div class="story-copy">
 							<span class="story-number">04</span>
-							<h3>Guardalo. Conserva la memoria.</h3>
+							<h3>Guardalo. Valutalo. Ricordalo.</h3>
 							<p>
-								Dopo i titoli di coda, contrassegna il vincitore come visto e valutalo da 1 a 5 stelle. Con il passare del tempo, l’archivio diventa il diario cinematografico della tua famiglia.
+								Dopo i titoli di coda, segna il vincitore come visto e dagli da 1 a 5 stelle. Presto avrete un diario cinematografico di famiglia, inclusa la prova di chi ha dato cinque stelle a quel disastro.
 							</p>
 						</div>
 						<div class="screen">
@@ -1668,9 +1711,9 @@
 					<aside class="tv-mode">
 						<div>
 							<p class="eyebrow">Modalità televisiva</p>
-							<h3>Metti la serata cinema sul grande schermo.</h3>
+							<h3>La decisione merita il grande schermo.</h3>
 							<p>
-								Apri la modalità TV su un televisore o esegui il mirroring da un telefono o laptop. La classifica, la ruota dello spareggio e il vincitore riempiono lo schermo per tutti sul divano.
+								Apri la modalità TV o duplicala da un altro dispositivo. I voti, la ruota e la grande rivelazione conquistano lo schermo, come è giusto che sia.
 							</p>
 						</div>
 						<img
@@ -1687,10 +1730,12 @@
 				<div class="shell video-layout">
 					<div class="video-head">
 						<div>
-							<p class="eyebrow">Guarda l'app in azione</p>
-							<h2>Dal voto al vincitore.</h2>
+							<p class="eyebrow">Guarda Popcorn Vote in azione</p>
+							<h2>Dal pareggio ai titoli iniziali.</h2>
 						</div>
-						<p>Guarda l'app reale valutare la classifica, risolvere un voto in parità e rivelare cosa si gioca stasera.</p>
+						<p>
+							Guarda Popcorn Vote contare i voti, risolvere il pareggio e svelare il film di stasera. Senza spoiler del trailer.
+						</p>
 						<div class="video-actions">
 							<a class="button" href="https://demo.popcornvote.org" target="_blank" rel="noreferrer"
 								>Prova la demo online <span aria-hidden="true">↗</span></a
@@ -1710,32 +1755,30 @@
 				<div class="section-head">
 					<div>
 						<p class="eyebrow">Costruito per una famiglia</p>
-						<h2>Semplice dal telefono alla TV.</h2>
+						<h2>Tutti invitati. Nessun account richiesto.</h2>
 					</div>
 					<p>
-						Un indirizzo condiviso e un PIN familiare. Scegli il tuo nome dopo aver effettuato l'accesso, quindi utilizza Popcorn Vote da un telefono, tablet o computer.
+						Un indirizzo, un PIN di famiglia e nessun percorso a ostacoli per creare account. Scegli il tuo nome e partecipa da qualsiasi telefono, tablet o computer.
 					</p>
 				</div>
 				<div class="features">
 					<article class="feature">
 						<span class="icon" aria-hidden="true">🗳️</span>
-						<h3>Equo fin dalla progettazione</h3>
+						<h3>Voti che meritano una strategia</h3>
 						<p>
-							Accumula voti per un film che ti interessa davvero, utilizzane diversi contemporaneamente o spostali prima della serata del cinema.
+							Conserva i voti, punta tutto su un favorito o ridistribuiscili prima della serata. Discorsi elettorali facoltativi.
 						</p>
 					</article>
 					<article class="feature">
 						<span class="icon" aria-hidden="true">🎡</span>
-						<h3>I pareggi diventano spettacolo</h3>
-						<p>
-							In caso di parità, i film in testa passano alla ruota e la decisione diventa parte della serata.
-						</p>
+						<h3>I pareggi meritano suspense</h3>
+						<p>Se i film in testa sono in parità, la ruota prende la decisione finale per tutti sul divano.</p>
 					</article>
 					<article class="feature">
 						<span class="icon" aria-hidden="true">🏠</span>
-						<h3>La tua famiglia, il tuo server</h3>
+						<h3>Il cinema in famiglia resta in famiglia.</h3>
 						<p>
-							Eseguilo a casa o su un VPS. Non ci sono annunci o account utente e il tuo elenco, i voti, le valutazioni e l'archivio rimangono nella tua cartella dati.
+							Eseguilo a casa o su un VPS. Niente pubblicità, account esterni o algoritmi misteriosi che insistono per un’altra commedia romantica natalizia.
 						</p>
 					</article>
 				</div>
@@ -1743,31 +1786,31 @@
 			<section class="self-hosting-section" aria-labelledby="self-hosting-title">
 				<div class="shell nerd-panel">
 					<div class="nerd-intro">
-						<p class="nerd-kicker">Note per il self-hosting</p>
-						<h2 id="self-hosting-title">Stack essenziale. Impostazioni predefinite ragionate.</h2>
+						<p class="nerd-kicker">Per chi preferisce il self-hosting</p>
+						<h2 id="self-hosting-title">Stack piccolo. Impostazioni sensate.</h2>
 						<p class="nerd-summary">
-							La configurazione rimane volutamente noiosa, mentre i dettagli che proteggono i dati di una famiglia ricevono la giusta attenzione.
+							Facile da distribuire, semplice da gestire e attento ai dati lasciati dalla tua famiglia.
 						</p>
 						<p class="nerd-stack" translate="no">Docker · SvelteKit · SQLite · PWA</p>
 					</div>
 					<div class="nerd-grid">
 						<article class="nerd-item">
 							<span class="nerd-code">01/Accesso</span>
-							<h4>Bloccato finché non viene configurato un PIN</h4>
+							<h4>Niente PIN, niente spettacolo.</h4>
 							<p>
 								Senza un PIN familiare valido di quattro cifre risponde solo l’health check. I tentativi falliti attivano attese crescenti per indirizzo e per l’intera installazione.
 							</p>
 						</article>
 						<article class="nerd-item">
 							<span class="nerd-code">02 / Rete</span>
-							<h4>Pubblico significa HTTPS</h4>
+							<h4>A casa, HTTP. Altrove, HTTPS.</h4>
 							<p>
 								Il protocollo HTTP semplice è supportato su una rete domestica attendibile. Le istanze pubbliche appartengono a un proxy inverso HTTPS, con la porta del contenitore mantenuta privata.
 							</p>
 						</article>
 						<article class="nerd-item">
 							<span class="nerd-code">03 / Dati</span>
-							<h4>Un volume, backup notturni</h4>
+							<h4>Backup notturni. Per sicurezza.</h4>
 							<p>
 								Il database, le copertine, la configurazione e i backup si trovano sotto <code translate="no">/data</code>.
 								Per impostazione predefinita vengono mantenuti quattordici stati notturni, incluso il recupero dopo i tempi di inattività.
@@ -1775,7 +1818,7 @@
 						</article>
 						<article class="nerd-item">
 							<span class="nerd-code">04 / Tempo di esecuzione</span>
-							<h4>Un’immagine container, due architetture</h4>
+							<h4>Un’immagine. Scegli l’architettura.</h4>
 							<p>
 								Le immagini container pronte da scaricare funzionano <code translate="no">linux/amd64</code> su NAS Intel o AMD e <code translate="no">linux/arm64</code> su Raspberry Pi e server ARM. Non serve un servizio database separato.
 							</p>
@@ -1785,9 +1828,9 @@
 			</section>
 			<section class="closer">
 				<div class="shell">
-					<p class="eyebrow">La tua prossima serata al cinema inizia qui</p>
-					<h2>Una scelta equa. Una serata divertente.</h2>
-					<p>Popcorn Vote è gratuito, open source e pronto per essere eseguito sul tuo server.</p>
+					<p class="eyebrow">La prossima serata cinema ha bisogno di un vincitore.</p>
+					<h2>Scegliete insieme. Premete play prima.</h2>
+					<p>Self-hosted, open source e pronto a risolvere la domanda più importante della serata.</p>
 					<div class="closer-actions">
 						<a class="button" href="https://demo.popcornvote.org" target="_blank" rel="noreferrer"
 							>Prova la demo online <span aria-hidden="true">↗</span></a
@@ -1796,7 +1839,7 @@
 							href="https://github.com/Stadicus/popcorn-vote"
 							target="_blank"
 							rel="noreferrer"
-							>Visualizza la configurazione su GitHub <span aria-hidden="true">↗</span></a
+							>Scarica Popcorn Vote da GitHub <span aria-hidden="true">↗</span></a
 						>
 					</div>
 				</div>
@@ -1815,6 +1858,7 @@
 					></span
 				>
 				<div class="footer-actions">
+					<a class="footer-project-link" href="/media-kit/" translate="no">Media kit</a>
 					<a
 						class="footer-project-link"
 						href="https://github.com/Stadicus/popcorn-vote"
@@ -1854,7 +1898,7 @@
 				const paper = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim();
 				document.querySelector('meta[name="theme-color"]').setAttribute('content', paper);
 			};
-			themeToggle.addEventListener('click', () => {
+			themeToggle.addEventListener('click', (event) => {
 				const dark = themeToggle.getAttribute('aria-pressed') === 'true';
 				const theme = dark ? 'light' : 'dark';
 				document.documentElement.dataset.theme = theme;
@@ -1862,13 +1906,40 @@
 					localStorage.setItem('pv_website_theme', theme);
 				} catch {}
 				syncTheme();
+				if (event.detail > 0) themeToggle.blur();
 			});
 			systemTheme.addEventListener('change', syncTheme);
 			syncTheme();
 			const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+			const parallaxViewport = window.matchMedia('(min-width: 721px)');
 			const siteHeader = document.querySelector('.site-header');
+			const hero = document.querySelector('.hero');
+			const closer = document.querySelector('.closer');
 			let previousScrollY = Math.max(window.scrollY, 0);
 			let headerUpdatePending = false;
+			const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
+			const updateParallax = (scrollY) => {
+				if (reducedMotion || !parallaxViewport.matches) {
+					hero.style.removeProperty('--hero-phone-parallax');
+					hero.style.removeProperty('--hero-glow-parallax');
+					closer.style.removeProperty('--closer-parallax');
+					closer.style.removeProperty('--closer-parallax-rotation');
+					return;
+				}
+				const heroProgress = clamp(scrollY / hero.offsetHeight, 0, 1);
+				hero.style.setProperty('--hero-phone-parallax', `${(heroProgress * 18).toFixed(2)}px`);
+				hero.style.setProperty('--hero-glow-parallax', `${(heroProgress * -12).toFixed(2)}px`);
+
+				const closerRect = closer.getBoundingClientRect();
+				const closerRange = (window.innerHeight + closerRect.height) / 2;
+				const closerProgress = clamp(
+					(window.innerHeight / 2 - (closerRect.top + closerRect.height / 2)) / closerRange,
+					-1,
+					1
+				);
+				closer.style.setProperty('--closer-parallax', `${(closerProgress * 18).toFixed(2)}px`);
+				closer.style.setProperty('--closer-parallax-rotation', `${(closerProgress * 1.2).toFixed(2)}deg`);
+			};
 			const updateHeader = () => {
 				const currentScrollY = Math.max(window.scrollY, 0);
 				siteHeader.classList.toggle('is-scrolled', currentScrollY > 0);
@@ -1877,18 +1948,18 @@
 				} else if (currentScrollY > previousScrollY && currentScrollY > siteHeader.offsetHeight) {
 					siteHeader.classList.add('is-hidden');
 				}
+				updateParallax(currentScrollY);
 				previousScrollY = currentScrollY;
 				headerUpdatePending = false;
 			};
-			window.addEventListener(
-				'scroll',
-				() => {
-					if (headerUpdatePending) return;
-					headerUpdatePending = true;
-					requestAnimationFrame(updateHeader);
-				},
-				{ passive: true }
-			);
+			const scheduleHeaderUpdate = () => {
+				if (headerUpdatePending) return;
+				headerUpdatePending = true;
+				requestAnimationFrame(updateHeader);
+			};
+			window.addEventListener('scroll', scheduleHeaderUpdate, { passive: true });
+			window.addEventListener('resize', scheduleHeaderUpdate);
+			parallaxViewport.addEventListener('change', scheduleHeaderUpdate);
 			updateHeader();
 			function supernova(target, scale = 1, anchor = null) {
 				if (reducedMotion) return;
@@ -1945,10 +2016,9 @@
 			}
 			const trigger = document.querySelector('.pop-trigger');
 			const brandTrigger = document.querySelector('.brand');
-			const hero = document.querySelector('.hero');
 			const celebrate = () => supernova(hero, 0.48);
 			trigger.addEventListener('click', () => {
-				trigger.textContent = 'Appena spuntato!';
+				trigger.textContent = 'Popcorn pronti!';
 				celebrate();
 			});
 			brandTrigger.addEventListener('click', celebrate);

@@ -1,0 +1,1155 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="theme-color" content="#101923" />
+		<meta name="robots" content="index, follow, max-image-preview:large" />
+		<meta
+			name="description"
+			content="Media kit for Popcorn Vote, the free, self-hosted family movie-night voting app: project facts, copy, logos, screenshots, and demo video."
+		/>
+		<title>Media Kit — Popcorn Vote</title>
+		<link rel="canonical" href="https://popcornvote.org/media-kit/" />
+		<link rel="icon" href="/assets/favicon-32.png" sizes="32x32" type="image/png" />
+		<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" sizes="180x180" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Popcorn Vote" />
+		<meta property="og:url" content="https://popcornvote.org/media-kit/" />
+		<meta property="og:title" content="Popcorn Vote Media Kit" />
+		<meta
+			property="og:description"
+			content="Project facts, ready-to-use copy, logos, screenshots, and demo video."
+		/>
+		<meta property="og:image" content="https://popcornvote.org/assets/social-preview.png" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content="Popcorn Vote Media Kit" />
+		<meta
+			name="twitter:description"
+			content="Project facts, ready-to-use copy, logos, screenshots, and demo video."
+		/>
+		<meta name="twitter:image" content="https://popcornvote.org/assets/social-preview.png" />
+		<style>
+			@font-face {
+				font-family: 'Nunito Sans';
+				font-style: normal;
+				font-weight: 400 800;
+				font-display: swap;
+				src: url('/assets/fonts/nunito-sans-400-800-latin.woff2') format('woff2');
+			}
+			@font-face {
+				font-family: 'DM Sans';
+				font-style: normal;
+				font-weight: 600 700;
+				font-display: swap;
+				src: url('/assets/fonts/dm-sans-600-700-latin.woff2') format('woff2');
+			}
+			@font-face {
+				font-family: 'DM Mono';
+				font-style: normal;
+				font-weight: 400 500;
+				font-display: swap;
+				src: url('/assets/fonts/dm-mono-400-latin.woff2') format('woff2');
+			}
+			:root {
+				color-scheme: light;
+				--ink: #101923;
+				--paper: #f7f4ed;
+				--cream: #fffdf8;
+				--gold: #ffbe36;
+				--orange: #a74600;
+				--aqua: #08736f;
+				--line: #d9d1c4;
+				--muted: #59636c;
+				--deep: #101923;
+				--shadow: 0 20px 55px rgb(16 25 35 / 0.13);
+			}
+			* {
+				box-sizing: border-box;
+			}
+			html {
+				scroll-behavior: smooth;
+			}
+			body {
+				margin: 0;
+				color: var(--ink);
+				background:
+					radial-gradient(circle at 10% 4%, rgb(255 190 54 / 0.2), transparent 25rem),
+					linear-gradient(90deg, transparent 49.8%, rgb(16 25 35 / 0.025) 50%, transparent 50.2%),
+					var(--paper);
+				font-family: 'Nunito Sans', sans-serif;
+				font-size: 17px;
+				line-height: 1.58;
+			}
+			a {
+				color: inherit;
+			}
+			img,
+			video {
+				display: block;
+				max-width: 100%;
+			}
+			button,
+			a {
+				-webkit-tap-highlight-color: transparent;
+			}
+			.skip {
+				position: fixed;
+				z-index: 20;
+				top: 0.75rem;
+				left: 0.75rem;
+				transform: translateY(-150%);
+				padding: 0.65rem 1rem;
+				border-radius: 999px;
+				background: var(--cream);
+				font-weight: 800;
+			}
+			.skip:focus {
+				transform: none;
+			}
+			.shell {
+				width: min(1160px, calc(100% - 2rem));
+				margin-inline: auto;
+			}
+			.site-header {
+				position: relative;
+				z-index: 10;
+				border-bottom: 1px solid rgb(255 255 255 / 0.12);
+				color: white;
+				background: var(--deep);
+			}
+			.nav {
+				display: flex;
+				min-height: 72px;
+				align-items: center;
+				justify-content: space-between;
+				gap: 1rem;
+			}
+			.brand {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.55rem;
+				font-family: 'DM Sans', sans-serif;
+				font-weight: 700;
+				letter-spacing: -0.025em;
+				text-decoration: none;
+			}
+			.brand span:first-child {
+				font-size: 1.55rem;
+			}
+			.back {
+				color: #c7d0d7;
+				font-weight: 700;
+				text-decoration: none;
+			}
+			.back:hover {
+				color: white;
+			}
+			.hero {
+				position: relative;
+				overflow: hidden;
+				padding: clamp(4rem, 9vw, 8rem) 0 clamp(4rem, 7vw, 6.5rem);
+				color: white;
+				background: var(--deep);
+			}
+			.hero::after {
+				position: absolute;
+				inset: auto -6rem -13rem auto;
+				width: 31rem;
+				aspect-ratio: 1;
+				border: 4rem solid var(--gold);
+				border-radius: 50%;
+				content: '';
+				opacity: 0.9;
+			}
+			.hero-grid {
+				position: relative;
+				z-index: 1;
+				display: grid;
+				grid-template-columns: 1.15fr 0.85fr;
+				gap: 4rem;
+				align-items: center;
+			}
+			.eyebrow {
+				margin: 0 0 0.7rem;
+				color: var(--orange);
+				font-family: 'DM Mono', monospace;
+				font-size: 0.76rem;
+				font-weight: 500;
+				letter-spacing: 0.14em;
+				text-transform: uppercase;
+			}
+			.hero .eyebrow {
+				color: var(--gold);
+			}
+			h1,
+			h2,
+			h3 {
+				margin: 0;
+				font-family: 'DM Sans', sans-serif;
+				line-height: 1.02;
+				letter-spacing: -0.045em;
+			}
+			h1 {
+				max-width: 780px;
+				font-size: clamp(3rem, 6vw, 5.4rem);
+			}
+			h1 em {
+				color: var(--gold);
+				font-style: normal;
+			}
+			.hero-intro {
+				max-width: 680px;
+				margin: 1.8rem 0 0;
+				color: #c7d0d7;
+				font-size: clamp(1.08rem, 2vw, 1.3rem);
+			}
+			.hero-visual {
+				position: relative;
+				display: grid;
+				width: min(100%, 390px);
+				justify-self: center;
+				place-items: center;
+			}
+			.hero-visual img {
+				width: auto;
+				height: auto;
+				max-height: 520px;
+				filter: drop-shadow(0 28px 40px rgb(0 0 0 / 0.35));
+			}
+			.hero-note {
+				position: absolute;
+				bottom: 2rem;
+				left: -2.5rem;
+				z-index: 1;
+				margin: 0;
+				padding: 1.3rem 1.45rem;
+				transform: rotate(2deg);
+				color: var(--ink);
+				background: var(--gold);
+				box-shadow: 8px 9px 0 rgb(0 0 0 / 0.24);
+				font-weight: 800;
+			}
+			.hero-note::before {
+				display: block;
+				margin-bottom: 0.35rem;
+				content: 'READY TO USE';
+				font:
+					500 0.7rem 'DM Mono',
+					monospace;
+				letter-spacing: 0.14em;
+			}
+			.jump {
+				position: sticky;
+				top: 0;
+				z-index: 9;
+				border-bottom: 1px solid var(--line);
+				background: rgb(247 244 237 / 0.94);
+				backdrop-filter: blur(14px);
+			}
+			.jump .shell {
+				display: flex;
+				gap: 0.55rem;
+				overflow-x: auto;
+				padding-block: 0.7rem;
+				scrollbar-width: none;
+			}
+			.jump a {
+				flex: 0 0 auto;
+				padding: 0.35rem 0.75rem;
+				border-radius: 999px;
+				font-size: 0.88rem;
+				font-weight: 800;
+				text-decoration: none;
+			}
+			.jump a:hover {
+				color: white;
+				background: var(--aqua);
+			}
+			.section {
+				padding-block: clamp(4rem, 8vw, 7rem);
+			}
+			.section + .section {
+				border-top: 1px solid var(--line);
+			}
+			.section-head {
+				display: grid;
+				grid-template-columns: 0.8fr 1.2fr;
+				grid-template-rows: auto auto;
+				column-gap: 3rem;
+				margin-bottom: 2.5rem;
+			}
+			.section-head > div {
+				display: contents;
+			}
+			.section-head .eyebrow {
+				grid-column: 1;
+				grid-row: 1;
+			}
+			.section-head h2 {
+				grid-column: 1;
+				grid-row: 2;
+			}
+			h2 {
+				max-width: 700px;
+				font-size: clamp(2.4rem, 5vw, 4.4rem);
+			}
+			.section-head > p {
+				grid-column: 2;
+				grid-row: 2;
+				max-width: 590px;
+				margin: 0;
+				color: var(--muted);
+				font-size: 1.08rem;
+			}
+			.copy-stack {
+				display: grid;
+				gap: 1rem;
+			}
+			.tag-strip {
+				margin-top: 1rem;
+			}
+			.copy-card {
+				position: relative;
+				display: grid;
+				grid-template-columns: 120px 1fr auto;
+				gap: 1.2rem;
+				align-items: start;
+				padding: 1.35rem;
+				border: 1px solid var(--line);
+				border-radius: 18px;
+				background: var(--cream);
+			}
+			.copy-label {
+				color: var(--aqua);
+				font:
+					500 0.72rem 'DM Mono',
+					monospace;
+				letter-spacing: 0.1em;
+				text-transform: uppercase;
+			}
+			.copy-text {
+				margin: 0;
+				white-space: pre-line;
+			}
+			.copy-button,
+			.download {
+				min-height: 42px;
+				padding: 0.5rem 0.8rem;
+				border: 1px solid var(--ink);
+				border-radius: 999px;
+				color: var(--ink);
+				background: transparent;
+				font:
+					800 0.82rem 'Nunito Sans',
+					sans-serif;
+				text-decoration: none;
+				cursor: pointer;
+			}
+			.copy-button:hover,
+			.download:hover {
+				color: white;
+				background: var(--ink);
+			}
+			.fact-grid {
+				display: grid;
+				grid-template-columns: repeat(3, 1fr);
+				gap: 1px;
+				overflow: hidden;
+				border: 1px solid var(--line);
+				border-radius: 22px;
+				background: var(--line);
+			}
+			.fact {
+				min-height: 145px;
+				padding: 1.4rem;
+				background: var(--cream);
+			}
+			.fact dt {
+				margin-bottom: 0.65rem;
+				color: var(--muted);
+				font:
+					500 0.7rem 'DM Mono',
+					monospace;
+				letter-spacing: 0.1em;
+				text-transform: uppercase;
+			}
+			.fact dd {
+				margin: 0;
+				font-weight: 800;
+			}
+			.fact a {
+				text-decoration-thickness: 1px;
+				text-underline-offset: 3px;
+			}
+			.asset-grid {
+				display: grid;
+				grid-template-columns: repeat(12, 1fr);
+				gap: 1.2rem;
+				align-items: start;
+			}
+			.asset-card {
+				grid-column: span 4;
+				overflow: hidden;
+				border: 1px solid var(--line);
+				border-radius: 20px;
+				background: var(--cream);
+				box-shadow: 0 10px 30px rgb(16 25 35 / 0.05);
+			}
+			.asset-card.wide {
+				grid-column: span 8;
+			}
+			.asset-preview {
+				display: grid;
+				min-height: 265px;
+				place-items: center;
+				overflow: hidden;
+				padding: 1.1rem;
+				background: #e8e2d7;
+			}
+			.asset-card.wide .asset-preview {
+				padding: 0;
+			}
+			.asset-card.wide .asset-preview img {
+				width: 100%;
+				height: auto;
+				object-fit: contain;
+			}
+			.asset-preview img {
+				width: auto;
+				height: auto;
+				max-width: 100%;
+				object-fit: contain;
+			}
+			.asset-card:not(.wide) .asset-preview img {
+				max-height: 320px;
+				filter: drop-shadow(0 12px 18px rgb(16 25 35 / 0.14));
+			}
+			.asset-meta {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 1rem;
+				padding: 1.1rem;
+			}
+			.asset-meta h3 {
+				margin-bottom: 0.2rem;
+				font-size: 1.15rem;
+				letter-spacing: -0.02em;
+			}
+			.asset-meta p {
+				margin: 0;
+				color: var(--muted);
+				font:
+					0.72rem 'DM Mono',
+					monospace;
+			}
+			.video-card {
+				overflow: hidden;
+				border-radius: 24px;
+				color: white;
+				background: var(--deep);
+			}
+			.video-stage {
+				display: grid;
+				place-items: center;
+				padding: clamp(1rem, 3vw, 2rem);
+				background: #000;
+			}
+			.video-card video {
+				width: min(100%, 498px);
+				height: auto;
+				aspect-ratio: 40 / 53;
+				object-fit: contain;
+				background: #000;
+			}
+			.video-meta {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 1rem;
+				padding: 1.4rem 1.5rem;
+			}
+			.video-meta h3 {
+				font-size: 1.4rem;
+			}
+			.video-meta p {
+				margin: 0.3rem 0 0;
+				color: #b7c2cb;
+			}
+			.video-meta .download {
+				color: white;
+				border-color: #65717b;
+			}
+			.video-meta .download:hover {
+				color: var(--ink);
+				background: var(--gold);
+				border-color: var(--gold);
+			}
+			.launch-grid {
+				display: grid;
+				grid-template-columns: repeat(2, 1fr);
+				gap: 1.2rem;
+			}
+			.launch-card {
+				display: flex;
+				flex-direction: column;
+				padding: 1.5rem;
+				border-radius: 20px;
+				color: white;
+				background: var(--deep);
+			}
+			.launch-card:nth-child(2) {
+				color: var(--ink);
+				background: var(--gold);
+			}
+			.launch-card:nth-child(3) {
+				color: var(--ink);
+				background: #aee1dd;
+			}
+			.launch-card:nth-child(4) {
+				color: white;
+				background: #a93442;
+			}
+			.launch-card h3 {
+				margin-bottom: 1rem;
+				font-size: 1.45rem;
+			}
+			.launch-card pre {
+				flex: 1;
+				margin: 0 0 1.2rem;
+				font: inherit;
+				white-space: pre-wrap;
+			}
+			.launch-card .copy-button {
+				align-self: flex-start;
+				color: inherit;
+				border-color: currentcolor;
+			}
+			.launch-card .copy-button:hover {
+				color: var(--ink);
+				background: white;
+			}
+			.usage {
+				padding: clamp(2rem, 5vw, 4rem);
+				border-radius: 28px;
+				color: white;
+				background: var(--deep);
+			}
+			.usage h2 {
+				margin-bottom: 1.5rem;
+			}
+			.usage-grid {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 2rem 4rem;
+			}
+			.usage h3 {
+				margin-bottom: 0.55rem;
+				color: var(--gold);
+				font-size: 1.1rem;
+				letter-spacing: -0.015em;
+			}
+			.usage p {
+				margin: 0;
+				color: #c7d0d7;
+			}
+			.footer {
+				padding-block: 2rem;
+				border-top: 1px solid var(--line);
+				color: var(--muted);
+			}
+			.footer .shell {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 1rem;
+			}
+			.footer a {
+				font-weight: 800;
+				text-underline-offset: 3px;
+			}
+			:focus-visible {
+				outline: 3px solid var(--aqua);
+				outline-offset: 3px;
+			}
+			@media (max-width: 820px) {
+				.hero-grid,
+				.section-head,
+				.usage-grid {
+					grid-template-columns: 1fr;
+				}
+				.section-head .eyebrow,
+				.section-head h2,
+				.section-head > p {
+					grid-column: 1;
+				}
+				.section-head .eyebrow {
+					grid-row: 1;
+				}
+				.section-head h2 {
+					grid-row: 2;
+				}
+				.section-head > p {
+					grid-row: 3;
+					margin-top: 1rem;
+				}
+				.hero-note {
+					bottom: 1.25rem;
+					left: 0;
+					max-width: 300px;
+				}
+				.hero-visual {
+					width: min(100%, 330px);
+				}
+				.hero-visual img {
+					max-height: 430px;
+				}
+				.fact-grid {
+					grid-template-columns: repeat(2, 1fr);
+				}
+				.asset-card,
+				.asset-card.wide {
+					grid-column: span 6;
+				}
+				.launch-grid {
+					grid-template-columns: 1fr;
+				}
+			}
+			@media (max-width: 560px) {
+				body {
+					font-size: 16px;
+				}
+				.shell {
+					width: min(100% - 1.25rem, 1160px);
+				}
+				.back {
+					font-size: 0.85rem;
+				}
+				.copy-card {
+					grid-template-columns: 1fr;
+				}
+				.copy-button {
+					justify-self: start;
+				}
+				.fact-grid {
+					grid-template-columns: 1fr;
+				}
+				.asset-card,
+				.asset-card.wide {
+					grid-column: 1 / -1;
+				}
+				.asset-preview {
+					min-height: 220px;
+				}
+				.video-stage {
+					padding: 0.75rem;
+				}
+				.asset-meta,
+				.video-meta,
+				.footer .shell {
+					align-items: flex-start;
+					flex-direction: column;
+				}
+			}
+			@media (prefers-reduced-motion: reduce) {
+				html {
+					scroll-behavior: auto;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<a class="skip" href="#content">Skip to content</a>
+		<header class="site-header">
+			<div class="shell nav">
+				<a class="brand" href="/en/"><span aria-hidden="true">🍿</span><span>Popcorn Vote</span></a>
+				<a class="back" href="/en/">← Back to the website</a>
+			</div>
+		</header>
+		<main id="content">
+			<section class="hero">
+				<div class="shell hero-grid">
+					<div>
+						<p class="eyebrow">Media kit</p>
+						<h1>Too many film choices.<br /><em>One fair winner.</em></h1>
+						<p class="hero-intro">
+							Popcorn Vote is a free, self-hosted app that settles what’s on tonight. Everyone brings a film
+							and gets the same number of votes. Save them, spend them, switch sides — a wheel breaks
+							deadlocks, and the archive remembers the rest. This kit provides approved copy and visuals for
+							listings, articles, and launch posts.
+						</p>
+					</div>
+					<div class="hero-visual">
+						<img
+							src="/assets/hero-iphone-15-pro-max.webp"
+							width="622"
+							height="1343"
+							fetchpriority="high"
+							alt="Popcorn Vote film list on a phone"
+						/>
+						<p class="hero-note">Free · self-hosted · open source<br />MIT licensed</p>
+					</div>
+				</div>
+			</section>
+			<nav class="jump" aria-label="On this page">
+				<div class="shell">
+					<a href="#copy">Copy</a><a href="#facts">Facts</a><a href="#visuals">Visuals</a
+					><a href="#video">Video</a><a href="#launch-copy">Launch posts</a><a href="#usage">Usage notes</a>
+				</div>
+			</nav>
+
+			<section class="section shell" id="copy">
+				<div class="section-head">
+					<div>
+						<p class="eyebrow">Words that travel</p>
+						<h2>Ready-to-use copy.</h2>
+					</div>
+					<p>
+						Use the shortest version for directory taglines and the longer descriptions for articles, launch
+						pages, and newsletters.
+					</p>
+				</div>
+				<div class="copy-stack">
+					<article class="copy-card">
+						<span class="copy-label">Tagline · 46 chars</span>
+						<p class="copy-text">Pick together. Press play sooner. Self-hosted.</p>
+						<button class="copy-button" type="button">Copy</button>
+					</article>
+					<article class="copy-card">
+						<span class="copy-label">One sentence</span>
+						<p class="copy-text">
+							Popcorn Vote is a free, self-hosted app where everyone brings a film, gets the same number of
+							votes, and helps settle what’s on tonight.
+						</p>
+						<button class="copy-button" type="button">Copy</button>
+					</article>
+					<article class="copy-card">
+						<span class="copy-label">Short description</span>
+						<p class="copy-text">
+							Save the drama for the screen. With Popcorn Vote, everyone brings a film and gets the same
+							number of votes. Save them, spend them, or switch sides before movie night. The top film wins; a
+							wheel delivers the plot twist when the vote deadlocks. Afterwards, ratings and watched films
+							become a shared family movie diary.
+						</p>
+						<button class="copy-button" type="button">Copy</button>
+					</article>
+					<article class="copy-card">
+						<span class="copy-label">Boilerplate</span>
+						<p class="copy-text">
+							Popcorn Vote is a free and open-source web app that settles family movie night without a group
+							chat excavation. Everyone brings a film, receives votes on the same schedule, and can save,
+							spend, or move them before the big decision. The top film wins; an animated wheel breaks
+							deadlocks. After the credits, watched films and everyone’s ratings build a shared family movie
+							diary. Popcorn Vote is mobile-first, installable as a PWA, available in nine interface
+							languages, and includes a TV view for the big reveal. It runs as a single Docker container on
+							linux/amd64 and linux/arm64 with SQLite storage and no separate database service. It is MIT
+							licensed.
+						</p>
+						<button class="copy-button" type="button">Copy</button>
+					</article>
+				</div>
+			</section>
+
+			<section class="section shell" id="facts">
+				<div class="section-head">
+					<div>
+						<p class="eyebrow">At a glance</p>
+						<h2>Project facts.</h2>
+					</div>
+					<p>
+						Verified against the project repository and release setup. Link to this section when a directory
+						editor needs a compact fact sheet.
+					</p>
+				</div>
+				<dl class="fact-grid">
+					<div class="fact">
+						<dt>Project</dt>
+						<dd>Popcorn Vote</dd>
+					</div>
+					<div class="fact">
+						<dt>Category</dt>
+						<dd>Family movie-night voting</dd>
+					</div>
+					<div class="fact">
+						<dt>Model</dt>
+						<dd>Free and self-hosted</dd>
+					</div>
+					<div class="fact">
+						<dt>License</dt>
+						<dd><a href="https://github.com/Stadicus/popcorn-vote/blob/main/LICENSE">MIT</a></dd>
+					</div>
+					<div class="fact">
+						<dt>Source</dt>
+						<dd><a href="https://github.com/Stadicus/popcorn-vote">GitHub</a></dd>
+					</div>
+					<div class="fact">
+						<dt>Live demo</dt>
+						<dd><a href="https://demo.popcornvote.org">demo.popcornvote.org</a></dd>
+					</div>
+					<div class="fact">
+						<dt>Deployment</dt>
+						<dd>Single Docker container</dd>
+					</div>
+					<div class="fact">
+						<dt>Architectures</dt>
+						<dd>linux/amd64 · linux/arm64</dd>
+					</div>
+					<div class="fact">
+						<dt>Technology</dt>
+						<dd>SvelteKit · SQLite · PWA</dd>
+					</div>
+					<div class="fact">
+						<dt>Languages</dt>
+						<dd>9 interface languages</dd>
+					</div>
+					<div class="fact">
+						<dt>Storage</dt>
+						<dd>One local data volume</dd>
+					</div>
+					<div class="fact">
+						<dt>External data</dt>
+						<dd>TMDB · optional OMDb</dd>
+					</div>
+				</dl>
+				<div class="copy-stack tag-strip">
+					<article class="copy-card">
+						<span class="copy-label">Suggested tags</span>
+						<p class="copy-text">
+							self-hosted, family, movie-night, voting, docker, sveltekit, sqlite, pwa, open-source
+						</p>
+						<button class="copy-button" type="button">Copy</button>
+					</article>
+				</div>
+			</section>
+
+			<section class="section shell" id="visuals">
+				<div class="section-head">
+					<div>
+						<p class="eyebrow">Downloadable</p>
+						<h2>Logo and screenshots.</h2>
+					</div>
+					<p>
+						PNG assets are provided at their original resolution. Screenshots show the real application; keep
+						their aspect ratio and do not crop away the interface context.
+					</p>
+				</div>
+				<div class="asset-grid">
+					<article class="asset-card">
+						<div class="asset-preview">
+							<img
+								src="/assets/popcorn-vote-icon-512.png"
+								width="512"
+								height="512"
+								alt="Popcorn Vote app icon"
+							/>
+						</div>
+						<div class="asset-meta">
+							<div>
+								<h3>App icon</h3>
+								<p>PNG · 512 × 512</p>
+							</div>
+							<a class="download" href="/assets/popcorn-vote-icon-512.png" download>Download</a>
+						</div>
+					</article>
+					<article class="asset-card wide">
+						<div class="asset-preview">
+							<img
+								src="/assets/social-preview.png"
+								width="1280"
+								height="640"
+								alt="Popcorn Vote social preview"
+							/>
+						</div>
+						<div class="asset-meta">
+							<div>
+								<h3>Social preview</h3>
+								<p>PNG · 1280 × 640</p>
+							</div>
+							<a class="download" href="/assets/social-preview.png" download="popcorn-vote-social-preview.png"
+								>Download</a
+							>
+						</div>
+					</article>
+					<article class="asset-card">
+						<div class="asset-preview">
+							<img
+								src="/assets/movie-search.png"
+								width="486"
+								height="640"
+								loading="lazy"
+								alt="Searching for a film in Popcorn Vote"
+							/>
+						</div>
+						<div class="asset-meta">
+							<div>
+								<h3>Film search</h3>
+								<p>PNG · 486 × 640</p>
+							</div>
+							<a class="download" href="/assets/movie-search.png" download="popcorn-vote-movie-search.png"
+								>Download</a
+							>
+						</div>
+					</article>
+					<article class="asset-card">
+						<div class="asset-preview">
+							<img
+								src="/assets/movie-list.png"
+								width="486"
+								height="640"
+								loading="lazy"
+								alt="Shared film list with votes"
+							/>
+						</div>
+						<div class="asset-meta">
+							<div>
+								<h3>Film list</h3>
+								<p>PNG · 486 × 640</p>
+							</div>
+							<a class="download" href="/assets/movie-list.png" download="popcorn-vote-movie-list.png"
+								>Download</a
+							>
+						</div>
+					</article>
+					<article class="asset-card">
+						<div class="asset-preview">
+							<img
+								src="/assets/popcorn-vote-movie-night.png"
+								width="500"
+								height="640"
+								loading="lazy"
+								alt="Movie Night standings"
+							/>
+						</div>
+						<div class="asset-meta">
+							<div>
+								<h3>Movie Night</h3>
+								<p>PNG · 500 × 640</p>
+							</div>
+							<a class="download" href="/assets/popcorn-vote-movie-night.png" download>Download</a>
+						</div>
+					</article>
+					<article class="asset-card">
+						<div class="asset-preview">
+							<img
+								src="/assets/tie-wheel.png"
+								width="486"
+								height="640"
+								loading="lazy"
+								alt="Tie-breaking wheel"
+							/>
+						</div>
+						<div class="asset-meta">
+							<div>
+								<h3>Tie wheel</h3>
+								<p>PNG · 486 × 640</p>
+							</div>
+							<a class="download" href="/assets/tie-wheel.png" download="popcorn-vote-tie-wheel.png"
+								>Download</a
+							>
+						</div>
+					</article>
+					<article class="asset-card">
+						<div class="asset-preview">
+							<img
+								src="/assets/winner.png"
+								width="486"
+								height="640"
+								loading="lazy"
+								alt="Winning film announcement"
+							/>
+						</div>
+						<div class="asset-meta">
+							<div>
+								<h3>Winner</h3>
+								<p>PNG · 486 × 640</p>
+							</div>
+							<a class="download" href="/assets/winner.png" download="popcorn-vote-winner.png">Download</a>
+						</div>
+					</article>
+					<article class="asset-card">
+						<div class="asset-preview">
+							<img
+								src="/assets/popcorn-vote-settings.png"
+								width="500"
+								height="640"
+								loading="lazy"
+								alt="Popcorn Vote settings"
+							/>
+						</div>
+						<div class="asset-meta">
+							<div>
+								<h3>Settings</h3>
+								<p>PNG · 500 × 640</p>
+							</div>
+							<a class="download" href="/assets/popcorn-vote-settings.png" download>Download</a>
+						</div>
+					</article>
+				</div>
+			</section>
+
+			<section class="section shell" id="video">
+				<div class="section-head">
+					<div>
+						<p class="eyebrow">Press play</p>
+						<h2>From deadlock to opening credits.</h2>
+					</div>
+					<p>
+						Watch Popcorn Vote count the votes, break the tie, and reveal tonight’s main feature. No trailer
+						spoilers.
+					</p>
+				</div>
+				<div class="video-card">
+					<div class="video-stage">
+						<video controls preload="metadata" poster="/assets/video-preview.png">
+							<source src="/assets/popcorn-vote-v1.mp4" type="video/mp4" />
+							Download the video below.
+						</video>
+					</div>
+					<div class="video-meta">
+						<div>
+							<h3>From voting to the big reveal</h3>
+							<p>MP4 · 4 MB · original screen recording</p>
+						</div>
+						<a class="download" href="/assets/popcorn-vote-v1.mp4" download="popcorn-vote-demo.mp4"
+							>Download video</a
+						>
+					</div>
+				</div>
+			</section>
+
+			<section class="section shell" id="launch-copy">
+				<div class="section-head">
+					<div>
+						<p class="eyebrow">Platform-ready</p>
+						<h2>Launch post starters.</h2>
+					</div>
+					<p>
+						Adapt each draft to its audience and stay around for questions. These are starting points, not
+						identical cross-posts.
+					</p>
+				</div>
+				<div class="launch-grid">
+					<article class="launch-card">
+						<h3>Community post</h3>
+						<pre>
+Popcorn Vote — a self-hosted family movie-night voting app
+
+I built a small web app to settle what’s on tonight without excavating a group chat. Everyone brings a film and gets the same number of votes. Save them, spend them, or switch sides before movie night. If the leaders are tied, the wheel makes the final call. Afterwards, watched films and ratings stay in a shared archive.
+
+• Single Docker container
+• SQLite, no separate database
+• linux/amd64 and linux/arm64
+• Mobile-first PWA with TV view
+• Nine interface languages
+• MIT licensed
+
+Website: https://popcornvote.org
+Demo: https://demo.popcornvote.org
+Source: https://github.com/Stadicus/popcorn-vote</pre>
+						<button class="copy-button" type="button">Copy</button>
+					</article>
+					<article class="launch-card">
+						<h3>Software directory</h3>
+						<pre>
+Popcorn Vote is a free, self-hosted app where everyone brings a film, gets the same number of votes, and helps settle what’s on tonight. Votes can be saved, spent, or moved; an animated wheel breaks deadlocks. Watched films and ratings form a shared family movie diary. It runs as one Docker container with SQLite on amd64 and arm64 and is MIT licensed.</pre>
+						<button class="copy-button" type="button">Copy</button>
+					</article>
+					<article class="launch-card">
+						<h3>Product launch page</h3>
+						<pre>
+Popcorn Vote — pick together, press play sooner
+
+Save the drama for the screen. Popcorn Vote gives everyone the same number of votes, lets them save, spend, or move those votes, and turns a deadlock into the evening’s first plot twist with an animated wheel.
+
+After the credits, the film and everyone's ratings become part of a shared family movie diary. It is free, open source, mobile-first, and runs on your own server as a single Docker container.
+
+Try the complete flow in the live demo: https://demo.popcornvote.org</pre>
+						<button class="copy-button" type="button">Copy</button>
+					</article>
+					<article class="launch-card">
+						<h3>Social media</h3>
+						<pre>
+Save the drama for the screen. 🍿
+
+With Popcorn Vote, everyone brings a film and gets the same number of votes. Save them, spend them, switch sides — then let the wheel settle what’s on tonight. All on your own server.
+
+Pick together. Press play sooner:
+https://popcornvote.org
+
+#selfhosting #opensource #homelab</pre>
+						<button class="copy-button" type="button">Copy</button>
+					</article>
+				</div>
+			</section>
+
+			<section class="section shell" id="usage">
+				<div class="usage">
+					<p class="eyebrow">A small print, kept small</p>
+					<h2>Usage notes.</h2>
+					<div class="usage-grid">
+						<div>
+							<h3>Name and positioning</h3>
+							<p>
+								Write the name as “Popcorn Vote”. Describe it as a family project and a self-hosted
+								open-source app, not as a hosted service or commercial product.
+							</p>
+						</div>
+						<div>
+							<h3>Visuals</h3>
+							<p>
+								You may resize the supplied assets while preserving their aspect ratio. Please do not recolour
+								the icon, place text over screenshots, or imply an endorsement.
+							</p>
+						</div>
+						<div>
+							<h3>Third-party artwork</h3>
+							<p>
+								Some screenshots and the demo contain film posters and metadata supplied by TMDB. That
+								third-party content is shown only to demonstrate the app and is not covered by the project's
+								MIT license.
+							</p>
+						</div>
+						<div>
+							<h3>Contact and attribution</h3>
+							<p>
+								Credit “Popcorn Vote by Stadicus” and link to popcornvote.org. For factual corrections or
+								media questions, open an issue in the GitHub repository.
+							</p>
+						</div>
+					</div>
+				</div>
+			</section>
+		</main>
+		<footer class="footer">
+			<div class="shell">
+				<span>© 2026 Stadicus · MIT licensed</span
+				><span
+					><a href="/en/">Website</a> · <a href="https://demo.popcornvote.org">Live demo</a> ·
+					<a href="https://github.com/Stadicus/popcorn-vote">GitHub</a></span
+				>
+			</div>
+		</footer>
+		<script>
+			document.querySelectorAll('.copy-button').forEach((button) => {
+				button.addEventListener('click', async () => {
+					const source = button.parentElement.querySelector('.copy-text, pre');
+					try {
+						await navigator.clipboard.writeText(source.textContent.trim());
+						button.textContent = 'Copied!';
+						window.setTimeout(() => {
+							button.textContent = 'Copy';
+						}, 1800);
+					} catch {
+						const selection = window.getSelection();
+						const range = document.createRange();
+						range.selectNodeContents(source);
+						selection.removeAllRanges();
+						selection.addRange(range);
+						button.textContent = 'Selected';
+					}
+				});
+			});
+		</script>
+	</body>
+</html>
