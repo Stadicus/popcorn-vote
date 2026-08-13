@@ -6,6 +6,12 @@ const config = {
 	preprocess: vitePreprocess(),
 	kit: {
 		adapter: adapter(),
+		serviceWorker: {
+			// A reverse proxy in front of a self-hosted install commonly intercepts
+			// /robots.txt at the edge. cache.addAll() during install is all-or-nothing,
+			// so precaching it would let one proxy quirk fail the entire service worker.
+			files: (filename) => !/\.DS_Store/.test(filename) && filename !== 'robots.txt'
+		},
 		csp: {
 			directives: {
 				'default-src': ['self'],
