@@ -98,6 +98,73 @@ const hreflangLinks = locales
 	.concat('<link rel="alternate" hreflang="x-default" href="https://popcornvote.org/" />')
 	.join('\n\t\t');
 
+// Reach measurement for the project website, and only for the project website:
+// no cookies, no fingerprint, no personal data, nothing shared with a third
+// party. The instance is self-hosted, so the numbers never leave hardware the
+// project controls, and `data-domains` keeps forks, local previews and the
+// Render test instance from reporting into the same dashboard even though this
+// repository is public. The application itself is deliberately untracked.
+//
+// The matching `script-src` and `connect-src` exceptions live in the nginx
+// configuration that serves popcornvote.org. Changing the host below without
+// changing that policy leaves the tracker loaded but silent.
+const analyticsHost = 'https://analytics.builtfor.ch';
+const analyticsWebsiteId = '7bb8b3bb-94de-4246-b08e-1fe4ef7f949b';
+const analyticsTag = `<script defer src="${analyticsHost}/script.js" data-website-id="${analyticsWebsiteId}" data-domains="popcornvote.org"></script>`;
+
+// Pageviews arrive on their own; every locale has its own path, so the language
+// split needs no extra event. These are the interactions a static page cannot
+// otherwise show: which call to action was used and where it sat, whether the
+// language switcher gets used, and whether the demo video is played.
+const analyticsEvents = (currentLocale) => `\t<script>
+			(() => {
+				const track = (name, data) => {
+					try {
+						window.umami?.track(name, data);
+					} catch {}
+				};
+				// Where on the page a link sat. Sections carry an id where one is
+				// needed for navigation, so fall back to the first class name.
+				const area = (element) => {
+					const section = element.closest('section');
+					if (section) return section.id || section.className.split(' ')[0] || 'section';
+					if (element.closest('footer')) return 'footer';
+					return element.closest('header') ? 'header' : 'page';
+				};
+				document.addEventListener('click', (event) => {
+					const link = event.target.closest?.('a[href]');
+					if (!link) return;
+					let url;
+					try {
+						url = new URL(link.href, location.href);
+					} catch {
+						return;
+					}
+					if (url.host === 'demo.popcornvote.org') track('demo-click', { area: area(link) });
+					else if (url.host === 'github.com')
+						track('github-click', { area: area(link), path: url.pathname });
+					else if (url.host !== location.host) track('outbound-click', { host: url.host, area: area(link) });
+					else if (url.pathname === '/media-kit/') track('media-kit-click', { area: area(link) });
+				});
+				// The language links are same-origin, so the delegate above skips
+				// them on purpose and they are counted with both ends here.
+				document.querySelectorAll('[data-language]').forEach((link) =>
+					link.addEventListener('click', () =>
+						track('language-switch', { from: '${currentLocale}', to: link.dataset.language })
+					)
+				);
+				// Once per page: replays and seeking are not a second viewer.
+				document.querySelectorAll('video').forEach((video) => {
+					let played = false;
+					video.addEventListener('play', () => {
+						if (played) return;
+						played = true;
+						track('video-play');
+					});
+				});
+			})();
+		</script>`;
+
 const languageMenu = (currentLocale) => {
 	const label = catalogue.languageLabel[currentLocale];
 	const items = locales
@@ -138,7 +205,8 @@ for (const [locale, details] of locales) {
 				.map(([, other]) => `<meta property="og:locale:alternate" content="${other.ogLocale}" />`)
 				.join('\n\t\t')
 		)
-		.replaceAll('{{LANGUAGE_MENU}}', languageMenu(locale));
+		.replaceAll('{{LANGUAGE_MENU}}', languageMenu(locale))
+		.replaceAll('{{ANALYTICS}}', analyticsTag);
 	if (/{{[A-Z_]+}}/.test(html)) fail(`${locale} output contains an unresolved placeholder`);
 
 	const languageScript = `\t<script>
@@ -160,7 +228,7 @@ for (const [locale, details] of locales) {
 				});
 			});
 		</script>`;
-	html = html.replace('</body>', `${languageScript}\n\t</body>`);
+	html = html.replace('</body>', `${languageScript}\n${analyticsEvents(locale)}\n\t</body>`);
 	html = html.replace('<!doctype html>', `<!doctype html>\n${generatedMarker}`);
 
 	const directory = localeDirectory(details.slug);
@@ -203,6 +271,7 @@ ${generatedMarker}
 		<meta name="twitter:description" content="Self-hosted voting for family movie night." />
 		<meta name="twitter:image" content="https://popcornvote.org/assets/social-preview.png" />
 		<meta name="twitter:image:alt" content="Popcorn Vote preview with a popcorn bucket and voting symbols." />
+		${analyticsTag}
 		<style>
 			:root { color-scheme: light dark; font-family: system-ui, sans-serif; color: #101923; background: #f7f4ed; }
 			body { min-height: 100vh; margin: 0; display: grid; place-items: center; }
@@ -257,6 +326,10 @@ ${generatedMarker}
 			document.querySelectorAll('[data-language]').forEach((link) =>
 				link.addEventListener('click', () => {
 					try { localStorage.setItem('pv_website_language', link.dataset.language); } catch {}
+					// Only visitors whose browser matches no locale ever see this
+					// page; everybody else is redirected from the head. A choice
+					// made here therefore says which language the detection missed.
+					try { window.umami?.track('language-pick', { to: link.dataset.language }); } catch {}
 				})
 			);
 		</script>
@@ -268,10 +341,14 @@ await writeFile(resolve(output, 'index.html'), gateway);
 
 const mediaKitDirectory = resolve(output, 'media-kit');
 await mkdir(mediaKitDirectory, { recursive: true });
-await writeFile(
-	resolve(mediaKitDirectory, 'index.html'),
-	mediaKitTemplate.replace('<!doctype html>', `<!doctype html>\n${generatedMarker}`)
-);
+// The media kit is English-only and carries the same demo, source and video
+// links as the landing pages, so it is measured the same way.
+const mediaKitHtml = mediaKitTemplate
+	.replace('<!doctype html>', `<!doctype html>\n${generatedMarker}`)
+	.replaceAll('{{ANALYTICS}}', analyticsTag)
+	.replace('</body>', `${analyticsEvents('en')}\n\t</body>`);
+if (/{{[A-Z_]+}}/.test(mediaKitHtml)) fail('media kit output contains an unresolved placeholder');
+await writeFile(resolve(mediaKitDirectory, 'index.html'), mediaKitHtml);
 
 const mediaAssets = [
 	['../../static/icon-512.png', 'popcorn-vote-icon-512.png'],

@@ -35,6 +35,7 @@
 		<meta name="twitter:description" content="Self-hosted voting for family movie night." />
 		<meta name="twitter:image" content="https://popcornvote.org/assets/social-preview.png" />
 		<meta name="twitter:image:alt" content="Popcorn Vote preview with a popcorn bucket and voting symbols." />
+		<script defer src="https://analytics.builtfor.ch/script.js" data-website-id="7bb8b3bb-94de-4246-b08e-1fe4ef7f949b" data-domains="popcornvote.org"></script>
 		<style>
 			:root { color-scheme: light dark; font-family: system-ui, sans-serif; color: #101923; background: #f7f4ed; }
 			body { min-height: 100vh; margin: 0; display: grid; place-items: center; }
@@ -97,6 +98,10 @@
 			document.querySelectorAll('[data-language]').forEach((link) =>
 				link.addEventListener('click', () => {
 					try { localStorage.setItem('pv_website_language', link.dataset.language); } catch {}
+					// Only visitors whose browser matches no locale ever see this
+					// page; everybody else is redirected from the head. A choice
+					// made here therefore says which language the detection missed.
+					try { window.umami?.track('language-pick', { to: link.dataset.language }); } catch {}
 				})
 			);
 		</script>

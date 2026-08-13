@@ -27,6 +27,7 @@
 		<link rel="icon" href="/assets/favicon-32.png" sizes="32x32" type="image/png" />
 		<link rel="icon" href="/assets/favicon-16.png" sizes="16x16" type="image/png" />
 		<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" sizes="180x180" />
+		<script defer src="https://analytics.builtfor.ch/script.js" data-website-id="7bb8b3bb-94de-4246-b08e-1fe4ef7f949b" data-domains="popcornvote.org"></script>
 
 		<meta property="og:type" content="website" />
 		<meta property="og:site_name" content="Popcorn Vote" />
@@ -2056,6 +2057,54 @@
 					menu.querySelector('summary').focus();
 				});
 			});
+		</script>
+	<script>
+			(() => {
+				const track = (name, data) => {
+					try {
+						window.umami?.track(name, data);
+					} catch {}
+				};
+				// Where on the page a link sat. Sections carry an id where one is
+				// needed for navigation, so fall back to the first class name.
+				const area = (element) => {
+					const section = element.closest('section');
+					if (section) return section.id || section.className.split(' ')[0] || 'section';
+					if (element.closest('footer')) return 'footer';
+					return element.closest('header') ? 'header' : 'page';
+				};
+				document.addEventListener('click', (event) => {
+					const link = event.target.closest?.('a[href]');
+					if (!link) return;
+					let url;
+					try {
+						url = new URL(link.href, location.href);
+					} catch {
+						return;
+					}
+					if (url.host === 'demo.popcornvote.org') track('demo-click', { area: area(link) });
+					else if (url.host === 'github.com')
+						track('github-click', { area: area(link), path: url.pathname });
+					else if (url.host !== location.host) track('outbound-click', { host: url.host, area: area(link) });
+					else if (url.pathname === '/media-kit/') track('media-kit-click', { area: area(link) });
+				});
+				// The language links are same-origin, so the delegate above skips
+				// them on purpose and they are counted with both ends here.
+				document.querySelectorAll('[data-language]').forEach((link) =>
+					link.addEventListener('click', () =>
+						track('language-switch', { from: 'it', to: link.dataset.language })
+					)
+				);
+				// Once per page: replays and seeking are not a second viewer.
+				document.querySelectorAll('video').forEach((video) => {
+					let played = false;
+					video.addEventListener('play', () => {
+						if (played) return;
+						played = true;
+						track('video-play');
+					});
+				});
+			})();
 		</script>
 	</body>
 </html>
