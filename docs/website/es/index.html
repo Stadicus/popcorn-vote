@@ -1566,6 +1566,83 @@
 					display: none;
 				}
 			}
+			/* The star bar. One ask, once, and only after half the page has been
+			   read: whoever has not got that far has not seen enough to judge.
+			   Dismissed once means dismissed for good, so it can never become the
+			   thing a returning visitor has to swat away. */
+			.star-bar {
+				position: fixed;
+				inset: auto 0 0;
+				z-index: 40;
+				background: var(--deep-panel);
+				color: var(--on-deep);
+				box-shadow: 0 -12px 32px rgb(16 25 35 / 0.22);
+				/* Clear of the iPhone home indicator, where Safari's collapsed
+				   toolbar and the swipe-up gesture both compete with a tap. */
+				padding-bottom: env(safe-area-inset-bottom);
+				transform: translateY(110%);
+				transition: transform 0.32s ease;
+			}
+			.star-bar[hidden] {
+				display: none;
+			}
+			.star-bar.is-visible {
+				transform: translateY(0);
+			}
+			.star-bar-row {
+				display: flex;
+				align-items: center;
+				gap: clamp(0.75rem, 2vw, 1.25rem);
+				padding: 0.85rem 0;
+			}
+			.star-bar-text {
+				flex: 1;
+				min-width: 0;
+				margin: 0;
+				font-size: 0.95rem;
+			}
+			/* Not the page button: `--button-bg` is near-black in light mode and
+			   would vanish into the dark bar. Gold reads on both themes. */
+			.star-bar .button {
+				flex: none;
+				background: var(--gold);
+				color: #332500;
+			}
+			.star-bar-close {
+				display: grid;
+				flex: none;
+				place-items: center;
+				width: 44px;
+				height: 44px;
+				padding: 0;
+				border: 0;
+				border-radius: 999px;
+				background: transparent;
+				color: var(--on-deep-muted);
+				font-size: 1.25rem;
+				line-height: 1;
+				cursor: pointer;
+			}
+			.star-bar-close:hover {
+				background: var(--deep-panel-raised);
+				color: var(--on-deep);
+			}
+			.star-bar-close:focus-visible {
+				outline: 3px solid var(--aqua);
+				outline-offset: 3px;
+			}
+			@media (max-width: 620px) {
+				.star-bar-row {
+					flex-wrap: wrap;
+					padding: 0.75rem 0;
+				}
+				.star-bar-text {
+					flex-basis: 100%;
+				}
+				.star-bar .button {
+					flex: 1;
+				}
+			}
 			@media (prefers-reduced-motion: reduce) {
 				html {
 					scroll-behavior: auto;
@@ -1601,7 +1678,7 @@
 						"contentUrl": "https://popcornvote.org/assets/social-preview.png",
 						"width": 1280,
 						"height": 640,
-						"caption": "Popcorn Vote — self-hosted movie night voting"
+						"caption": "Popcorn Vote: self-hosted movie night voting"
 					},
 					{
 						"@type": "WebPage",
@@ -1939,7 +2016,7 @@
 							href="https://github.com/Stadicus/popcorn-vote"
 							target="_blank"
 							rel="noreferrer"
-							>Consigue Popcorn Vote en GitHub <span aria-hidden="true">↗</span></a
+							>Dale una estrella en GitHub <span aria-hidden="true">↗</span></a
 						>
 					</div>
 				</div>
@@ -1988,6 +2065,17 @@
 				</p>
 			</div>
 		</footer>
+		<div class="star-bar" id="star-bar" hidden>
+			<div class="shell star-bar-row">
+				<p class="star-bar-text">Popcorn Vote acaba de nacer. Una estrella en GitHub significaría mucho.</p>
+				<a class="button" href="https://github.com/Stadicus/popcorn-vote" target="_blank" rel="noreferrer"
+					>Dar una estrella <span aria-hidden="true">↗</span></a
+				>
+				<button class="star-bar-close" type="button" aria-label="Cerrar el aviso">
+					<span aria-hidden="true">×</span>
+				</button>
+			</div>
+		</div>
 		<script>
 			const themeToggle = document.querySelector('.theme-toggle');
 			const systemTheme = window.matchMedia('(prefers-color-scheme: dark)');
@@ -2137,6 +2225,161 @@
 				);
 				document.querySelectorAll('[data-reveal]').forEach((story) => observer.observe(story));
 			} else document.querySelectorAll('[data-reveal]').forEach((story) => story.classList.add('is-visible'));
+
+			// The star bar. Storage is wrapped because Safari in private mode throws
+			// on both reading and writing it, and a bar that cannot remember being
+			// dismissed must fail towards not appearing rather than towards nagging.
+			// The in-memory flag carries the same answer through a session where the
+			// write itself fails, so a full or read-only storage still asks only once.
+			const starBar = document.getElementById('star-bar');
+			let starDone = false;
+			try {
+				starDone = localStorage.getItem('pv_website_star') === 'dismissed';
+			} catch {
+				starDone = true;
+			}
+			if (starBar && !starDone) {
+				const starCloser = document.querySelector('.closer');
+				const starFooter = document.querySelector('.footer');
+				// A layout read, so it is taken once and refreshed on resize rather
+				// than on every scroll tick; the parallax above rations it the same way.
+				let pageHeight = document.documentElement.scrollHeight;
+				let pageEndInView = false;
+				// Nothing appears until a person has actually touched the page. Scroll
+				// position cannot establish that: `scroll-behavior: smooth` above means
+				// a fragment link animates the page for over a second all by itself,
+				// and the generator publishes #faq for search results, so arriving that
+				// way is normal rather than exotic. An input device is the one signal
+				// the browser cannot fake on the visitor's behalf.
+				let armed = false;
+				const armStarBar = () => {
+					armed = true;
+					updateStarBar();
+				};
+				['wheel', 'touchmove', 'keydown', 'pointerdown'].forEach((type) =>
+					window.addEventListener(type, armStarBar, { passive: true, once: true })
+				);
+
+				// `is-visible` is the single source of truth for both directions. An
+				// earlier version showed on `hidden` and hid on the class, which left a
+				// third state, on its way out but not yet gone, that could not be
+				// re-shown: scrolling back over the threshold within the transition and
+				// then stopping to read parked the bar off-screen for good.
+				const starVisible = () => starBar.classList.contains('is-visible');
+				const hideStarBar = () => {
+					starBar.classList.remove('is-visible');
+					// `inert` immediately, `hidden` only once it has actually slid away.
+					// In between the bar is off-screen but still in the tab order, so a
+					// keyboard visitor could land on a control they cannot see.
+					starBar.setAttribute('inert', '');
+				};
+				const showStarBar = () => {
+					starBar.hidden = false;
+					starBar.removeAttribute('inert');
+					// Reading a layout property flushes the change, so the transition
+					// has a start value. A bare requestAnimationFrame runs before the
+					// style recalculation and the bar would jump into place instead.
+					void starBar.offsetHeight;
+					starBar.classList.add('is-visible');
+				};
+				// Driven by the transition rather than a hard-coded delay, so reduced
+				// motion, which collapses the duration to almost nothing, does not leave
+				// the bar's shadow banding the bottom of the viewport for a third of a
+				// second after it is gone.
+				starBar.addEventListener('transitionend', (event) => {
+					if (event.propertyName === 'transform' && !starVisible()) starBar.hidden = true;
+				});
+
+				const updateStarBar = () => {
+					if (starDone || !armed) return;
+					// Half of what is actually scrollable. Measuring the viewport
+					// bottom instead would count as "read" at load on tall screens and
+					// at 25% zoom, where the whole page fits above the fold.
+					const readEnough = window.scrollY >= (pageHeight - window.innerHeight) * 0.5;
+					if (readEnough && !pageEndInView) {
+						if (!starVisible()) showStarBar();
+					} else if (starVisible()) hideStarBar();
+				};
+
+				// Fixed to the bottom, the bar would sit on top of whatever the page
+				// ends with: the closer, which already carries this exact request, and
+				// the footer, which carries the TMDB attribution that has to stay
+				// readable. So it steps aside for both instead of covering them.
+				if ('IntersectionObserver' in window) {
+					// Per target, not per batch. A callback only carries the targets
+					// whose state changed, so reading the batch as the whole truth meant
+					// the closer scrolling away cleared the footer's answer with it, and
+					// the bar came back over the attribution it steps aside for.
+					const endsInView = new Set();
+					const endObserver = new IntersectionObserver(
+						(entries) => {
+							for (const entry of entries) {
+								if (entry.isIntersecting) endsInView.add(entry.target);
+								else endsInView.delete(entry.target);
+							}
+							pageEndInView = endsInView.size > 0;
+							updateStarBar();
+						},
+						{ threshold: 0 }
+					);
+					[starCloser, starFooter].forEach((element) => element && endObserver.observe(element));
+				} else {
+					// Without the observer there is no dependable way to tell when the
+					// page end is on screen, and guessing wrong puts the bar back on the
+					// attribution. The bar is a nicety, the attribution is not.
+					pageEndInView = true;
+				}
+
+				window.addEventListener('scroll', updateStarBar, { passive: true });
+				const remeasureStarBar = () => {
+					pageHeight = document.documentElement.scrollHeight;
+					updateStarBar();
+				};
+				// The page height moves after the script runs: lazily loaded images
+				// arrive, `font-display: swap` reflows the text, and the FAQ is nine
+				// collapsed `details` that each add several hundred pixels when opened.
+				// None of that fires a resize. Reading the height inside the scroll
+				// handler instead would put a forced layout on every tick, which the
+				// header code next door goes out of its way to avoid, so the
+				// measurement is driven by the thing that actually changes.
+				if ('ResizeObserver' in window) new ResizeObserver(remeasureStarBar).observe(document.body);
+				else document.addEventListener('toggle', remeasureStarBar, true);
+				// iOS fires resize repeatedly while the URL bar collapses during a
+				// scroll, so the layout read is batched rather than run on each one.
+				let remeasureQueued = false;
+				window.addEventListener('resize', () => {
+					if (remeasureQueued) return;
+					remeasureQueued = true;
+					requestAnimationFrame(() => {
+						remeasureQueued = false;
+						remeasureStarBar();
+					});
+				});
+
+				// Following the link answers the question as surely as closing the bar
+				// does: whoever went and starred the project must not be asked again.
+				// Only a refusal is reported; the link is already counted as a
+				// github-click from the star-bar area, and booking it as a dismissal
+				// too would file agreement under refusal.
+				const dismissStarBar = (refused) => {
+					starDone = true;
+					try {
+						localStorage.setItem('pv_website_star', 'dismissed');
+					} catch {}
+					hideStarBar();
+					if (refused) starBar.dispatchEvent(new CustomEvent('star-bar-refused', { bubbles: true }));
+				};
+				starBar.querySelector('.star-bar-close').addEventListener('click', () => dismissStarBar(true));
+				starBar.querySelector('a').addEventListener('click', () => dismissStarBar(false));
+				document.addEventListener('keydown', (event) => {
+					if (event.key !== 'Escape' || !starVisible()) return;
+					// The language menu owns Escape while it is open. Without this,
+					// closing that dropdown also spent the one ask, origin-wide and for
+					// every locale, on a visitor who never refused anything.
+					if (document.querySelector('.language-menu[open]')) return;
+					dismissStarBar(true);
+				});
+			}
 		</script>
 		<script>
 			document.querySelectorAll('[data-language]').forEach((link) =>
@@ -2167,6 +2410,11 @@
 				// Where on the page a link sat. Sections carry an id where one is
 				// needed for navigation, so fall back to the first class name.
 				const area = (element) => {
+					// The star bar sits outside every landmark, so it is asked for
+					// first: without this its clicks fall into the generic bucket and
+					// the one call to action being measured is the one that cannot be
+					// told apart from the rest.
+					if (element.closest('.star-bar')) return 'star-bar';
 					const section = element.closest('section');
 					if (section) return section.id || section.className.split(' ')[0] || 'section';
 					if (element.closest('footer')) return 'footer';
@@ -2187,6 +2435,12 @@
 					else if (url.host !== location.host) track('outbound-click', { host: url.host, area: area(link) });
 					else if (url.pathname === '/media-kit/') track('media-kit-click', { area: area(link) });
 				});
+				// Refusing the star bar, by the close button or by Escape; the bar
+				// raises this itself, because the delegate above only sees links and
+				// binding the button alone would miss every Escape. Following the bar
+				// is already counted as a github-click from the star-bar area, so the
+				// two answers stay distinguishable.
+				document.addEventListener('star-bar-refused', () => track('star-bar-dismiss'));
 				// The language links are same-origin, so the delegate above skips
 				// them on purpose and they are counted with both ends here.
 				document.querySelectorAll('[data-language]').forEach((link) =>
