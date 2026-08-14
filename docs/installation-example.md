@@ -12,11 +12,10 @@ network storage box, a mini PC, a rented machine. Graphical container managers
 take the same compose file; where this guide says "run this", they say "paste
 this into the editor and press Deploy".
 
-One restriction before you start: the ready-made image is built for Intel and AMD
-processors only. Plenty of network storage boxes and small home servers carry an
-ARM chip instead, and there the `image:` line below finds nothing to pull, build
-it on the machine itself with `docker build` (see the [README](../README.md)) and
-point the compose file at that instead.
+The ready-made image covers both processor families: Intel and AMD
+(`linux/amd64`) as well as the ARM chips in many network storage boxes and small
+home servers (`linux/arm64`). Docker pulls whichever fits the machine, so the
+`image:` line below works either way.
 
 ## 1. Preparation
 

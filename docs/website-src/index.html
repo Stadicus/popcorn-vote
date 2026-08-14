@@ -2261,22 +2261,35 @@
 					window.addEventListener(type, armStarBar, { passive: true, once: true })
 				);
 
+				// `is-visible` is the single source of truth for both directions. An
+				// earlier version showed on `hidden` and hid on the class, which left a
+				// third state, on its way out but not yet gone, that could not be
+				// re-shown: scrolling back over the threshold within the transition and
+				// then stopping to read parked the bar off-screen for good.
+				const starVisible = () => starBar.classList.contains('is-visible');
 				const hideStarBar = () => {
 					starBar.classList.remove('is-visible');
-					// Out of the accessibility tree once it has slid away, unless
-					// something brought it back in the meantime.
-					setTimeout(() => {
-						if (!starBar.classList.contains('is-visible')) starBar.hidden = true;
-					}, 320);
+					// `inert` immediately, `hidden` only once it has actually slid away.
+					// In between the bar is off-screen but still in the tab order, so a
+					// keyboard visitor could land on a control they cannot see.
+					starBar.setAttribute('inert', '');
 				};
 				const showStarBar = () => {
 					starBar.hidden = false;
+					starBar.removeAttribute('inert');
 					// Reading a layout property flushes the change, so the transition
 					// has a start value. A bare requestAnimationFrame runs before the
 					// style recalculation and the bar would jump into place instead.
 					void starBar.offsetHeight;
 					starBar.classList.add('is-visible');
 				};
+				// Driven by the transition rather than a hard-coded delay, so reduced
+				// motion, which collapses the duration to almost nothing, does not leave
+				// the bar's shadow banding the bottom of the viewport for a third of a
+				// second after it is gone.
+				starBar.addEventListener('transitionend', (event) => {
+					if (event.propertyName === 'transform' && !starVisible()) starBar.hidden = true;
+				});
 
 				const updateStarBar = () => {
 					if (starDone || !armed) return;
@@ -2285,8 +2298,8 @@
 					// at 25% zoom, where the whole page fits above the fold.
 					const readEnough = window.scrollY >= (pageHeight - window.innerHeight) * 0.5;
 					if (readEnough && !pageEndInView) {
-						if (starBar.hidden) showStarBar();
-					} else if (!starBar.hidden) hideStarBar();
+						if (!starVisible()) showStarBar();
+					} else if (starVisible()) hideStarBar();
 				};
 
 				// Fixed to the bottom, the bar would sit on top of whatever the page
@@ -2294,35 +2307,78 @@
 				// the footer, which carries the TMDB attribution that has to stay
 				// readable. So it steps aside for both instead of covering them.
 				if ('IntersectionObserver' in window) {
+					// Per target, not per batch. A callback only carries the targets
+					// whose state changed, so reading the batch as the whole truth meant
+					// the closer scrolling away cleared the footer's answer with it, and
+					// the bar came back over the attribution it steps aside for.
+					const endsInView = new Set();
 					const endObserver = new IntersectionObserver(
 						(entries) => {
-							pageEndInView = entries.some((entry) => entry.isIntersecting);
+							for (const entry of entries) {
+								if (entry.isIntersecting) endsInView.add(entry.target);
+								else endsInView.delete(entry.target);
+							}
+							pageEndInView = endsInView.size > 0;
 							updateStarBar();
 						},
 						{ threshold: 0 }
 					);
 					[starCloser, starFooter].forEach((element) => element && endObserver.observe(element));
+				} else {
+					// Without the observer there is no dependable way to tell when the
+					// page end is on screen, and guessing wrong puts the bar back on the
+					// attribution. The bar is a nicety, the attribution is not.
+					pageEndInView = true;
 				}
 
 				window.addEventListener('scroll', updateStarBar, { passive: true });
-				window.addEventListener('resize', () => {
+				const remeasureStarBar = () => {
 					pageHeight = document.documentElement.scrollHeight;
 					updateStarBar();
+				};
+				// The page height moves after the script runs: lazily loaded images
+				// arrive, `font-display: swap` reflows the text, and the FAQ is nine
+				// collapsed `details` that each add several hundred pixels when opened.
+				// None of that fires a resize. Reading the height inside the scroll
+				// handler instead would put a forced layout on every tick, which the
+				// header code next door goes out of its way to avoid, so the
+				// measurement is driven by the thing that actually changes.
+				if ('ResizeObserver' in window) new ResizeObserver(remeasureStarBar).observe(document.body);
+				else document.addEventListener('toggle', remeasureStarBar, true);
+				// iOS fires resize repeatedly while the URL bar collapses during a
+				// scroll, so the layout read is batched rather than run on each one.
+				let remeasureQueued = false;
+				window.addEventListener('resize', () => {
+					if (remeasureQueued) return;
+					remeasureQueued = true;
+					requestAnimationFrame(() => {
+						remeasureQueued = false;
+						remeasureStarBar();
+					});
 				});
 
 				// Following the link answers the question as surely as closing the bar
 				// does: whoever went and starred the project must not be asked again.
-				const dismissStarBar = () => {
+				// Only a refusal is reported; the link is already counted as a
+				// github-click from the star-bar area, and booking it as a dismissal
+				// too would file agreement under refusal.
+				const dismissStarBar = (refused) => {
 					starDone = true;
 					try {
 						localStorage.setItem('pv_website_star', 'dismissed');
 					} catch {}
 					hideStarBar();
+					if (refused) starBar.dispatchEvent(new CustomEvent('star-bar-refused', { bubbles: true }));
 				};
-				starBar.querySelector('.star-bar-close').addEventListener('click', dismissStarBar);
-				starBar.querySelector('a').addEventListener('click', dismissStarBar);
+				starBar.querySelector('.star-bar-close').addEventListener('click', () => dismissStarBar(true));
+				starBar.querySelector('a').addEventListener('click', () => dismissStarBar(false));
 				document.addEventListener('keydown', (event) => {
-					if (event.key === 'Escape' && !starBar.hidden) dismissStarBar();
+					if (event.key !== 'Escape' || !starVisible()) return;
+					// The language menu owns Escape while it is open. Without this,
+					// closing that dropdown also spent the one ask, origin-wide and for
+					// every locale, on a visitor who never refused anything.
+					if (document.querySelector('.language-menu[open]')) return;
+					dismissStarBar(true);
 				});
 			}
 		</script>

@@ -1188,12 +1188,12 @@ https://popcornvote.org
 					else if (url.host !== location.host) track('outbound-click', { host: url.host, area: area(link) });
 					else if (url.pathname === '/media-kit/') track('media-kit-click', { area: area(link) });
 				});
-				// Closing the star bar is a refusal, and the delegate above only sees
-				// links. Following it is already counted as a github-click from the
-				// star-bar area, so the two answers stay distinguishable.
-				document
-					.querySelector('.star-bar-close')
-					?.addEventListener('click', () => track('star-bar-dismiss'));
+				// Refusing the star bar, by the close button or by Escape; the bar
+				// raises this itself, because the delegate above only sees links and
+				// binding the button alone would miss every Escape. Following the bar
+				// is already counted as a github-click from the star-bar area, so the
+				// two answers stay distinguishable.
+				document.addEventListener('star-bar-refused', () => track('star-bar-dismiss'));
 				// The language links are same-origin, so the delegate above skips
 				// them on purpose and they are counted with both ends here.
 				document.querySelectorAll('[data-language]').forEach((link) =>
