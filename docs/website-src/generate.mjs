@@ -134,7 +134,8 @@ const analyticsTag = `<script defer src="${analyticsHost}/script.js" data-websit
 // Pageviews arrive on their own; every locale has its own path, so the language
 // split needs no extra event. These are the interactions a static page cannot
 // otherwise show: which call to action was used and where it sat, whether the
-// language switcher gets used, and whether the demo video is played.
+// language switcher gets used, whether the demo video is played, and whether the
+// star bar gets closed rather than followed.
 const analyticsEvents = (currentLocale) => `\t<script>
 			(() => {
 				const track = (name, data) => {
@@ -145,6 +146,11 @@ const analyticsEvents = (currentLocale) => `\t<script>
 				// Where on the page a link sat. Sections carry an id where one is
 				// needed for navigation, so fall back to the first class name.
 				const area = (element) => {
+					// The star bar sits outside every landmark, so it is asked for
+					// first: without this its clicks fall into the generic bucket and
+					// the one call to action being measured is the one that cannot be
+					// told apart from the rest.
+					if (element.closest('.star-bar')) return 'star-bar';
 					const section = element.closest('section');
 					if (section) return section.id || section.className.split(' ')[0] || 'section';
 					if (element.closest('footer')) return 'footer';
@@ -165,6 +171,12 @@ const analyticsEvents = (currentLocale) => `\t<script>
 					else if (url.host !== location.host) track('outbound-click', { host: url.host, area: area(link) });
 					else if (url.pathname === '/media-kit/') track('media-kit-click', { area: area(link) });
 				});
+				// Closing the star bar is a refusal, and the delegate above only sees
+				// links. Following it is already counted as a github-click from the
+				// star-bar area, so the two answers stay distinguishable.
+				document
+					.querySelector('.star-bar-close')
+					?.addEventListener('click', () => track('star-bar-dismiss'));
 				// The language links are same-origin, so the delegate above skips
 				// them on purpose and they are counted with both ends here.
 				document.querySelectorAll('[data-language]').forEach((link) =>

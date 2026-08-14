@@ -1577,6 +1577,9 @@
 				background: var(--deep-panel);
 				color: var(--on-deep);
 				box-shadow: 0 -12px 32px rgb(16 25 35 / 0.22);
+				/* Clear of the iPhone home indicator, where Safari's collapsed
+				   toolbar and the swipe-up gesture both compete with a tap. */
+				padding-bottom: env(safe-area-inset-bottom);
 				transform: translateY(110%);
 				transition: transform 0.32s ease;
 			}
@@ -1609,8 +1612,8 @@
 				display: grid;
 				flex: none;
 				place-items: center;
-				width: 40px;
-				height: 40px;
+				width: 44px;
+				height: 44px;
 				padding: 0;
 				border: 0;
 				border-radius: 999px;
@@ -1618,10 +1621,15 @@
 				color: var(--on-deep-muted);
 				font-size: 1.25rem;
 				line-height: 1;
+				cursor: pointer;
 			}
 			.star-bar-close:hover {
 				background: var(--deep-panel-raised);
 				color: var(--on-deep);
+			}
+			.star-bar-close:focus-visible {
+				outline: 3px solid var(--aqua);
+				outline-offset: 3px;
 			}
 			@media (max-width: 620px) {
 				.star-bar-row {
@@ -2221,40 +2229,99 @@
 			// The star bar. Storage is wrapped because Safari in private mode throws
 			// on both reading and writing it, and a bar that cannot remember being
 			// dismissed must fail towards not appearing rather than towards nagging.
+			// The in-memory flag carries the same answer through a session where the
+			// write itself fails, so a full or read-only storage still asks only once.
 			const starBar = document.getElementById('star-bar');
-			const starDismissed = () => {
-				try {
-					return localStorage.getItem('pv_website_star') === 'dismissed';
-				} catch {
-					return true;
-				}
-			};
-			if (starBar && !starDismissed()) {
-				const revealStarBar = () => {
-					// Half the page, measured against what is already behind the
-					// visitor rather than a timer: reading, not waiting, earns the ask.
-					if (window.scrollY + window.innerHeight < document.documentElement.scrollHeight * 0.5) return;
-					window.removeEventListener('scroll', revealStarBar);
-					starBar.hidden = false;
-					// One frame with `hidden` gone, or the transition has nothing to
-					// move from and the bar simply appears.
-					requestAnimationFrame(() => starBar.classList.add('is-visible'));
+			let starDone = false;
+			try {
+				starDone = localStorage.getItem('pv_website_star') === 'dismissed';
+			} catch {
+				starDone = true;
+			}
+			if (starBar && !starDone) {
+				const starCloser = document.querySelector('.closer');
+				const starFooter = document.querySelector('.footer');
+				// A layout read, so it is taken once and refreshed on resize rather
+				// than on every scroll tick; the parallax above rations it the same way.
+				let pageHeight = document.documentElement.scrollHeight;
+				let pageEndInView = false;
+				// Nothing appears until a person has actually touched the page. Scroll
+				// position cannot establish that: `scroll-behavior: smooth` above means
+				// a fragment link animates the page for over a second all by itself,
+				// and the generator publishes #faq for search results, so arriving that
+				// way is normal rather than exotic. An input device is the one signal
+				// the browser cannot fake on the visitor's behalf.
+				let armed = false;
+				const armStarBar = () => {
+					armed = true;
+					updateStarBar();
 				};
-				window.addEventListener('scroll', revealStarBar, { passive: true });
-				revealStarBar();
-				starBar.querySelector('.star-bar-close').addEventListener('click', () => {
+				['wheel', 'touchmove', 'keydown', 'pointerdown'].forEach((type) =>
+					window.addEventListener(type, armStarBar, { passive: true, once: true })
+				);
+
+				const hideStarBar = () => {
 					starBar.classList.remove('is-visible');
+					// Out of the accessibility tree once it has slid away, unless
+					// something brought it back in the meantime.
+					setTimeout(() => {
+						if (!starBar.classList.contains('is-visible')) starBar.hidden = true;
+					}, 320);
+				};
+				const showStarBar = () => {
+					starBar.hidden = false;
+					// Reading a layout property flushes the change, so the transition
+					// has a start value. A bare requestAnimationFrame runs before the
+					// style recalculation and the bar would jump into place instead.
+					void starBar.offsetHeight;
+					starBar.classList.add('is-visible');
+				};
+
+				const updateStarBar = () => {
+					if (starDone || !armed) return;
+					// Half of what is actually scrollable. Measuring the viewport
+					// bottom instead would count as "read" at load on tall screens and
+					// at 25% zoom, where the whole page fits above the fold.
+					const readEnough = window.scrollY >= (pageHeight - window.innerHeight) * 0.5;
+					if (readEnough && !pageEndInView) {
+						if (starBar.hidden) showStarBar();
+					} else if (!starBar.hidden) hideStarBar();
+				};
+
+				// Fixed to the bottom, the bar would sit on top of whatever the page
+				// ends with: the closer, which already carries this exact request, and
+				// the footer, which carries the TMDB attribution that has to stay
+				// readable. So it steps aside for both instead of covering them.
+				if ('IntersectionObserver' in window) {
+					const endObserver = new IntersectionObserver(
+						(entries) => {
+							pageEndInView = entries.some((entry) => entry.isIntersecting);
+							updateStarBar();
+						},
+						{ threshold: 0 }
+					);
+					[starCloser, starFooter].forEach((element) => element && endObserver.observe(element));
+				}
+
+				window.addEventListener('scroll', updateStarBar, { passive: true });
+				window.addEventListener('resize', () => {
+					pageHeight = document.documentElement.scrollHeight;
+					updateStarBar();
+				});
+
+				// Following the link answers the question as surely as closing the bar
+				// does: whoever went and starred the project must not be asked again.
+				const dismissStarBar = () => {
+					starDone = true;
 					try {
 						localStorage.setItem('pv_website_star', 'dismissed');
 					} catch {}
-					try {
-						window.umami?.track('star-bar-dismiss');
-					} catch {}
-					// Kept out of the accessibility tree once it has slid away. The
-					// delay matches the transition above.
-					setTimeout(() => {
-						starBar.hidden = true;
-					}, 320);
+					hideStarBar();
+				};
+				starBar.querySelector('.star-bar-close').addEventListener('click', dismissStarBar);
+				starBar.querySelector('a').addEventListener('click', dismissStarBar);
+				document.addEventListener('keydown', (event) => {
+					if (event.key === 'Escape' && !starBar.hidden) dismissStarBar();
 				});
 			}
 		</script>
@@ -2287,6 +2354,11 @@
 				// Where on the page a link sat. Sections carry an id where one is
 				// needed for navigation, so fall back to the first class name.
 				const area = (element) => {
+					// The star bar sits outside every landmark, so it is asked for
+					// first: without this its clicks fall into the generic bucket and
+					// the one call to action being measured is the one that cannot be
+					// told apart from the rest.
+					if (element.closest('.star-bar')) return 'star-bar';
 					const section = element.closest('section');
 					if (section) return section.id || section.className.split(' ')[0] || 'section';
 					if (element.closest('footer')) return 'footer';
@@ -2307,6 +2379,12 @@
 					else if (url.host !== location.host) track('outbound-click', { host: url.host, area: area(link) });
 					else if (url.pathname === '/media-kit/') track('media-kit-click', { area: area(link) });
 				});
+				// Closing the star bar is a refusal, and the delegate above only sees
+				// links. Following it is already counted as a github-click from the
+				// star-bar area, so the two answers stay distinguishable.
+				document
+					.querySelector('.star-bar-close')
+					?.addEventListener('click', () => track('star-bar-dismiss'));
 				// The language links are same-origin, so the delegate above skips
 				// them on purpose and they are counted with both ends here.
 				document.querySelectorAll('[data-language]').forEach((link) =>
