@@ -59,7 +59,7 @@
 		"68": "Dein nächster Filmabend braucht einen Gewinner.",
 		"69": "Gemeinsam wählen. Schneller auf Play drücken.",
 		"70": "Self-hosted, Open Source und bereit, die wichtigste Frage des Abends zu klären.",
-		"71": "Popcorn Vote auf GitHub holen",
+		"71": "Stern auf GitHub vergeben",
 		"75": "Die hier gezeigten Filmdaten und Posterbilder stammen von TMDB. Poster-Motive und zugehörige Marken bleiben Eigentum der jeweiligen Rechteinhaber.",
 		"76": "Vorschau der Filmliste in Popcorn Vote",
 		"77": "Popcorn-Vote-Filmliste mit Abstimmungselementen",
@@ -120,7 +120,7 @@
 		"68": "Tu próxima noche de cine necesita una ganadora.",
 		"69": "Elegid juntos. Dadle antes al play.",
 		"70": "Autoalojado, de código abierto y listo para resolver la pregunta más importante de esta noche.",
-		"71": "Consigue Popcorn Vote en GitHub"
+		"71": "Dale una estrella en GitHub"
 	},
 	"fr": {
 		"0": "Popcorn Vote est l’app gratuite et auto-hébergée pour les soirées cinéma en famille : propose des films, accumule des votes et règle les égalités à la roue.",
@@ -174,7 +174,7 @@
 		"68": "Ta prochaine soirée cinéma a besoin d’un gagnant.",
 		"69": "Choisissez ensemble. Lancez le film plus vite.",
 		"70": "Auto-hébergé, open source et prêt à trancher la question la plus importante de la soirée.",
-		"71": "Obtenir Popcorn Vote sur GitHub"
+		"71": "Mettre une étoile sur GitHub"
 	},
 	"pt-BR": {
 		"0": "Popcorn Vote é o app gratuito e auto-hospedado para cinema em família: sugira filmes, acumule votos e resolva empates com uma roda.",
@@ -224,7 +224,7 @@
 		"68": "Sua próxima noite de cinema precisa de um vencedor.",
 		"69": "Escolham juntos. Apertem o play mais cedo.",
 		"70": "Auto-hospedado, de código aberto e pronto para resolver a pergunta mais importante da noite.",
-		"71": "Baixe o Popcorn Vote no GitHub"
+		"71": "Dê uma estrela no GitHub"
 	},
 	"it": {
 		"0": "Popcorn Vote è l’app gratuita e self-hosted per il cinema in famiglia: proponi film, accumula voti e risolvi i pareggi con la ruota.",
@@ -274,7 +274,7 @@
 		"68": "La prossima serata cinema ha bisogno di un vincitore.",
 		"69": "Scegliete insieme. Premete play prima.",
 		"70": "Self-hosted, open source e pronto a risolvere la domanda più importante della serata.",
-		"71": "Scarica Popcorn Vote da GitHub"
+		"71": "Lascia una stella su GitHub"
 	},
 	"pl": {
 		"0": "Popcorn Vote to bezpłatna aplikacja na własny serwer do rodzinnych wieczorów filmowych: proponuj filmy, gromadź głosy i rozstrzygaj remisy kołem.",
@@ -325,7 +325,7 @@
 		"68": "Następny rodzinny seans potrzebuje zwycięzcy.",
 		"69": "Wybierzcie razem. Szybciej włączcie film.",
 		"70": "Na własny serwer, open source i gotowe rozstrzygnąć najważniejsze pytanie wieczoru.",
-		"71": "Pobierz Popcorn Vote z GitHuba"
+		"71": "Zostaw gwiazdkę na GitHubie"
 	},
 	"tr": {
 		"0": "Popcorn Vote, aile film geceleri için ücretsiz ve kendi sunucunda çalışan uygulamadır: film öner, oy biriktir, eşitliği çarkla çöz.",
@@ -380,7 +380,7 @@
 		"68": "Sıradaki film gecenizin bir kazanana ihtiyacı var.",
 		"69": "Birlikte seçin. Oynat tuşuna daha erken basın.",
 		"70": "Kendi sunucunda, açık kaynak ve gecenin en önemli sorusunu çözmeye hazır.",
-		"71": "Popcorn Vote’u GitHub’dan edin"
+		"71": "GitHub’da yıldız ver"
 	},
 	"ja": {
 		"0": "Popcorn Vote は家族の映画鑑賞会向け無料セルフホストアプリ。映画を提案し、投票を貯め、同票はホイールで決定できます。",
@@ -431,6 +431,6 @@
 		"68": "次の映画の夜には勝者が必要です。",
 		"69": "みんなで選んで、早く再生。",
 		"70": "セルフホスト、オープンソース。今夜いちばん大切な問いに答える準備はできています。",
-		"71": "GitHubでPopcorn Voteを入手"
+		"71": "GitHub でスターを付ける"
 	}
 }

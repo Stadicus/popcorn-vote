@@ -1566,6 +1566,75 @@
 					display: none;
 				}
 			}
+			/* The star bar. One ask, once, and only after half the page has been
+			   read: whoever has not got that far has not seen enough to judge.
+			   Dismissed once means dismissed for good, so it can never become the
+			   thing a returning visitor has to swat away. */
+			.star-bar {
+				position: fixed;
+				inset: auto 0 0;
+				z-index: 40;
+				background: var(--deep-panel);
+				color: var(--on-deep);
+				box-shadow: 0 -12px 32px rgb(16 25 35 / 0.22);
+				transform: translateY(110%);
+				transition: transform 0.32s ease;
+			}
+			.star-bar[hidden] {
+				display: none;
+			}
+			.star-bar.is-visible {
+				transform: translateY(0);
+			}
+			.star-bar-row {
+				display: flex;
+				align-items: center;
+				gap: clamp(0.75rem, 2vw, 1.25rem);
+				padding: 0.85rem 0;
+			}
+			.star-bar-text {
+				flex: 1;
+				min-width: 0;
+				margin: 0;
+				font-size: 0.95rem;
+			}
+			/* Not the page button: `--button-bg` is near-black in light mode and
+			   would vanish into the dark bar. Gold reads on both themes. */
+			.star-bar .button {
+				flex: none;
+				background: var(--gold);
+				color: #332500;
+			}
+			.star-bar-close {
+				display: grid;
+				flex: none;
+				place-items: center;
+				width: 40px;
+				height: 40px;
+				padding: 0;
+				border: 0;
+				border-radius: 999px;
+				background: transparent;
+				color: var(--on-deep-muted);
+				font-size: 1.25rem;
+				line-height: 1;
+			}
+			.star-bar-close:hover {
+				background: var(--deep-panel-raised);
+				color: var(--on-deep);
+			}
+			@media (max-width: 620px) {
+				.star-bar-row {
+					flex-wrap: wrap;
+					padding: 0.75rem 0;
+				}
+				.star-bar-text {
+					flex-basis: 100%;
+				}
+				.star-bar .button {
+					flex: 1;
+				}
+			}
 			@media (prefers-reduced-motion: reduce) {
 				html {
 					scroll-behavior: auto;
@@ -1601,7 +1670,7 @@
 						"contentUrl": "https://popcornvote.org/assets/social-preview.png",
 						"width": 1280,
 						"height": 640,
-						"caption": "Popcorn Vote — self-hosted movie night voting"
+						"caption": "Popcorn Vote: self-hosted movie night voting"
 					},
 					{
 						"@type": "WebPage",
@@ -1939,7 +2008,7 @@
 							href="https://github.com/Stadicus/popcorn-vote"
 							target="_blank"
 							rel="noreferrer"
-							>Popcorn Vote’u GitHub’dan edin <span aria-hidden="true">↗</span></a
+							>GitHub’da yıldız ver <span aria-hidden="true">↗</span></a
 						>
 					</div>
 				</div>
@@ -1988,6 +2057,17 @@
 				</p>
 			</div>
 		</footer>
+		<div class="star-bar" id="star-bar" hidden>
+			<div class="shell star-bar-row">
+				<p class="star-bar-text">Popcorn Vote yepyeni. GitHub’da bir yıldız çok şey ifade eder.</p>
+				<a class="button" href="https://github.com/Stadicus/popcorn-vote" target="_blank" rel="noreferrer"
+					>Yıldız ver <span aria-hidden="true">↗</span></a
+				>
+				<button class="star-bar-close" type="button" aria-label="Bu notu kapat">
+					<span aria-hidden="true">×</span>
+				</button>
+			</div>
+		</div>
 		<script>
 			const themeToggle = document.querySelector('.theme-toggle');
 			const systemTheme = window.matchMedia('(prefers-color-scheme: dark)');
@@ -2137,6 +2217,46 @@
 				);
 				document.querySelectorAll('[data-reveal]').forEach((story) => observer.observe(story));
 			} else document.querySelectorAll('[data-reveal]').forEach((story) => story.classList.add('is-visible'));
+
+			// The star bar. Storage is wrapped because Safari in private mode throws
+			// on both reading and writing it, and a bar that cannot remember being
+			// dismissed must fail towards not appearing rather than towards nagging.
+			const starBar = document.getElementById('star-bar');
+			const starDismissed = () => {
+				try {
+					return localStorage.getItem('pv_website_star') === 'dismissed';
+				} catch {
+					return true;
+				}
+			};
+			if (starBar && !starDismissed()) {
+				const revealStarBar = () => {
+					// Half the page, measured against what is already behind the
+					// visitor rather than a timer: reading, not waiting, earns the ask.
+					if (window.scrollY + window.innerHeight < document.documentElement.scrollHeight * 0.5) return;
+					window.removeEventListener('scroll', revealStarBar);
+					starBar.hidden = false;
+					// One frame with `hidden` gone, or the transition has nothing to
+					// move from and the bar simply appears.
+					requestAnimationFrame(() => starBar.classList.add('is-visible'));
+				};
+				window.addEventListener('scroll', revealStarBar, { passive: true });
+				revealStarBar();
+				starBar.querySelector('.star-bar-close').addEventListener('click', () => {
+					starBar.classList.remove('is-visible');
+					try {
+						localStorage.setItem('pv_website_star', 'dismissed');
+					} catch {}
+					try {
+						window.umami?.track('star-bar-dismiss');
+					} catch {}
+					// Kept out of the accessibility tree once it has slid away. The
+					// delay matches the transition above.
+					setTimeout(() => {
+						starBar.hidden = true;
+					}, 320);
+				});
+			}
 		</script>
 		<script>
 			document.querySelectorAll('[data-language]').forEach((link) =>

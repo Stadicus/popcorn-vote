@@ -130,7 +130,7 @@
 			"Your next movie night needs a winner.",
 			"Pick together. Press play sooner.",
 			"Self-hosted, open source, and ready to settle tonight’s most important question.",
-			"Get Popcorn Vote on GitHub",
+			"Give it a star on GitHub",
 			"A family project by Stadicus",
 			"MIT licensed",
 			"Popcorn Vote on GitHub",
@@ -143,7 +143,10 @@
 			"The winning film displayed on the Popcorn Vote Movie Night screen",
 			"Popcorn Vote TV mode showing the winning movie on a television-friendly screen",
 			"Try live demo",
-			"Dark mode"
+			"Dark mode",
+			"Popcorn Vote is brand new. A star on GitHub would mean a lot.",
+			"Star this project",
+			"Dismiss this note"
 		],
 		"de": [
 			"Popcorn Vote ist eine kostenlose, selbst gehostete App für den Familienfilmabend. Schlagen Sie Filme vor, sammeln Sie Stimmen, lösen Sie Stimmengleichheit mit einem Rad auf und führen Sie ein gemeinsames Filmtagebuch.",
@@ -217,7 +220,7 @@
 			"Ihr nächster Filmabend beginnt hier",
 			"Halten Sie die Auswahl fair. Behalten Sie den Abendspaß.",
 			"Popcorn Vote ist kostenlos, Open Source und kann auf Ihrem eigenen Server ausgeführt werden.",
-			"Sehen Sie sich das Setup auf GitHub an",
+			"Stern auf GitHub vergeben",
 			"Ein Familienprojekt von Stadicus",
 			"MIT-lizenziert",
 			"Popcorn Vote auf GitHub",
@@ -230,7 +233,10 @@
 			"Der Gewinnerfilm wird auf dem Bildschirm „PV⟧ Movie Night“ angezeigt",
 			"Popcorn Vote TV-Modus, der den Gewinnerfilm auf einem fernsehfreundlichen Bildschirm zeigt",
 			"Live-Demo testen",
-			"Dunkelmodus"
+			"Dunkelmodus",
+			"Popcorn Vote ist brandneu. Ein Stern auf GitHub würde mir viel bedeuten.",
+			"Stern vergeben",
+			"Hinweis schließen"
 		],
 		"es": [
 			"Popcorn Vote es una aplicación gratuita y autohospedada para una noche de cine familiar. Sugiera películas, acumule votos, resuelva empates con una rueda y lleve un diario cinematográfico compartido.",
@@ -304,7 +310,7 @@
 			"Tu próxima noche de cine comienza aquí",
 			"Mantenga la elección justa. Mantenga la noche divertida.",
 			"Popcorn Vote es gratuito, de código abierto y está listo para ejecutarse en su propio servidor.",
-			"Ver configuración en GitHub",
+			"Dale una estrella en GitHub",
 			"Un proyecto familiar de Stadicus",
 			"licencia MIT",
 			"Popcorn Vote en GitHub",
@@ -317,7 +323,10 @@
 			"La película ganadora se exhibirá en la pantalla Popcorn Vote Movie Night",
 			"Popcorn Vote Modo TV que muestra la película ganadora en una pantalla compatible con televisión",
 			"Probar la demo en vivo",
-			"Modo oscuro"
+			"Modo oscuro",
+			"Popcorn Vote acaba de nacer. Una estrella en GitHub significaría mucho.",
+			"Dar una estrella",
+			"Cerrar el aviso"
 		],
 		"fr": [
 			"Popcorn Vote est une application gratuite et auto-hébergée pour une soirée cinéma en famille. Suggérez des films, accumulez des votes, résolvez les votes à égalité avec une roue et tenez un journal de film partagé.",
@@ -391,7 +400,7 @@
 			"Votre prochaine soirée cinéma commence ici",
 			"Gardez le choix équitable. Gardez la soirée amusante.",
 			"Popcorn Vote est gratuit, open source et prêt à être exécuté sur votre propre serveur.",
-			"Afficher la configuration sur GitHub",
+			"Mettre une étoile sur GitHub",
 			"Un projet familial signé Stadicus",
 			"Licence MIT",
 			"Popcorn Vote sur GitHub",
@@ -404,7 +413,10 @@
 			"Le film gagnant affiché sur l'écran Popcorn Vote Movie Night",
 			"Mode TV Popcorn Vote montrant le film gagnant sur un écran compatible avec la télévision",
 			"Essayer la démo en direct",
-			"Mode sombre"
+			"Mode sombre",
+			"Popcorn Vote est tout nouveau. Une étoile sur GitHub compterait beaucoup.",
+			"Mettre une étoile",
+			"Fermer cette note"
 		],
 		"pt-BR": [
 			"Popcorn Vote é um aplicativo gratuito e auto-hospedado para noites de cinema em família. Sugira filmes, acumule votos, resolva votos empatados com uma roda e mantenha um diário de filmes compartilhado.",
@@ -478,7 +490,7 @@
 			"Sua próxima noite de cinema começa aqui",
 			"Mantenha a escolha justa. Mantenha a noite divertida.",
 			"Popcorn Vote é gratuito, de código aberto e pronto para ser executado em seu próprio servidor.",
-			"Veja a configuração no GitHub",
+			"Dê uma estrela no GitHub",
 			"Um projeto familiar da Stadicus",
 			"Licenciado pelo MIT",
 			"Popcorn Vote no GitHub",
@@ -491,7 +503,10 @@
 			"O filme vencedor exibido na tela Popcorn Vote Movie Night",
 			"Popcorn Vote Modo TV mostrando o filme vencedor em uma tela adequada para televisão",
 			"Testar demonstração ao vivo",
-			"Modo escuro"
+			"Modo escuro",
+			"O Popcorn Vote é novinho. Uma estrela no GitHub significaria muito.",
+			"Dar uma estrela",
+			"Fechar este aviso"
 		],
 		"it": [
 			"Popcorn Vote è un'app gratuita e self-hosted per serate di cinema in famiglia. Suggerisci film, accumula voti, risolvi i voti in parità con una ruota e tieni un diario cinematografico condiviso.",
@@ -565,7 +580,7 @@
 			"La tua prossima serata al cinema inizia qui",
 			"Mantieni la scelta giusta. Mantieni la serata divertente.",
 			"Popcorn Vote è gratuito, open source e pronto per essere eseguito sul tuo server.",
-			"Visualizza la configurazione su GitHub",
+			"Lascia una stella su GitHub",
 			"Un progetto familiare targato Stadicus",
 			"Licenza MIT",
 			"Popcorn Vote su GitHub",
@@ -578,7 +593,10 @@
 			"Il film vincitore verrà visualizzato sullo schermo Popcorn Vote Movie Night",
 			"Popcorn Vote Modalità TV che mostra il film vincitore su uno schermo adatto alla televisione",
 			"Prova la demo online",
-			"Modalità scura"
+			"Modalità scura",
+			"Popcorn Vote è appena nato. Una stella su GitHub significherebbe molto.",
+			"Lascia una stella",
+			"Chiudi questo avviso"
 		],
 		"pl": [
 			"Popcorn Vote to bezpłatna aplikacja hostowana na własnym serwerze, przeznaczona na rodzinny wieczór filmowy. Sugeruj filmy, zbieraj głosy, rozstrzygaj remisowe głosy za pomocą koła i prowadź wspólny dziennik filmowy.",
@@ -652,7 +670,7 @@
 			"Twój kolejny wieczór filmowy zaczyna się tutaj",
 			"Zachowaj uczciwy wybór. Zadbaj o dobrą zabawę wieczorem.",
 			"Popcorn Vote jest darmowym, otwartym oprogramowaniem i gotowym do uruchomienia na Twoim własnym serwerze.",
-			"Zobacz konfigurację w GitHub",
+			"Zostaw gwiazdkę na GitHubie",
 			"Projekt rodzinny autorstwa Stadicusa",
 			"Licencja MIT",
 			"Popcorn Vote na GitHubie",
@@ -665,7 +683,10 @@
 			"Zwycięski film wyświetlany na ekranie Nocy Filmowej Popcorn Vote",
 			"Popcorn Vote Tryb telewizyjny pokazujący zwycięski film na ekranie przyjaznym dla telewizji",
 			"Wypróbuj demo na żywo",
-			"Tryb ciemny"
+			"Tryb ciemny",
+			"Popcorn Vote jest zupełnie nowy. Gwiazdka na GitHubie wiele by znaczyła.",
+			"Zostaw gwiazdkę",
+			"Zamknij to powiadomienie"
 		],
 		"tr": [
 			"Popcorn Vote aile film geceleri için ücretsiz, kendi kendine barındırılan bir uygulamadır. Film önerin, oy toplayın, eşit oyları çarkla çözün ve ortak bir film günlüğü tutun.",
@@ -739,7 +760,7 @@
 			"Bir sonraki film geceniz burada başlıyor",
 			"Seçimi adil tutun. Akşamı eğlenceli tutun.",
 			"Popcorn Vote ücretsiz, açık kaynaktır ve kendi sunucunuzda çalışmaya hazırdır.",
-			"Kurulumu GitHub'da görüntüleyin",
+			"GitHub’da yıldız ver",
 			"Stadicus'tan bir aile projesi",
 			"MIT lisanslı",
 			"Popcorn Vote GitHub'da",
@@ -752,7 +773,10 @@
 			"Kazanan film Popcorn Vote Film Gecesi ekranında gösteriliyor",
 			"Popcorn Vote Kazanan filmi televizyona uygun bir ekranda gösteren TV modu",
 			"Canlı demoyu dene",
-			"Karanlık mod"
+			"Karanlık mod",
+			"Popcorn Vote yepyeni. GitHub’da bir yıldız çok şey ifade eder.",
+			"Yıldız ver",
+			"Bu notu kapat"
 		],
 		"ja": [
 			"Popcorn Vote は、家族で映画鑑賞をするための無料の自己ホスト型アプリです。映画を提案し、投票を蓄積し、ホイールで同数の票を解決し、共有の映画日記を付けます。",
@@ -826,7 +850,7 @@
 			"次の映画の夜はここから始まります",
 			"選択は公平にしてください。夜を楽しく過ごしましょう。",
 			"Popcorn Vote は無料のオープンソースで、独自のサーバー上ですぐに実行できます。",
-			"GitHub でセットアップを表示する",
+			"GitHub でスターを付ける",
 			"Stadicus による家族プロジェクト",
 			"MITライセンス取得済み",
 			"Popcorn Vote on GitHub",
@@ -839,7 +863,10 @@
 			"Popcorn Vote Movie Night スクリーンに表示される受賞作品",
 			"Popcorn Vote 受賞映画をテレビ向けの画面で表示する TV モード",
 			"ライブデモを試す",
-			"ダークモード"
+			"ダークモード",
+			"Popcorn Vote はできたばかりです。GitHub でスターをいただけると励みになります。",
+			"スターを付ける",
+			"このお知らせを閉じる"
 		]
 	}
 }
