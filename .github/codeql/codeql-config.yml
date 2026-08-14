@@ -1,0 +1,9 @@
+name: Popcorn Vote
+
+# `build/` is compiled output: the bundler inlines dependency code there, so
+# scanning it reports findings in software this repository neither wrote nor can
+# change, and reports the application's own code a second time under a generated
+# filename. Every open alert except one came from that directory, which buries
+# the findings that matter under noise nobody can act on.
+paths-ignore:
+  - build
