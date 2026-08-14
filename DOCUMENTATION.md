@@ -8,10 +8,9 @@ is briefly explained.
 
 "Your own server" here means whatever machine at home runs the app around the
 clock: a small home server, a network storage box, a mini PC, or a rented machine
-somewhere else. All it needs is Docker and a folder it may write to. One
-restriction: the ready-made container is built for Intel and AMD processors, so
-on an ARM device, a Raspberry Pi, a machine with an Apple chip, it has to be
-built once on the spot (`docker build`, see the README).
+somewhere else. All it needs is Docker and a folder it may write to. Ready-made
+containers are available for Intel and AMD processors (`linux/amd64`) as well
+as ARM devices such as Raspberry Pi and ARM servers (`linux/arm64`).
 
 **Contents**
 

@@ -231,11 +231,9 @@ setting keeps its default.
 ## The technology in one sentence
 
 SvelteKit (Svelte 5, TypeScript) with the Node adapter, SQLite as the single
-data file, shipped as one Docker container for linux/amd64, no separate
-database, named PIN accounts with administrator roles, timezone Europe/Berlin by
-default for the credit and the backup. The ready-made image does not run on ARM devices yet (Raspberry Pi,
-Apple Silicon, ARM servers); whoever needs one builds it with `docker build` for
-the time being.
+data file, shipped as one Docker container for linux/amd64 and linux/arm64, no
+separate database, named PIN accounts with administrator roles, timezone
+Europe/Berlin by default for the credit and the backup.
 
 ## For developers
 

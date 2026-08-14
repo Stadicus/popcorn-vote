@@ -1,6 +1,4 @@
-# Popcorn Vote – a single container. For now it is published for
-# linux/amd64 only; these instructions build it on any architecture Docker runs
-# on.
+# Popcorn Vote – a single container, published for linux/amd64 and linux/arm64.
 # Build:  docker build -t popcorn-vote .
 FROM node:22-alpine AS build
 WORKDIR /app
