@@ -830,8 +830,29 @@ describe('the address header warning', () => {
 		expect(warningsFor('pin-only.yaml')).toContain('cf-connecting-ip');
 	});
 
-	it('stays quiet when it is unset, which is right for a direct install', () => {
+	it('warns about nothing when it is unset, which is right for a direct install', () => {
 		delete process.env.ADDRESS_HEADER;
-		expect(warningsFor('pin-only.yaml')).not.toContain('ADDRESS_HEADER');
+		// Asserting on the spy rather than on absent text: a missing substring is
+		// true whether or not the feature exists at all, so it would pass even if
+		// the whole block were deleted.
+		const warn = vi.spyOn(log, 'warn').mockImplementation(() => {});
+		try {
+			load('pin-only.yaml');
+			expect(warn).not.toHaveBeenCalled();
+		} finally {
+			warn.mockRestore();
+		}
+	});
+
+	it('says so in the log when it is unset, so the safe state is visible too', () => {
+		delete process.env.ADDRESS_HEADER;
+		const info = vi.spyOn(log, 'info').mockImplementation(() => {});
+		try {
+			load('pin-only.yaml');
+			const said = info.mock.calls.map((c) => String(c[0])).join('\n');
+			expect(said).toContain('ADDRESS_HEADER is not set');
+		} finally {
+			info.mockRestore();
+		}
 	});
 });

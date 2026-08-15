@@ -140,8 +140,8 @@ family's film diary.
    reverse proxy stands in front**: they make the app read the sender address out
    of that header, which is what the per-IP PIN brake needs there, and exactly
    what must not happen on a direct path, where the caller writes the header and
-   could pick the address the brake counts against. The app says at startup which
-   way it stands. `PROTOCOL_HEADER` belongs to the proxy too: it names the header
+   could pick the address the brake counts against. The app logs at startup which
+   of the two it is doing. `PROTOCOL_HEADER` belongs to the proxy too: it names the header
    the proxy uses to say a visitor came over HTTPS; the sign-in cookie is then
    marked `Secure` for those visitors and left unmarked for anyone reaching the
    app directly over plain HTTP, so both ways in keep working. Without a proxy in

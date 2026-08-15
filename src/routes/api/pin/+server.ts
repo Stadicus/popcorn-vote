@@ -16,7 +16,10 @@ export const POST: RequestHandler = async (event) => {
 	}
 
 	// Behind a reverse proxy, getClientAddress() delivers the real sender IP when
-	// ADDRESS_HEADER=x-forwarded-for is set (see the documentation).
+	// ADDRESS_HEADER=x-forwarded-for is set (see the documentation). It is off by
+	// default because on a directly reachable installation the caller writes that
+	// header and could pick the address counted here; the configuration says at
+	// startup which way it stands.
 	let ip = 'unknown';
 	try {
 		ip = event.getClientAddress();

@@ -962,9 +962,17 @@ export function loadConfig(force = false): AppConfig {
 	// address for every attempt. Warned rather than noted, because the setting
 	// looks like protection while providing none, and that is worse than an
 	// absence somebody can see.
-	if (env('ADDRESS_HEADER')) {
+	const addressHeader = env('ADDRESS_HEADER');
+	if (addressHeader) {
 		log.warn(
-			`ADDRESS_HEADER is set (${env('ADDRESS_HEADER')}), so the per-IP PIN brake counts the address from that header. That is correct only behind a reverse proxy that overwrites it. If the app can also be reached directly, a visitor can choose the address the brake counts against; unset it there.`
+			`ADDRESS_HEADER is set (${addressHeader}), so the per-IP PIN brake counts the address from that header. That is correct only behind a reverse proxy that overwrites it. If the app can also be reached directly, a visitor can choose the address the brake counts against; unset it there.`
+		);
+	} else {
+		// Said in both directions, like the HTTPS proof above. A line only when
+		// something is wrong leaves the safe case indistinguishable from a value
+		// that was mistyped into whitespace and silently dropped.
+		log.info(
+			'ADDRESS_HEADER is not set, so the per-IP PIN brake counts the address the connection actually came from. That is correct for a direct installation. Behind a reverse proxy, set it to the forwarding header (usually x-forwarded-for) or every visitor counts as the proxy.'
 		);
 	}
 	return cached;
