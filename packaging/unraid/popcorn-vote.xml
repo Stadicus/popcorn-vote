@@ -20,7 +20,12 @@
   <WebUI>http://[IP]:[PORT:3000]</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/Stadicus/popcorn-vote/main/packaging/unraid/popcorn-vote.xml</TemplateURL>
   <Icon>https://raw.githubusercontent.com/Stadicus/popcorn-vote/main/static/icon-512.png</Icon>
-  <ExtraParams/>
+  <!-- The image runs as the unprivileged user `node`, and Unraid creates
+       appdata directories as nobody:users (99:100). Without this the container
+       cannot write its own data directory and dies on start with
+       EACCES /data/covers, restarting forever. Verified by reproducing that
+       ownership locally: it fails without the flag and comes up with it. -->
+  <ExtraParams>--user 99:100</ExtraParams>
   <PostArgs/>
   <CPUset/>
   <DonateText/>
