@@ -11,8 +11,17 @@
 #
 # Needs Docker. Nothing else, and no Unraid.
 set -uo pipefail
-NAME=pv-store-test
-PORT=${PORT:-3999}
+# Everything that could collide carries the PID. Two runs at once — an amd64
+# and an arm64 pass, or a rerun while the first is still in its health poll —
+# otherwise share container names and ports, and the EXIT trap of the one that
+# finishes first tears down the containers of the other.
+RUN=$$
+NAME=pv-store-test-$RUN
+PORT=${PORT:-$((3900 + RUN % 90))}
+ALT_PORT=$((4000 + RUN % 90))
+COPY_PORT=$((4100 + RUN % 90))
+PAGE=$(mktemp)
+SETUP_OUT=$(mktemp)
 DIR=$(mktemp -d)
 UIDGID=${UIDGID:-99:100}          # Unraid appdata default
 # Set but empty must stay empty: that is how the broken case is reproduced, so
@@ -28,7 +37,18 @@ PLATFORM=${PLATFORM:-}
 [ -n "$PLATFORM" ] && PLATFORM_ARG="--platform $PLATFORM" || PLATFORM_ARG=""
 fail=0
 
-cleanup() { docker rm -f "$NAME" "$NAME-alt" "$NAME-copy" >/dev/null 2>&1; docker run --rm -v "$DIR":/x alpine rm -rf /x/. >/dev/null 2>&1; rmdir "$DIR" 2>/dev/null; }
+cleanup() {
+	docker rm -f "$NAME" "$NAME-alt" "$NAME-copy" >/dev/null 2>&1
+	docker run --rm -v "$DIR":/x alpine rm -rf /x/. >/dev/null 2>&1
+	rmdir "$DIR" 2>/dev/null
+	# Declared later in the script, so it may not exist yet when a signal
+	# arrives; without this it survived every interrupted run.
+	if [ -n "${COPY:-}" ] && [ -d "${COPY:-}" ]; then
+		docker run --rm -v "$COPY":/x alpine rm -rf /x/. >/dev/null 2>&1
+		rmdir "$COPY" 2>/dev/null
+	fi
+	rm -f "$PAGE" "$SETUP_OUT"
+}
 trap cleanup EXIT
 
 echo "image:      $IMAGE"
@@ -40,11 +60,15 @@ echo
 docker run --rm -v "$DIR":/x alpine chown "$UIDGID" /x >/dev/null 2>&1
 docker rm -f "$NAME" >/dev/null 2>&1
 # shellcheck disable=SC2086
-docker run -d --name "$NAME" $PLATFORM_ARG $EXTRA -p "$PORT":3000 -v "$DIR":/data "$IMAGE" >/dev/null 2>&1
+if ! docker run -d --name "$NAME" $PLATFORM_ARG $EXTRA -p "$PORT":3000 -v "$DIR":/data "$IMAGE" >/dev/null 2>"$SETUP_OUT"; then
+	echo "  FAIL  docker run refused the package's own arguments:"
+	sed 's/^/        /' "$SETUP_OUT"
+	exit 1
+fi
 
 for _ in $(seq 1 20); do
 	sleep 1
-	status=$(docker ps -a --filter "name=$NAME" --format '{{.Status}}')
+	status=$(docker ps -a --filter "name=^/${NAME}$" --format '{{.Status}}')
 	case "$status" in
 		Up*) break ;;
 		Restarting*|Exited*) break ;;
@@ -63,8 +87,8 @@ if [ "$fail" = 0 ]; then
 
 	# The whole point of an app store package: a browser lands on something
 	# actionable, with no shell and no file editing.
-	url=$(curl -sL -o /tmp/pv-store-page.html -w '%{url_effective}' --max-time 10 "http://localhost:$PORT/")
-	if grep -q 'setup-tmdb-key' /tmp/pv-store-page.html; then
+	url=$(curl -sL -o "$PAGE" -w '%{url_effective}' --max-time 10 "http://localhost:$PORT/")
+	if grep -q 'setup-tmdb-key' "$PAGE"; then
 		echo "  OK    first run lands on the setup wizard ($url)"
 	else
 		echo "  FAIL  no setup wizard at $url"; fail=1
@@ -72,26 +96,36 @@ if [ "$fail" = 0 ]; then
 
 	# Written as the store's user, so the operator can back the directory up.
 	owner=$(docker run --rm -v "$DIR":/x alpine stat -c '%u:%g' /x/popcornvote.sqlite 2>/dev/null)
-	[ "$owner" = "${UIDGID/:/:}" ] && echo "  OK    database owned $owner" || { echo "  FAIL  database owned $owner, expected $UIDGID"; fail=1; }
+	[ "$owner" = "$UIDGID" ] && echo "  OK    database owned $owner" || { echo "  FAIL  database owned $owner, expected $UIDGID"; fail=1; }
 
 	# Stores show this state to their users, and compose can be told to wait for
 	# it, so an app that serves fine while reporting unhealthy is a real defect.
 	# It was one: the check asked for `localhost`, which also resolves to ::1
 	# inside the container while the server binds IPv4 only.
-	health=""
-	for _ in $(seq 1 24); do
-		sleep 5
-		health=$(docker inspect --format '{{.State.Health.Status}}' "$NAME" 2>/dev/null)
-		[ "$health" = "healthy" ] || [ "$health" = "unhealthy" ] && break
-	done
-	if [ "$health" = "healthy" ]; then
-		echo "  OK    docker health check reports healthy"
-	elif [ -z "$health" ]; then
-		echo "  OK    image defines no health check, nothing to report"
+	# Asked once up front: an empty Health.Status means "no health check in the
+	# image" and "docker inspect just failed" alike, and reporting both as fine
+	# would pass a container that died between the checks above and this one.
+	if [ -z "$(docker inspect --format '{{if .State.Health}}yes{{end}}' "$NAME" 2>/dev/null)" ]; then
+		if docker inspect "$NAME" >/dev/null 2>&1; then
+			echo "  OK    image defines no health check, nothing to report"
+		else
+			echo "  FAIL  container disappeared before the health check could be read"
+			fail=1
+		fi
 	else
-		echo "  FAIL  docker health check reports $health"
-		docker inspect --format '{{(index .State.Health.Log 0).Output}}' "$NAME" 2>/dev/null | head -1
-		fail=1
+		health=""
+		for _ in $(seq 1 24); do
+			sleep 5
+			health=$(docker inspect --format '{{.State.Health.Status}}' "$NAME" 2>/dev/null)
+			[ "$health" = "healthy" ] || [ "$health" = "unhealthy" ] && break
+		done
+		if [ "$health" = "healthy" ]; then
+			echo "  OK    docker health check reports healthy"
+		else
+			echo "  FAIL  docker health check reports ${health:-nothing}"
+			docker inspect --format '{{(index .State.Health.Log 0).Output}}' "$NAME" 2>/dev/null | head -1
+			fail=1
+		fi
 	fi
 fi
 
@@ -105,14 +139,14 @@ if [ "$fail" = 0 ]; then
 
 	# Completing setup is the point of the whole package: if this fails, the
 	# install is a dead end no matter how cleanly the container came up.
-	setup=$(curl -s -o /tmp/pv-setup.json -w '%{http_code}' --max-time 20 \
+	setup=$(curl -s -o "$SETUP_OUT" -w '%{http_code}' --max-time 20 \
 		-X POST "http://localhost:$PORT/api/setup" \
 		-H 'content-type: application/json' \
 		-d '{"title":"Test Family","pin":"1234","confirmPin":"1234","members":["Anna","Ben"],"sources":["Server"],"tokenAmount":1,"tokenCap":5,"tokenStart":3,"tokenWeekday":1,"tokenHour":18,"timezone":"Europe/Berlin","interfaceLanguage":"en","movieLanguage":"en-US","movieFallbackLanguage":"en-US","certificationCountry":"DE","trailerLanguages":["en-US"],"tmdbApiKey":"dummy-key-for-this-test-only","omdbApiKey":""}')
 	if [ "$setup" = "200" ]; then
 		echo "  OK    setup completes through the API ($setup)"
 	else
-		echo "  FAIL  setup answered $setup: $(head -c 200 /tmp/pv-setup.json)"; fail=1
+		echo "  FAIL  setup answered $setup: $(head -c 200 "$SETUP_OUT")"; fail=1
 	fi
 
 	# Having been set up, the app must stop offering setup — otherwise a second
@@ -153,10 +187,10 @@ if [ "$fail" = 0 ]; then
 	# assume the one from the template.
 	docker rm -f "$NAME-alt" >/dev/null 2>&1
 	# shellcheck disable=SC2086
-	docker run -d --name "$NAME-alt" $PLATFORM_ARG $EXTRA -p 39997:3000 -v "$DIR":/data "$IMAGE" >/dev/null 2>&1
+	docker run -d --name "$NAME-alt" $PLATFORM_ARG $EXTRA -p "$ALT_PORT":3000 -v "$DIR":/data "$IMAGE" >/dev/null 2>&1
 	for _ in $(seq 1 20); do
 		sleep 2
-		alt=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 http://localhost:39997/healthz)
+		alt=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 http://localhost:$ALT_PORT/healthz)
 		[ "$alt" = "200" ] && break
 	done
 	docker rm -f "$NAME-alt" >/dev/null 2>&1
@@ -167,12 +201,15 @@ if [ "$fail" = 0 ]; then
 	docker run --rm -v "$DIR":/from -v "$COPY":/to alpine sh -c 'cp -a /from/. /to/ && chown -R 99:100 /to' >/dev/null 2>&1
 	docker rm -f "$NAME-copy" >/dev/null 2>&1
 	# shellcheck disable=SC2086
-	docker run -d --name "$NAME-copy" $PLATFORM_ARG $EXTRA -p 39996:3000 -v "$COPY":/data "$IMAGE" >/dev/null 2>&1
+	docker run -d --name "$NAME-copy" $PLATFORM_ARG $EXTRA -p "$COPY_PORT":3000 -v "$COPY":/data "$IMAGE" >/dev/null 2>&1
+	# Break on any answer at all and let the case below judge it. Breaking only
+	# on a redirect meant the success path, which serves / directly, never
+	# matched and every green run waited out the full loop.
 	for _ in $(seq 1 20); do
 		sleep 2
-		cp_url=$(curl -sL -o /dev/null -w '%{url_effective}' --max-time 5 http://localhost:39996/ 2>/dev/null)
-		[ -n "$cp_url" ] && [ "$cp_url" != "http://localhost:39996/" ] && break
+		[ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "http://localhost:$COPY_PORT/healthz" 2>/dev/null)" = "200" ] && break
 	done
+	cp_url=$(curl -sL -o /dev/null -w '%{url_effective}' --max-time 10 "http://localhost:$COPY_PORT/" 2>/dev/null)
 	case "$cp_url" in
 		*/setup) echo "  FAIL  a copied data directory comes up unconfigured"; fail=1 ;;
 		"")      echo "  FAIL  a copied data directory does not answer"; fail=1 ;;
