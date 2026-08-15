@@ -13,7 +13,7 @@ package below has to be checked.
 | Directory | Store | Status |
 |---|---|---|
 | `unraid/` | Unraid Community Applications | shipped |
-| `umbrel/` | Umbrel App Store | submitted |
+| `umbrel/` | Umbrel App Store | [submitted](https://github.com/getumbrel/umbrel-apps/pull/5994) |
 
 CasaOS (`IceWhaleTech/CasaOS-AppStore`) is planned and not packaged yet. It also
 takes the package as a pull request against the store's own repository, and
