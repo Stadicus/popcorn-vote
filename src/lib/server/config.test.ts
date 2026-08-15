@@ -41,15 +41,17 @@ const SETTINGS = [
 	'CONFIG'
 ];
 
-// The last two are adapter-node's rather than ours, but the HTTPS proof is read
-// from them, so they leak between cases exactly like the others.
+// The last three are adapter-node's rather than ours, but the HTTPS proof and
+// the address warning are read from them, so they leak between cases exactly
+// like the others.
 const PV_VARS = [
 	...SETTINGS.map((name) => `PV_${name}`),
 	'TMDB_API_KEY',
 	'OMDB_API_KEY',
 	'DATA_DIR',
 	'ORIGIN',
-	'PROTOCOL_HEADER'
+	'PROTOCOL_HEADER',
+	'ADDRESS_HEADER'
 ];
 
 const saved: Record<string, string | undefined> = {};
@@ -799,5 +801,37 @@ describe('the HTTPS proof', () => {
 		} finally {
 			spy.mockRestore();
 		}
+	});
+});
+
+describe('the address header warning', () => {
+	/** Everything said through log.warn while the configuration is loaded. */
+	function warningsFor(file: string): string {
+		const warn = vi.spyOn(log, 'warn').mockImplementation(() => {});
+		try {
+			load(file);
+			return warn.mock.calls.map((c) => String(c[0])).join('\n');
+		} finally {
+			warn.mockRestore();
+		}
+	}
+
+	it('says so when ADDRESS_HEADER is set, because the app cannot tell whether a proxy is in front', () => {
+		process.env.ADDRESS_HEADER = 'x-forwarded-for';
+		const said = warningsFor('pin-only.yaml');
+		expect(said).toContain('ADDRESS_HEADER');
+		// The consequence has to be named, not just the setting: whoever reads
+		// this needs to know what to check, not that something is configured.
+		expect(said).toContain('reverse proxy');
+	});
+
+	it('names the header it found, so a wrong one is recognisable', () => {
+		process.env.ADDRESS_HEADER = 'cf-connecting-ip';
+		expect(warningsFor('pin-only.yaml')).toContain('cf-connecting-ip');
+	});
+
+	it('stays quiet when it is unset, which is right for a direct install', () => {
+		delete process.env.ADDRESS_HEADER;
+		expect(warningsFor('pin-only.yaml')).not.toContain('ADDRESS_HEADER');
 	});
 });

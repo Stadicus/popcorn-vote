@@ -38,9 +38,15 @@ services:
       # Access keys for the movie databases
       TMDB_API_KEY: '${TMDB_API_KEY}'
       OMDB_API_KEY: '${OMDB_API_KEY}'
-      # The real sender IP behind the reverse proxy (for the per-IP PIN brake)
-      ADDRESS_HEADER: x-forwarded-for
-      XFF_DEPTH: '1'
+      # The real sender IP behind a reverse proxy (for the per-IP PIN brake).
+      # Off by default, because it is only ever right when something in front
+      # overwrites the header. Reached directly, the header is written by
+      # whoever is calling, so a visitor could hand out a fresh address for
+      # every attempt and the brake would count nothing. Switch both on
+      # together with the proxy, and raise XFF_DEPTH by one for every further
+      # proxy in front of it. The app says at startup which way it stands.
+      # ADDRESS_HEADER: x-forwarded-for
+      # XFF_DEPTH: '1'
       # Which header the proxy uses to say that the visitor came over HTTPS. With
       # it the sign-in cookie is marked Secure for those visitors and left
       # unmarked for anyone reaching the app directly over plain HTTP, so both
