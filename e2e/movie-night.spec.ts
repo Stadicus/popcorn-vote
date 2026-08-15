@@ -1,4 +1,12 @@
 import { test, expect, type Page } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+
+// The About page prints the version vite compiled in, which comes from
+// package.json. Read from the same file rather than repeating the number
+// here, where a release bump would turn a green test red for no reason.
+const { version } = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as {
+	version: string;
+};
 
 async function enterPin(page: Page) {
 	await page.goto('/');
@@ -310,7 +318,9 @@ test('the More page links to the project and carries its signature', async ({ pa
 	await expect(creditNote).toHaveCSS('text-align', 'center');
 
 	await expect(page.getByText('Made with ❤️ by Stadicus', { exact: true })).toBeVisible();
-	await expect(page.locator('.version')).toHaveText(/^Version 1\.1\.0\+[0-9a-f]{7}$/);
+	await expect(page.locator('.version')).toHaveText(
+		new RegExp(`^Version ${version.replace(/\./g, '\\.')}\\+[0-9a-f]{7}$`)
+	);
 });
 
 test('an unknown address lands on the error page', async ({ page }) => {
