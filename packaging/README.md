@@ -23,19 +23,36 @@ instance before submitting.
 ## How the Unraid package reaches users
 
 Community Applications reads the XML out of this repository, so the file here
-*is* the package and updating it updates the listing. Getting into the CA
-catalogue in the first place is a separate, one-time step: the repository has to
-be submitted at `ca.unraid.net/submit`, where a scan validates the templates and
-a moderator reviews the entry. Only users who paste the raw repository URL into
-Unraid's Docker tab by hand can install it without that, and almost nobody finds
-an app that way.
+*is* the package: **updating it updates the listing, with nothing to submit
+again.** Getting into the CA catalogue was a separate, one-time step, and it is
+done — the repository was submitted at `ca.unraid.net/submit` on 2026-08-15 and
+auto-approved, so the app appears once the next CA build publishes. Without that
+submission only users who paste the raw repository URL into Unraid's Docker tab
+by hand could have installed it, and almost nobody finds an app that way.
+
+From here on the catalogue follows `main`. A change to `unraid/popcorn-vote.xml`
+reaches users on the next CA build, and a broken change reaches them just as
+fast — which is what `check.sh` and `test-install.sh` are for.
+
+### The `not_unraid_application` warning is expected
+
+CA scans **every** `*.xml` file in the repository and counts each one that is not
+an app template. This repository contains `docs/website/sitemap.xml`, the
+generated sitemap of the project website, so the scan reports
+`not_unraid_application: 1`. That is the warning working as intended, not a
+defect in the package: the scan passes with no hard errors, one valid app, and a
+pullable image.
+
+It cannot be removed while the packaging lives here. The sitemap has to keep its
+name for search engines and has to stay in the repository because the web server
+pulls it from there. Only a separate, template-only repository would silence it,
+which is the trade the monorepo deliberately makes. If the count ever rises,
+check whether a new XML file was added rather than assuming the package broke.
 
 `unraid/ca_profile.xml` carries the maintainer profile CA shows next to the app.
-The convention places it at the root of the registered template repository, and
-whether CA finds it one directory down is the open question of this packaging —
-to be answered by the submission scan, not by guessing. If the scan does not see
-it, the file moves to the repository root; the template itself is unaffected
-either way.
+Convention places it at the root of a template repository, but the submission
+scan finds it here as well: it reported "ca_profile.xml found and Profile
+content extracted" with the file at `packaging/unraid/`. No move needed.
 
 ## Two rules every package follows
 
