@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>popcorn-vote</Name>
+  <Repository>ghcr.io/stadicus/popcorn-vote:latest</Repository>
+  <Registry>https://github.com/Stadicus/popcorn-vote/pkgs/container/popcorn-vote</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/Stadicus/popcorn-vote/issues</Support>
+  <Project>https://popcornvote.org</Project>
+  <Overview>
+    Fair family movie night voting. Everyone suggests films, gets one vote a week and can save votes up, so a film only one person wants wins eventually too. Ties are settled by a wheel of fortune, and watched films go into a shared rated archive with star ratings.
+
+    Mobile-first and installable as a PWA. Nine interface languages. Film data, posters and trailers come from TMDB, IMDb ratings through OMDb; both services are free for private use and each needs its own key.
+
+    Everything is configured in the browser on first start: family PIN, members, both API keys and the languages. No configuration file to edit, no console needed.
+  </Overview>
+  <Category>MediaApp:Video Tools:Utilities</Category>
+  <WebUI>http://[IP]:[PORT:3000]</WebUI>
+  <TemplateURL>https://raw.githubusercontent.com/Stadicus/popcorn-vote/main/packaging/unraid/popcorn-vote.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/Stadicus/popcorn-vote/main/static/icon-512.png</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <CPUset/>
+  <DonateText/>
+  <DonateLink/>
+  <Config Name="WebUI Port" Target="3000" Default="3000" Mode="tcp" Description="Port the web interface listens on." Type="Port" Display="always" Required="true" Mask="false">3000</Config>
+  <Config Name="Appdata" Target="/data" Default="/mnt/user/appdata/popcorn-vote" Mode="rw" Description="Database, downloaded posters and the nightly backups. This is the only thing worth backing up." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/popcorn-vote</Config>
+  <Config Name="TMDB API key" Target="TMDB_API_KEY" Default="" Mode="" Description="Free key from themoviedb.org, used for search, posters, descriptions and trailers. May be left empty here and entered in the browser during first-run setup instead." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="OMDb API key" Target="OMDB_API_KEY" Default="" Mode="" Description="Free key from omdbapi.com, used for the IMDb rating only. Optional. May also be entered during first-run setup." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Time zone" Target="PV_TIMEZONE" Default="Europe/Berlin" Mode="" Description="Decides when the weekly vote credit is handed out. Use your own zone, for example America/New_York." Type="Variable" Display="always" Required="false" Mask="false">Europe/Berlin</Config>
+  <Config Name="Family PIN" Target="PV_PIN" Default="" Mode="" Description="Four digits, shared by the whole family. Leave empty to set it in the browser on first start, which is the recommended way: a PIN entered here is stored in the container template in plain text." Type="Variable" Display="advanced" Required="false" Mask="true"/>
+  <Config Name="Session timeout" Target="PV_SESSION_TIMEOUT" Default="" Mode="" Description="Seconds without activity before a device has to enter the PIN again. Default is one year, matching the trusted family tablet." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="Log level" Target="LOG_LEVEL" Default="" Mode="" Description="error, warn, info or debug. Default is info." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+</Container>
