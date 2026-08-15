@@ -318,9 +318,13 @@ test('the More page links to the project and carries its signature', async ({ pa
 	await expect(creditNote).toHaveCSS('text-align', 'center');
 
 	await expect(page.getByText('Made with ❤️ by Stadicus', { exact: true })).toBeVisible();
-	await expect(page.locator('.version')).toHaveText(
-		new RegExp(`^Version ${version.replace(/\./g, '\\.')}\\+[0-9a-f]{7}$`)
-	);
+	// Two assertions rather than one regex built from the version, which would
+	// mean escaping the version into a pattern. Together they are just as
+	// strict: the shape below only matches when the number starts right after
+	// "Version ", so the substring can only be the one package.json holds.
+	const printedVersion = page.locator('.version');
+	await expect(printedVersion).toHaveText(/^Version \d+\.\d+\.\d+\+[0-9a-f]{7}$/);
+	await expect(printedVersion).toContainText(`Version ${version}+`);
 });
 
 test('an unknown address lands on the error page', async ({ page }) => {
