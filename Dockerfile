@@ -42,6 +42,10 @@ RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 VOLUME /data
 EXPOSE 3000
 USER node
+# 127.0.0.1 rather than localhost: the server binds 0.0.0.0, which is IPv4 only,
+# while `localhost` also resolves to ::1 in the container and busybox wget tries
+# that first. The check then answers "connection refused" for an application
+# that is serving perfectly well, and every container reports unhealthy.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s \
-    CMD wget -qO- http://localhost:3000/healthz > /dev/null || exit 1
+    CMD wget -qO- http://127.0.0.1:3000/healthz > /dev/null || exit 1
 CMD ["node", "build/index.js"]
