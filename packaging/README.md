@@ -13,12 +13,12 @@ package below has to be checked.
 | Directory | Store | Status |
 |---|---|---|
 | `unraid/` | Unraid Community Applications | shipped |
+| `umbrel/` | Umbrel App Store | submitted |
 
-Umbrel (`getumbrel/umbrel-apps`) and CasaOS (`IceWhaleTech/CasaOS-AppStore`) are
-planned and not packaged yet. Both take the package as a pull request against
-the store's own repository; what would live here is the source those PRs are fed
-from. CasaOS additionally requires the package to be tested on a real CasaOS
-instance before submitting.
+CasaOS (`IceWhaleTech/CasaOS-AppStore`) is planned and not packaged yet. It also
+takes the package as a pull request against the store's own repository, and
+additionally requires it to be tested on a real CasaOS instance before
+submitting.
 
 ## How the Unraid package reaches users
 
@@ -54,6 +54,37 @@ Convention places it at the root of a template repository, but the submission
 scan finds it here as well: it reported "ca_profile.xml found and Profile
 content extracted" with the file at `packaging/unraid/`. No move needed.
 
+## How the Umbrel package reaches users
+
+Umbrel keeps its catalogue in `getumbrel/umbrel-apps`, so unlike the Unraid
+template the two files here are only the *source* of the package. They reach
+users as a pull request against that repository, and **every later change needs
+another one** — nothing in this repository updates the listing.
+
+The image is pinned by digest, because a tag can be moved to a different image
+after the store reviewed it. Umbrel's own linter refuses `latest` for that
+reason. A release therefore runs in this order: publish the image, read the
+digest of the multi-arch index, then update `umbrel/docker-compose.yml`. The
+digest of a single architecture would leave everyone on the other one unable to
+install.
+
+`app_proxy` is the container Umbrel puts in front of every app. Two of its
+settings decide whether this one works at all:
+
+- `PROXY_AUTH_ADD: "false"` turns the Umbrel login off for this app, on purpose
+  and not for convenience. The family votes from their own phones, while the
+  Umbrel password belongs to whoever runs the server; leaving the login in front
+  would mean handing that password to the children.
+- `APP_HOST` has to be the container name Umbrel builds out of the app id,
+  `popcorn-vote_main_1`. Anything else and visitors get a blank page rather than
+  an error.
+
+The manifest's `port:` is the host port Umbrel reserves for the app, and it has
+to be free across the entire catalogue — not merely across the other `port:`
+fields, but across every port any app's compose file publishes. Checking only
+the manifests suggested 3009 was free; it is taken by a compose service, and
+3019 was chosen after collecting both.
+
 ## Two rules every package follows
 
 **No `ADDRESS_HEADER`.** The root `docker-compose.yml` offers
@@ -75,15 +106,19 @@ and no file editing.
 ## Checking a package
 
 ```sh
-bash packaging/check.sh         # static: names, port, data path, XML
+bash packaging/check.sh         # static: names, port, data path, XML, YAML
 bash packaging/test-install.sh  # runs the container the way a store would
 ```
 
 `check.sh` compares what the packages set against `docker-compose.yml` and the
-application source. It verifies exactly four things, and nothing beyond them:
-XML well-formedness, that every variable name a package sets is read somewhere
-in `src/`, that the port and data path match the compose file, and that no
-package sets `ADDRESS_HEADER`.
+application source. It verifies exactly this, and nothing beyond it: that the
+XML and the YAML parse, that every variable name a package sets is read
+somewhere in `src/`, that port and data path match the compose file, and that no
+package sets `ADDRESS_HEADER`. For the Umbrel package it additionally checks
+what only that store has: that the image is pinned to a digest, that its
+tag and the manifest version match `package.json`, that `APP_HOST` matches the
+app id, and that the data stays under `${APP_DATA_DIR}`, which is the only place
+Umbrel backs up and removes with the app.
 
 `test-install.sh` needs Docker and no Unraid. It creates the data directory with
 the ownership a store would give it, starts the container as the package
@@ -93,6 +128,14 @@ complete setup, then stops offering it, survives an update and a restart, works
 on another host port, and comes back from a copied data directory. Two runs may
 overlap; names, ports and temporary files carry the PID.
 
+The ownership is the point of the test, and the two stores do not agree on it:
+Unraid creates appdata as `99:100`, Umbrel as `1000:1000`. The defaults above are
+Unraid's, so the Umbrel package deserves its own pass:
+
+```sh
+UIDGID=1000:1000 EXTRA='--user 1000:1000' bash packaging/test-install.sh
+```
+
 Umbrel commonly runs on a Raspberry Pi, so the arm64 half of the image is worth
 the same attention:
 
@@ -100,3 +143,7 @@ the same attention:
 docker run --privileged --rm tonistiigi/binfmt --install arm64
 PLATFORM=linux/arm64 bash packaging/test-install.sh
 ```
+
+Emulation makes every step roughly five times slower, and `IMAGE=` picks which
+build is under test — a locally built `popcorn-vote:dev` before a release, the
+published digest after one.
