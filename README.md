@@ -117,7 +117,6 @@ family's film diary.
 	 -e PV_MEMBERS=Anna,Ben,Carla,David \
      -e TMDB_API_KEY=your-tmdb-key \
      -e OMDB_API_KEY=your-omdb-key \
-     -e ADDRESS_HEADER=x-forwarded-for -e XFF_DEPTH=1 \
      --restart unless-stopped \
      ghcr.io/stadicus/popcorn-vote:latest
    ```
@@ -132,15 +131,17 @@ family's film diary.
      -v popcorn-vote-data:/data \
 	 -e TMDB_API_KEY=your-tmdb-key \
      -e OMDB_API_KEY=your-omdb-key \
-     -e ADDRESS_HEADER=x-forwarded-for \
-     -e XFF_DEPTH=1 \
-     -e PROTOCOL_HEADER=x-forwarded-proto \
      --restart unless-stopped \
      popcorn-vote
    ```
 
-   (`ADDRESS_HEADER`/`XFF_DEPTH` make sure the app sees the real sender IP behind
-   a proxy, important for the per-IP PIN brake. `PROTOCOL_HEADER` names the header
+   Both examples run the app on its own, which is the ordinary case on a home
+   network. **Only add `-e ADDRESS_HEADER=x-forwarded-for -e XFF_DEPTH=1` once a
+   reverse proxy stands in front**: they make the app read the sender address out
+   of that header, which is what the per-IP PIN brake needs there, and exactly
+   what must not happen on a direct path, where the caller writes the header and
+   could pick the address the brake counts against. The app logs at startup which
+   of the two it is doing. `PROTOCOL_HEADER` belongs to the proxy too: it names the header
    the proxy uses to say a visitor came over HTTPS; the sign-in cookie is then
    marked `Secure` for those visitors and left unmarked for anyone reaching the
    app directly over plain HTTP, so both ways in keep working. Without a proxy in

@@ -953,6 +953,28 @@ export function loadConfig(force = false): AppConfig {
 			'No HTTPS proof configured, so cookies are not marked Secure. That is correct for plain HTTP on a local network. Behind an HTTPS proxy, set PROTOCOL_HEADER (the forwarding header, usually x-forwarded-proto) or ORIGIN.'
 		);
 	}
+	// The one setting the app cannot check for itself. `ADDRESS_HEADER` is read by
+	// the server adapter, never by this configuration, so it appears in no origin
+	// table and nothing else would ever mention it. Whether it is right depends on
+	// something only the operator can see: if a proxy in front overwrites the
+	// header, the brake counts real senders; if the app is reached directly, the
+	// header is written by whoever is calling, and a visitor can hand out a fresh
+	// address for every attempt. Warned rather than noted, because the setting
+	// looks like protection while providing none, and that is worse than an
+	// absence somebody can see.
+	const addressHeader = env('ADDRESS_HEADER');
+	if (addressHeader) {
+		log.warn(
+			`ADDRESS_HEADER is set (${addressHeader}), so the per-IP PIN brake counts the address from that header. That is correct only behind a reverse proxy that overwrites it. If the app can also be reached directly, a visitor can choose the address the brake counts against; unset it there.`
+		);
+	} else {
+		// Said in both directions, like the HTTPS proof above. A line only when
+		// something is wrong leaves the safe case indistinguishable from a value
+		// that was mistyped into whitespace and silently dropped.
+		log.info(
+			'ADDRESS_HEADER is not set, so the per-IP PIN brake counts the address the connection actually came from. That is correct for a direct installation. Behind a reverse proxy, set it to the forwarding header (usually x-forwarded-for) or every visitor counts as the proxy.'
+		);
+	}
 	return cached;
 }
 
