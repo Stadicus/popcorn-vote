@@ -8,6 +8,11 @@ dist/
 # The template belongs in the repository, or the line above swallows it
 !.env.example
 data/
+# ...except the Umbrel package's bind-mount source. Umbrel expects the
+# directory to exist in the repository, and the rule above would drop it
+# without a word: git never descends into an ignored directory, so a fresh
+# clone would carry a package the store rejects.
+!packaging/umbrel/data/
 *.sqlite
 *.sqlite-*
 vite.config.ts.timestamp-*

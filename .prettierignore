@@ -14,3 +14,8 @@ docs/website/
 # Working copies of the review subagents
 .claude/
 CLAUDE-SECURITY-*/
+
+# The store owns the style here, not this repository. Prettier would rewrite the
+# double quotes the whole Umbrel catalogue uses into single ones, and these two
+# files have to stay byte-identical to the ones in the submission pull request.
+packaging/umbrel/

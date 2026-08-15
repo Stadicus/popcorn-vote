@@ -37,6 +37,21 @@ PLATFORM=${PLATFORM:-}
 [ -n "$PLATFORM" ] && PLATFORM_ARG="--platform $PLATFORM" || PLATFORM_ARG=""
 fail=0
 
+# `Up` only means docker started the process; the server binds a moment later.
+# On amd64 that moment is short enough to miss, under emulation it is not, and
+# the first start used to probe immediately while every later phase waited. That
+# reported a broken package for a perfectly good arm64 image. One helper now, so
+# the phases cannot drift apart again.
+wait_for_healthz() {   # wait_for_healthz <port>, echoes the last status code
+	local port=$1 code=000
+	for _ in $(seq 1 60); do
+		code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "http://localhost:$port/healthz" 2>/dev/null)
+		[ "$code" = "200" ] && break
+		sleep 2
+	done
+	printf '%s' "$code"
+}
+
 cleanup() {
 	docker rm -f "$NAME" "$NAME-alt" "$NAME-copy" >/dev/null 2>&1
 	docker run --rm -v "$DIR":/x alpine rm -rf /x/. >/dev/null 2>&1
@@ -82,7 +97,7 @@ case "$status" in
 esac
 
 if [ "$fail" = 0 ]; then
-	code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "http://localhost:$PORT/healthz")
+	code=$(wait_for_healthz "$PORT")
 	[ "$code" = "200" ] && echo "  OK    /healthz 200" || { echo "  FAIL  /healthz $code"; fail=1; }
 
 	# The whole point of an app store package: a browser lands on something
@@ -163,10 +178,7 @@ if [ "$fail" = 0 ]; then
 	docker rm -f "$NAME" >/dev/null 2>&1
 	# shellcheck disable=SC2086
 	docker run -d --name "$NAME" $PLATFORM_ARG $EXTRA -p "$PORT":3000 -v "$DIR":/data "$IMAGE" >/dev/null 2>&1
-	for _ in $(seq 1 20); do
-		sleep 2
-		[ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "http://localhost:$PORT/healthz")" = "200" ] && break
-	done
+	wait_for_healthz "$PORT" >/dev/null
 	survived=$(curl -sL -o /dev/null -w '%{url_effective}' --max-time 15 "http://localhost:$PORT/")
 	case "$survived" in
 		*/setup) echo "  FAIL  configuration lost when the container was replaced"; fail=1 ;;
@@ -176,11 +188,7 @@ if [ "$fail" = 0 ]; then
 	# SQLite keeps -wal and -shm beside the database. A hard restart has to leave
 	# a consistent file behind, not a half-written one.
 	docker restart "$NAME" >/dev/null 2>&1
-	for _ in $(seq 1 20); do
-		sleep 2
-		code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "http://localhost:$PORT/healthz")
-		[ "$code" = "200" ] && break
-	done
+	code=$(wait_for_healthz "$PORT")
 	[ "$code" = "200" ] && echo "  OK    survives a restart" || { echo "  FAIL  unhealthy after restart ($code)"; fail=1; }
 
 	# Stores let people pick their own host port, and nothing in the app may
@@ -188,11 +196,7 @@ if [ "$fail" = 0 ]; then
 	docker rm -f "$NAME-alt" >/dev/null 2>&1
 	# shellcheck disable=SC2086
 	docker run -d --name "$NAME-alt" $PLATFORM_ARG $EXTRA -p "$ALT_PORT":3000 -v "$DIR":/data "$IMAGE" >/dev/null 2>&1
-	for _ in $(seq 1 20); do
-		sleep 2
-		alt=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 http://localhost:$ALT_PORT/healthz)
-		[ "$alt" = "200" ] && break
-	done
+	alt=$(wait_for_healthz "$ALT_PORT")
 	docker rm -f "$NAME-alt" >/dev/null 2>&1
 	[ "$alt" = "200" ] && echo "  OK    works on a different host port" || { echo "  FAIL  broken on a different host port ($alt)"; fail=1; }
 
@@ -202,13 +206,10 @@ if [ "$fail" = 0 ]; then
 	docker rm -f "$NAME-copy" >/dev/null 2>&1
 	# shellcheck disable=SC2086
 	docker run -d --name "$NAME-copy" $PLATFORM_ARG $EXTRA -p "$COPY_PORT":3000 -v "$COPY":/data "$IMAGE" >/dev/null 2>&1
-	# Break on any answer at all and let the case below judge it. Breaking only
-	# on a redirect meant the success path, which serves / directly, never
-	# matched and every green run waited out the full loop.
-	for _ in $(seq 1 20); do
-		sleep 2
-		[ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "http://localhost:$COPY_PORT/healthz" 2>/dev/null)" = "200" ] && break
-	done
+	# Waiting on /healthz rather than on a redirect: the success path serves /
+	# directly, so a loop that broke on a redirect never matched and every green
+	# run waited out the full timeout.
+	wait_for_healthz "$COPY_PORT" >/dev/null
 	cp_url=$(curl -sL -o /dev/null -w '%{url_effective}' --max-time 10 "http://localhost:$COPY_PORT/" 2>/dev/null)
 	case "$cp_url" in
 		*/setup) echo "  FAIL  a copied data directory comes up unconfigured"; fail=1 ;;
