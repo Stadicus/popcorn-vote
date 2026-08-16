@@ -14,12 +14,36 @@ fail=0
 
 # shellcheck disable=SC2317 # Invoked indirectly by trap.
 cleanup() {
-	local cleanup_fail=0
-	docker rm -f "$name" >/dev/null 2>&1 || true
-	docker run --rm -v "$data_dir":/x alpine:3.22 find /x -mindepth 1 -delete >/dev/null 2>&1 || cleanup_fail=1
-	rmdir "$data_dir" 2>/dev/null || cleanup_fail=1
+	local host_uid host_gid container_removed=0 containers
+	host_uid=$(id -u)
+	host_gid=$(id -g)
 	rm -f "$response"
-	return "$cleanup_fail"
+	for _ in 1 2 3; do
+		docker rm -f "$name" >/dev/null 2>&1 || true
+		if containers=$(docker ps -a --filter "name=^/${name}$" --format '{{.ID}}' 2>/dev/null) && [ -z "$containers" ]; then
+			container_removed=1
+			break
+		fi
+		sleep 1
+	done
+	if [ "$container_removed" = 0 ]; then
+		echo "container $name still exists after cleanup retries" >&2
+		return 1
+	fi
+	for _ in 1 2 3; do
+		# The entrypoint adopts the mount root as uid 1000. On hosted runners that
+		# differs from the host user, which cannot remove that directory from
+		# sticky /tmp even after every child is gone. Empty it as root, restore the
+		# host owner, then assert that the host can remove the mount directory.
+		docker run --rm -v "$data_dir":/x alpine:3.22 sh -c \
+			'find /x -mindepth 1 -delete; chown "$1:$2" /x' sh "$host_uid" "$host_gid" >/dev/null 2>&1 || true
+		if rmdir "$data_dir" 2>/dev/null; then
+			return 0
+		fi
+		sleep 1
+	done
+	docker run --rm -v "$data_dir":/x alpine:3.22 find /x -mindepth 1 -print >&2 || true
+	return 1
 }
 trap cleanup EXIT
 
