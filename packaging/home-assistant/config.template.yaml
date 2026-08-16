@@ -9,6 +9,7 @@ arch:
 image: ghcr.io/stadicus/popcorn-vote
 startup: application
 boot: auto
+init: false
 stage: experimental
 backup: cold
 webui: http://[HOST]:[PORT:3000]

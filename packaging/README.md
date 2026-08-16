@@ -114,8 +114,10 @@ and no file editing.
 ## Checking a package
 
 ```sh
-bash packaging/check.sh         # static: names, port, data path, XML, YAML
-bash packaging/test-install.sh  # runs the container the way a store would
+bash packaging/check.sh                  # static package contracts
+bash packaging/test-registry-required.sh # registry gate fails closed
+bash packaging/test-yaml-discovery.sh    # nested YAML stays covered
+bash packaging/test-install.sh           # exercises a store installation
 ```
 
 `check.sh` compares what the packages set against `docker-compose.yml` and the

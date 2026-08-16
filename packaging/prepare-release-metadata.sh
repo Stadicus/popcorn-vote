@@ -26,15 +26,22 @@ test "$(node -p "require('./package.json').version")" = "$version" || {
 	exit 1
 }
 
-inspect=$(docker buildx imagetools inspect "$image:$version@$digest")
+tag_inspect=$(docker buildx imagetools inspect "$image:$version")
+tag_digest=$(awk '/^Digest:[[:space:]]+sha256:/{print $2; exit}' <<<"$tag_inspect")
+if [ "$tag_digest" != "$digest" ]; then
+	echo "$image:$version resolves to ${tag_digest:-no manifest-list digest}, not $digest" >&2
+	exit 1
+fi
+
+inspect=$(docker buildx imagetools inspect "$image@$digest")
 for platform in linux/amd64 linux/arm64; do
 	grep -q "Platform:[[:space:]]*$platform" <<<"$inspect" || {
-		echo "$image:$version@$digest is missing $platform" >&2
+		echo "$image@$digest is missing $platform" >&2
 		exit 1
 	}
 	done
 
-image_json=$(docker buildx imagetools inspect --format '{{json .Image}}' "$image:$version@$digest")
+image_json=$(docker buildx imagetools inspect --format '{{json .Image}}' "$image@$digest")
 IMAGE_JSON=$image_json python3 - "$version" <<'PYTHON'
 import json
 import os

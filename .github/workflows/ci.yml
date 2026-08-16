@@ -47,6 +47,8 @@ jobs:
           # references are proven in their pull request; a transient registry
           # outage must not make the post-merge CI run unrepeatably block a release.
           echo "required=$required" >> "$GITHUB_OUTPUT"
+      - run: bash packaging/test-registry-required.sh
+      - run: bash packaging/test-yaml-discovery.sh
       - run: bash packaging/check.sh
         env:
           PACKAGING_REGISTRY_REQUIRED: ${{ steps.packaging-registry.outputs.required == 'true' && '1' || '0' }}

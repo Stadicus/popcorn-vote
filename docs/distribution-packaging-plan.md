@@ -960,8 +960,10 @@ Assistant OS installation:
 8. Change the host port in Home Assistant and verify the Web UI link and direct
    access.
 9. Create and restore a Home Assistant backup containing the app.
-10. Inspect logs for permission, health, architecture, and shutdown errors.
-11. Verify that no Home Assistant or Supervisor token is available to the app
+10. Confirm the installed app configuration has `init: false` and the app
+    container's PID 1 is the Node.js process running as uid 1000, not root.
+11. Inspect logs for permission, health, architecture, and shutdown errors.
+12. Verify that no Home Assistant or Supervisor token is available to the app
     unless the platform injects one independently of requested permissions.
 
 Device testing on both architecture families is not realistic for the first

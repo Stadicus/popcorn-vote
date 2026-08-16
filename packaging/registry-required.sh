@@ -16,8 +16,20 @@ import sys
 
 base, head = sys.argv[1:]
 
-def git(*args):
-    return subprocess.run(['git', *args], check=False, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+def git(*args, check=False):
+    return subprocess.run(
+        ['git', *args],
+        check=check,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+
+for revision in (base, head):
+    try:
+        git('rev-parse', '--verify', f'{revision}^{{commit}}', check=True)
+    except subprocess.CalledProcessError as error:
+        detail = error.stderr.decode().strip()
+        raise SystemExit(f'cannot resolve Git revision {revision!r}: {detail}')
 
 def read(revision, path):
     result = git('show', f'{revision}:{path}')
@@ -75,7 +87,7 @@ def effective(revision, path):
         return ('recognized', '<manifest-no-image>')
     return None
 
-changed = git('diff', '--name-only', '-z', base, head).stdout.decode().split('\0')
+changed = git('diff', '--name-only', '-z', base, head, check=True).stdout.decode().split('\0')
 for path in filter(None, changed):
     before = effective(base, path)
     after = effective(head, path)

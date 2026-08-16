@@ -14,10 +14,12 @@ fail=0
 
 # shellcheck disable=SC2317 # Invoked indirectly by trap.
 cleanup() {
-	docker rm -f "$name" >/dev/null 2>&1
-	docker run --rm -v "$data_dir":/x alpine:3.22 rm -rf /x/. >/dev/null 2>&1
-	rmdir "$data_dir" 2>/dev/null
+	local cleanup_fail=0
+	docker rm -f "$name" >/dev/null 2>&1 || true
+	docker run --rm -v "$data_dir":/x alpine:3.22 find /x -mindepth 1 -delete >/dev/null 2>&1 || cleanup_fail=1
+	rmdir "$data_dir" 2>/dev/null || cleanup_fail=1
 	rm -f "$response"
+	return "$cleanup_fail"
 }
 trap cleanup EXIT
 
@@ -129,6 +131,13 @@ if [ "$fail" = 0 ]; then
 		bad 'container did not recover after re-arming ownership migration'
 	fi
 fi
+
+if cleanup; then
+	ok 'temporary root-owned data was removed'
+else
+	bad "temporary data cleanup failed: $data_dir"
+fi
+trap - EXIT
 
 echo
 [ "$fail" = 0 ] && echo 'root-owned app-store install works' || echo 'ROOT-OWNED APP-STORE INSTALL BROKEN'

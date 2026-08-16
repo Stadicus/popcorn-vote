@@ -187,15 +187,12 @@ if [ "$have_yaml" = 0 ]; then
 	note FAIL "node_modules/yaml is unavailable, so no YAML package can be read (run npm ci)"
 	fail=1
 else
-	for f in packaging/*/*.yml packaging/*/*.yaml; do
-		[ -e "$f" ] || continue
-		if node packaging/yaml-to-json.mjs "$f" >/dev/null 2>&1; then
-			note OK "$f"
-		else
-			note FAIL "$f"
-			fail=1
-		fi
-	done
+	yaml_results=$(bash packaging/validate-yaml.sh packaging)
+	yaml_status=$?
+	while IFS=$'\t' read -r status f; do
+		[ -n "$f" ] && note "$status" "$f"
+	done <<<"$yaml_results"
+	[ "$yaml_status" = 0 ] || fail=1
 fi
 
 echo
@@ -373,6 +370,7 @@ def validate_ha(data, expected_version):
     require(data.get('webui') == 'http://[HOST]:[PORT:3000]', 'Home Assistant webui does not follow the effective port')
     require(str(data.get('watchdog', '')).endswith('/healthz'), 'Home Assistant watchdog is not /healthz')
     require(data.get('backup') == 'cold', 'Home Assistant backup must be cold')
+    require(data.get('init') is False, 'Home Assistant must disable Supervisor init so the dropped process remains PID 1')
     require(data.get('stage') == 'experimental', 'Home Assistant must remain experimental')
     require('options' not in data and 'schema' not in data, 'Home Assistant setup must stay in the browser wizard')
     for key in ('ingress', 'host_network', 'hassio_api', 'homeassistant_api', 'docker_api', 'full_access'):
@@ -499,6 +497,7 @@ for package, ref in refs:
 PYTHON
 )
 
+resolved_versioned_digests=""
 while IFS='|' read -r package ref; do
 	[ -n "$package" ] || continue
 	inspect=""
@@ -516,6 +515,15 @@ while IFS='|' read -r package ref; do
 	fi
 
 	note OK "$package image resolves: $ref"
+	if [ "$package" != unraid ]; then
+		resolved_digest=$(awk '/^Digest:[[:space:]]+sha256:/{print $2; exit}' <<<"$inspect")
+		if [ -n "$resolved_digest" ]; then
+			resolved_versioned_digests+="$package|$resolved_digest"$'\n'
+		else
+			note FAIL "$package image did not expose a manifest-list digest"
+			fail=1
+		fi
+	fi
 	for platform in linux/amd64 linux/arm64; do
 		if grep -q "Platform:[[:space:]]*$platform" <<<"$inspect"; then
 			note OK "$package image contains $platform"
@@ -552,6 +560,16 @@ PYTHON
 		fi
 	fi
 done <<<"$registry_refs"
+
+if [ -n "$resolved_versioned_digests" ]; then
+	unique_versioned_digests=$(cut -d'|' -f2 <<<"$resolved_versioned_digests" | sed '/^$/d' | sort -u)
+	if [ "$(wc -l <<<"$unique_versioned_digests" | tr -d ' ')" = 1 ]; then
+		note OK "all reachable versioned packages resolve to one manifest-list digest"
+	else
+		note FAIL "versioned packages resolve to different manifest-list digests: $(tr '\n' ' ' <<<"$resolved_versioned_digests")"
+		fail=1
+	fi
+fi
 
 echo
 [ "$fail" = 0 ] && echo "packages consistent" || echo "PACKAGE DRIFT — see FAIL above"
