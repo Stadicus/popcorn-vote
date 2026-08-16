@@ -186,8 +186,10 @@ jobs:
       matrix:
         include:
           - platform: linux/amd64
+            hass_arch: amd64
             runner: ubuntu-latest
           - platform: linux/arm64
+            hass_arch: aarch64
             runner: ubuntu-24.04-arm
     permissions:
       contents: read
@@ -214,7 +216,10 @@ jobs:
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
         with:
           context: .
-          build-args: GITHUB_SHA=${{ needs.gate.outputs.release_sha }}
+          build-args: |
+            GITHUB_SHA=${{ needs.gate.outputs.release_sha }}
+            BUILD_VERSION=${{ needs.notes.outputs.version }}
+            BUILD_ARCH=${{ matrix.hass_arch }}
           platforms: ${{ matrix.platform }}
           outputs: type=image,name=${{ steps.target.outputs.image }},push-by-digest=true,name-canonical=true,push=true
           # Provenance and bill of materials: they answer, for outsiders, which

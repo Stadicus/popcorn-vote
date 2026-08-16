@@ -1,0 +1,5 @@
+# A package in this list has shipped. Its store-discoverable files may no longer
+# disappear without failing CI. Add a package in the same metadata merge that
+# first publishes it.
+unraid
+umbrel

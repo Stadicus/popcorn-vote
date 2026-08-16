@@ -22,15 +22,16 @@ home servers (`linux/arm64`). Docker pulls whichever fits the machine, so the
 1. **Get the access keys:** a TMDB key (v3, the 32-character "API key", not the
    long "read access token") and an OMDb key.
 2. **Create the folder** the app is to keep its data in, for example
-   `/srv/popcorn-vote/data`, and make it writable for UID/GID `1000`, the
-   non-root user inside the container:
+   `/srv/popcorn-vote/data`:
 
    ```sh
    sudo mkdir -p /srv/popcorn-vote/data
-   sudo chown 1000:1000 /srv/popcorn-vote/data
    ```
 
-   Everything the app ever writes lands there.
+   Everything the app ever writes lands there. On first start the container
+   adopts a root-owned folder and then runs the application as the non-root
+   user `node`. If you explicitly configure Docker's `user`, that user must
+   already be able to write the directory.
 3. **Upload the `config.yaml`:** copy `config.example.yaml` from this repository,
    enter the family members (never change the `id` values afterwards!) and put it
    into that folder as `config.yaml`. The PIN and the API keys come as

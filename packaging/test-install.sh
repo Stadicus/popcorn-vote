@@ -200,9 +200,11 @@ if [ "$fail" = 0 ]; then
 	docker rm -f "$NAME-alt" >/dev/null 2>&1
 	[ "$alt" = "200" ] && echo "  OK    works on a different host port" || { echo "  FAIL  broken on a different host port ($alt)"; fail=1; }
 
-	# Unraid users back up appdata by copying it. A copy has to start elsewhere.
+	# Store users back up appdata by copying it. A copy has to start elsewhere
+	# with the same ownership contract as the package under test.
 	COPY=$(mktemp -d)
-	docker run --rm -v "$DIR":/from -v "$COPY":/to alpine sh -c 'cp -a /from/. /to/ && chown -R 99:100 /to' >/dev/null 2>&1
+	docker run --rm -v "$DIR":/from -v "$COPY":/to alpine \
+		sh -c 'cp -a /from/. /to/ && chown -R "$1" /to' sh "$UIDGID" >/dev/null 2>&1
 	docker rm -f "$NAME-copy" >/dev/null 2>&1
 	# shellcheck disable=SC2086
 	docker run -d --name "$NAME-copy" $PLATFORM_ARG $EXTRA -p "$COPY_PORT":3000 -v "$COPY":/data "$IMAGE" >/dev/null 2>&1

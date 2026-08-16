@@ -17,7 +17,9 @@ export default ts.config(
 			'coverage/',
 			'e2e/.data/',
 			// Working copies of the review subagents; otherwise ESLint checks the repo twice.
-			'.claude/'
+			'.claude/',
+			// Unrelated local project explicitly kept outside this repository.
+			'family-movie-night/'
 		]
 	},
 	js.configs.recommended,

@@ -644,9 +644,10 @@ pre-built image, then start a container with:
   examples here. On a machine with a public address, bind that port to
   `127.0.0.1`, or it stands open on the internet as plain HTTP past the proxy
 - **Volume:** a folder or Docker volume, mounted as `/data` – this is
-  where the database, posters, backups, and `config.yaml` live. For a host
-  folder, make it writable for UID/GID `1000`; named Docker volumes get the
-  right ownership from the image when they are created.
+  where the database, posters, backups, and `config.yaml` live. On its first
+  start the container adopts a root-owned host folder, then runs the application
+  as UID/GID `1000`. An explicit Docker `--user` remains untouched and must
+  already match the folder ownership.
 - **Environment variables:** `TMDB_API_KEY` and `OMDB_API_KEY` for the movie
 	database keys. `PV_PIN` remains available only for installations migrating
 	from the former shared-PIN model.
@@ -726,29 +727,42 @@ once and, at the cap, pushes the oldest one out.
 start the container on the new device with the same volume. Nothing else
 is needed – everything is in that one folder.
 
-**Fixing `/data` permissions:** images run as the container user `node`
-(UID/GID `1000`). Named Docker volumes created from the image get that ownership
-automatically. For a bind-mounted folder with different ownership, stop the
-container and change it once:
+**Fixing `/data` permissions:** the container may start as root only long enough
+to adopt a new `/data` mount, then replaces itself with the application as
+`node` (UID/GID `1000`). The recursive ownership migration runs once and records
+that fact in `/data/.ownership-migrated`; later starts touch only the directory
+itself. Files owned by the Home Assistant Supervisor, such as `options.json`,
+are deliberately excluded.
+
+If data was copied or restored as root after that marker was created, stop the
+container, remove the marker and start it again. The next start repeats the
+bounded migration:
 
 ```sh
-sudo chown -R 1000:1000 /srv/popcorn-vote/data
+sudo rm /srv/popcorn-vote/data/.ownership-migrated
 ```
 
-For a named Docker volume, run the same ownership change through a temporary
-container, replacing the volume name if yours is different:
+For a named Docker volume, remove it through a temporary container, replacing
+the volume name if yours is different:
 
 ```sh
-docker run --rm -v popcorn-vote-data:/data alpine chown -R 1000:1000 /data
+docker run --rm -v popcorn-vote-data:/data alpine rm -f /data/.ownership-migrated
 ```
+
+An operator who sets Docker's `--user` bypasses this migration deliberately.
+In that case, make the folder writable by that UID/GID before starting the
+container.
 
 ---
 
 ## 9. When something goes wrong
 
 **"The first-run setup cannot save the administrator."**
-The container must be able to write `/data`. Check the mounted volume's
-permissions for UID/GID `1000`; the setup writes `/data/config.yaml` there.
+The container must be able to write `/data`; the setup writes
+`/data/config.yaml` there. Check the startup log for an unsafe `DATA_DIR` or a
+failed privilege drop. With an explicit Docker `--user`, check that the mounted
+folder belongs to that UID/GID. After externally restoring files as root, use
+the ownership-marker recovery above.
 
 **"Forgotten every administrator PIN."**
 This deliberately has no unauthenticated reset button. An operator with access

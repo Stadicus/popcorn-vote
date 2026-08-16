@@ -14,11 +14,19 @@ package below has to be checked.
 |---|---|---|
 | `unraid/` | Unraid Community Applications | shipped |
 | `umbrel/` | Umbrel App Store | [submitted](https://github.com/getumbrel/umbrel-apps/pull/5994) |
+| `home-assistant/` | Home Assistant custom app repository | prepared for v1.3.0 |
+| `casaos/` | CasaOS direct import / later app-store contribution | prepared for v1.3.0 |
 
-CasaOS (`IceWhaleTech/CasaOS-AppStore`) is planned and not packaged yet. It also
-takes the package as a pull request against the store's own repository, and
-additionally requires it to be tested on a real CasaOS instance before
-submitting.
+Home Assistant and CasaOS metadata is held in non-discoverable templates until
+the v1.3.0 image exists. This avoids advertising an image that cannot yet be
+pulled. After publication and the required device tests,
+`prepare-release-metadata.sh` verifies the multi-architecture image, renders the
+Home Assistant and CasaOS files, and updates Umbrel to the same version and
+manifest-list digest. It never commits, pushes, submits, or publishes anything.
+
+The CasaOS result supports direct Compose import and is also shaped for a later
+pull request to `IceWhaleTech/CasaOS-AppStore`. Test it on a real CasaOS instance
+before submitting; any upstream submission requires separate authorization.
 
 ## How the Unraid package reaches users
 
@@ -115,10 +123,12 @@ application source. It verifies exactly this, and nothing beyond it: that the
 XML and the YAML parse, that every variable name a package sets is read
 somewhere in `src/`, that port and data path match the compose file, and that no
 package sets `ADDRESS_HEADER`. For the Umbrel package it additionally checks
-what only that store has: that the image is pinned to a digest, that its
-tag and the manifest version match `package.json`, that `APP_HOST` matches the
-app id, and that the data stays under `${APP_DATA_DIR}`, which is the only place
-Umbrel backs up and removes with the app.
+what only that store has: that the image is pinned to a digest, that its tag
+matches the manifest version, that the store version is not newer than
+`package.json`, that `APP_HOST` matches the app id, and that the data stays under
+`${APP_DATA_DIR}`, which is the only place Umbrel backs up and removes with the
+app. A store version behind `package.json` is expected between publishing an
+image and merging its reviewed metadata update.
 
 `test-install.sh` needs Docker and no Unraid. It creates the data directory with
 the ownership a store would give it, starts the container as the package
@@ -136,12 +146,20 @@ Unraid's, so the Umbrel package deserves its own pass:
 UIDGID=1000:1000 EXTRA='--user 1000:1000' bash packaging/test-install.sh
 ```
 
-Umbrel commonly runs on a Raspberry Pi, so the arm64 half of the image is worth
-the same attention:
+`test-root-owned-install.sh` covers the complementary app-store path used by
+Home Assistant and by Compose-based stores without a published host UID
+convention. The container adopts a root-owned mount once, leaves a platform-owned
+`options.json` alone, records `/data/.ownership-migrated`, and replaces itself
+with the application as uid 1000. If files are later copied into that directory
+as root, remove the marker and restart to repeat the migration.
+
+CI runs both install paths natively on AMD64 and ARM64. For a local ARM64 check,
+run the scripts on an ARM64 host. QEMU is a slower fallback when no such host is
+available:
 
 ```sh
 docker run --privileged --rm tonistiigi/binfmt --install arm64
-PLATFORM=linux/arm64 bash packaging/test-install.sh
+PLATFORM=linux/arm64 IMAGE=popcorn-vote:ci bash packaging/test-install.sh
 ```
 
 Emulation makes every step roughly five times slower, and `IMAGE=` picks which

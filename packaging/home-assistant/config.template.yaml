@@ -1,0 +1,19 @@
+name: Popcorn Vote
+version: '__VERSION__'
+slug: popcorn_vote
+description: Settle family movie night fairly with suggestions and saved-up votes.
+url: https://github.com/Stadicus/popcorn-vote
+arch:
+  - amd64
+  - aarch64
+image: ghcr.io/stadicus/popcorn-vote
+startup: application
+boot: auto
+stage: experimental
+backup: cold
+webui: http://[HOST]:[PORT:3000]
+watchdog: http://[HOST]:[PORT:3000]/healthz
+ports:
+  3000/tcp: 3000
+ports_description:
+  3000/tcp: Popcorn Vote web interface
