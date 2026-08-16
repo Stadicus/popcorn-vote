@@ -17,6 +17,10 @@
 - Strengthened package discovery, version-lag, image pinning, architecture,
   privilege, and registry gates. Store metadata may intentionally remain one
   release behind the application, but it cannot point at an unavailable image.
+- Gave the strict pull-request publication check an unambiguous status name,
+  added CodeQL to the exact-commit release gate, and made each successful image
+  publication report its manifest digest in a best-effort summary and JSON
+  artifact.
 
 ## v1.2.0 Reliable health, a safer default, and the first app store
 

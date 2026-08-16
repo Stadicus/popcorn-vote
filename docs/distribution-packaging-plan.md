@@ -625,6 +625,11 @@ first release bootstraps in two repository merges around one publication:
    architectures with the new labels and
    combines them with `imagetools create` into the multi-architecture manifest,
    publishing `ghcr.io/stadicus/popcorn-vote:1.3.0` and refreshing `:latest`.
+   The workflow makes a retried, best-effort inspection of the resulting
+   manifest-list digest, recording it in the job summary and a machine-readable
+   `release-metadata-1.3.0` artifact for step 3. Registry-read, summary, or
+   artifact-service failures cannot veto the GitHub release after the immutable
+   image tag exists.
 3. **Metadata merge.** Only now merge the store metadata, pinned to the verified
    `1.3.0` tag and — for Umbrel — its manifest-list digest. Discovery and
    advertisement begin at this merge, at which point the referenced image is
@@ -652,8 +657,9 @@ Consequences that implementation must respect:
   checks in a required, non-skipping mode, so a registry outage turns the pull
   request red instead of waving it through. Whether red actually *blocks* the
   merge depends on the required-status-check configuration described in Phase 5
-  — `main` is unprotected today, so until that is configured the block is the
-  operator declining to merge red, not the platform refusing it. The trigger is mechanical, not a label —
+  — the active ruleset does not yet require that check, so until it is added the
+  block is the operator declining to merge red, not the platform refusing it.
+  The trigger is mechanical, not a label —
   it is any pull request that adds or changes the effective image reference of a
   recognized package file (Phase 5), which covers the step-3 bootstrap merge and
   every routine version bump after it alike.
@@ -734,18 +740,21 @@ invariants so failures identify the actual contract that drifted.
 this implementation: add it as a job or step in `.github/workflows/ci.yml` so it
 runs on every pull request, resolving the open question left in PR #18.
 
-**A red check must actually block.** `main` currently has neither branch
-protection nor a repository ruleset (verified against the GitHub API), so today
-a failing `ci.yml` job stops nothing — anyone can merge a red pull request. That
-matters here more than for an ordinary lint failure: the fail-closed registry
-gate below is the only thing standing between a registry outage and store
-metadata advertising an image nobody proved exists, and this plan's own standard
-for that gate is mechanical enforcement, not a remembered convention.
+**A red check must actually block.** `main` has an active repository ruleset
+requiring pull requests and preventing deletion and non-fast-forward updates,
+but it does not yet require a status check. A failing `ci.yml` job therefore
+still stops nothing by itself. That matters here more than for an ordinary lint
+failure: the fail-closed registry gate below is the only thing standing between
+a registry outage and store metadata advertising an image nobody proved exists,
+and this plan's own standard for that gate is mechanical enforcement, not a
+remembered convention.
 
-Wiring `check.sh` into CI therefore includes making its job a **required status
-check on `main`**, via branch protection or a ruleset. Configuring repository
-protection is an operator action and falls under Autonomous Execution
-Boundaries: propose it, do not apply it unasked.
+Wiring `check.sh` into CI therefore includes a uniquely named
+**`Packaging publication gate`** job for pull requests. Its skip-allowed push
+counterpart is named `Packaging branch validation`, so a ruleset cannot confuse
+the two event modes. Make `Packaging publication gate` a required status check
+on `main`. Configuring that ruleset entry is an operator action and falls under
+Autonomous Execution Boundaries: propose it, do not apply it unasked.
 
 Until that protection exists, the honest statement of the guarantee is weaker
 and the plan says so rather than overclaiming: a failed registry check **fails

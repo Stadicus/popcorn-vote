@@ -50,7 +50,7 @@ jobs:
           # A manual click chooses when to publish, but it cannot bypass the
           # quality gates for the exact commit being released.
           deadline=$((SECONDS + 1800))
-          for workflow in ci.yml security.yml; do
+          for workflow in ci.yml security.yml codeql.yml; do
             while true; do
               line=$(
                 gh api "repos/$GITHUB_REPOSITORY/actions/workflows/$workflow/runs?event=push&branch=main&head_sha=$release_sha&per_page=1" \
@@ -261,6 +261,7 @@ jobs:
       packages: write
     outputs:
       published: ${{ steps.publish.outputs.published }}
+      manifest_digest: ${{ steps.inspect.outputs.manifest_digest }}
     steps:
       # No checkout: since the build sits next door, no step here touches a file
       # from the tree any more.
@@ -362,20 +363,102 @@ jobs:
 
           docker buildx imagetools create "${tags[@]}" "${digest_refs[@]}"
           echo "published=true" >> "$GITHUB_OUTPUT"
-      - name: Inspect the result
+      - name: Inspect the result and record release metadata
+        id: inspect
         if: steps.publish.outputs.published == 'true'
+        # Publication above is the point of no return for the immutable version
+        # tag. A transient registry read or summary-write failure must not
+        # suppress the matching GitHub release and strand that tag. Retries
+        # still make this useful as the normal post-publication verification.
+        continue-on-error: true
         shell: bash
         env:
           IMAGE: ${{ steps.target.outputs.image }}
+          RELEASE_SHA: ${{ needs.gate.outputs.release_sha }}
           VERSION: ${{ needs.notes.outputs.version }}
           VERSION_NEW: ${{ needs.notes.outputs.version_new }}
         run: |
           set -euo pipefail
           if [ "$VERSION_NEW" = true ]; then
-            docker buildx imagetools inspect "$IMAGE:$VERSION"
+            reference="$IMAGE:$VERSION"
           else
-            docker buildx imagetools inspect "$IMAGE:latest"
+            reference="$IMAGE:latest"
           fi
+
+          inspection=
+          for attempt in 1 2 3 4 5; do
+            if inspection=$(docker buildx imagetools inspect "$reference"); then
+              break
+            fi
+            if [ "$attempt" -eq 5 ]; then
+              echo "::error::Could not inspect $reference after $attempt attempts."
+              exit 1
+            fi
+            sleep 5
+          done
+          printf '%s\n' "$inspection"
+          digest=$(awk "/^Digest:[[:space:]]+sha256:/{print \$2; exit}" <<< "$inspection")
+          if [[ ! $digest =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo "::error::Could not read the manifest-list digest from $reference."
+            exit 1
+          fi
+
+          echo "manifest_digest=$digest" >> "$GITHUB_OUTPUT"
+          {
+            echo '## Published container manifest'
+            echo
+            echo "- Tag: \`$reference\`"
+            echo "- Manifest digest: \`$digest\`"
+            echo "- Immutable reference: \`$IMAGE@$digest\`"
+            echo "- Source commit: \`$RELEASE_SHA\`"
+            echo
+            echo "A following best-effort step stores the same digest in the \`release-metadata\` workflow artifact."
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Create machine-readable release metadata
+        id: metadata
+        if: steps.publish.outputs.published == 'true' && steps.inspect.outcome == 'success'
+        # Convenience output only: a JSON-generation failure after publication
+        # must not orphan the tag.
+        continue-on-error: true
+        shell: bash
+        env:
+          DIGEST: ${{ steps.inspect.outputs.manifest_digest }}
+          IMAGE: ${{ steps.target.outputs.image }}
+          RELEASE_SHA: ${{ needs.gate.outputs.release_sha }}
+          VERSION: ${{ needs.notes.outputs.version }}
+          VERSION_NEW: ${{ needs.notes.outputs.version_new }}
+        run: |
+          set -euo pipefail
+          if [ "$VERSION_NEW" = true ]; then
+            reference="$IMAGE:$VERSION"
+          else
+            reference="$IMAGE:latest"
+          fi
+          metadata="$RUNNER_TEMP/release-metadata.json"
+          metadata_filter="{version: \$version, version_new: \$version_new, image: \$image, tag: \$tag, digest: \$digest, immutable_reference: \$immutable_reference, release_sha: \$release_sha}"
+          jq -n \
+            --arg version "$VERSION" \
+            --argjson version_new "$VERSION_NEW" \
+            --arg image "$IMAGE" \
+            --arg tag "$reference" \
+            --arg digest "$DIGEST" \
+            --arg immutable_reference "$IMAGE@$DIGEST" \
+            --arg release_sha "$RELEASE_SHA" \
+            "$metadata_filter" \
+            > "$metadata"
+          echo "metadata_path=$metadata" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: steps.publish.outputs.published == 'true' && steps.metadata.outcome == 'success'
+        # The immutable image tag already exists at this point. A transient
+        # artifact-service failure must not suppress the matching GitHub release
+        # and leave an orphan tag that the next run correctly refuses to move.
+        continue-on-error: true
+        with:
+          name: release-metadata-${{ needs.notes.outputs.version }}
+          path: ${{ steps.metadata.outputs.metadata_path }}
+          if-no-files-found: error
+          retention-days: 30
+          overwrite: true
 
   release:
     name: Publish tag and release

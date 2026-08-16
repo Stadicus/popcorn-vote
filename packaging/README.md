@@ -23,6 +23,11 @@ pulled. After publication and the required device tests,
 `prepare-release-metadata.sh` verifies the multi-architecture image, renders the
 Home Assistant and CasaOS files, and updates Umbrel to the same version and
 manifest-list digest. It never commits, pushes, submits, or publishes anything.
+The release workflow uses a retried, best-effort post-publication inspection to
+write that digest to its job summary and the machine-readable
+`release-metadata-<version>` artifact. This avoids manual transcription from raw
+manifest output without letting a transient registry read, summary write, or
+artifact-service outage orphan an already-published image tag.
 
 The CasaOS result supports direct Compose import and is also shaped for a later
 pull request to `IceWhaleTech/CasaOS-AppStore`. Test it on a real CasaOS instance

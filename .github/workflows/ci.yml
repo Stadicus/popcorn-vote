@@ -13,11 +13,6 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          # The packaging publication gate compares recognized package files
-          # with the pull-request base. A shallow checkout can make that diff
-          # silently empty, which would fail open.
-          fetch-depth: 0
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 22
@@ -31,6 +26,45 @@ jobs:
       # blocks unconditionally: a key that reaches a public repository is out of
       # our hands the moment it is pushed, whatever the rest of the run says.
       - run: npm run lint:secrets
+      - run: npm run lint
+      - run: npm run check
+      # Include every TypeScript source file, including files no unit test loads,
+      # and fail if the established coverage floor regresses.
+      - run: npm run test:coverage
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: unit-test-coverage
+          path: coverage/
+          retention-days: 7
+      - run: npm run build
+      # Deliberately not blocking. A newly published advisory in some dependency
+      # is not a reason to hold up a fix the family is waiting for, and there is
+      # rarely anything to do about it in the same hour. The step goes red so it
+      # is seen; the run stays green so it is not in the way. `--omit=dev` is the
+      # honest scope: the image is built with `npm prune --omit=dev`, so nothing
+      # else ever runs in the container.
+      - run: npm audit --omit=dev --audit-level=high
+        continue-on-error: true
+
+  packaging:
+    # Pull requests get a unique check name that a ruleset can require without
+    # accepting the same commit's skip-allowed branch-push validation instead.
+    name: ${{ github.event_name == 'pull_request' && 'Packaging publication gate' || 'Packaging branch validation' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          # The publication gate compares recognized package files with the
+          # pull-request base. A shallow checkout can make that diff fail open.
+          fetch-depth: 0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
       - name: Decide whether registry validation may skip
         id: packaging-registry
         shell: bash
@@ -52,26 +86,6 @@ jobs:
       - run: bash packaging/check.sh
         env:
           PACKAGING_REGISTRY_REQUIRED: ${{ steps.packaging-registry.outputs.required == 'true' && '1' || '0' }}
-      - run: npm run lint
-      - run: npm run check
-      # Include every TypeScript source file, including files no unit test loads,
-      # and fail if the established coverage floor regresses.
-      - run: npm run test:coverage
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: always()
-        with:
-          name: unit-test-coverage
-          path: coverage/
-          retention-days: 7
-      - run: npm run build
-      # Deliberately not blocking. A newly published advisory in some dependency
-      # is not a reason to hold up a fix the family is waiting for, and there is
-      # rarely anything to do about it in the same hour. The step goes red so it
-      # is seen; the run stays green so it is not in the way. `--omit=dev` is the
-      # honest scope: the image is built with `npm prune --omit=dev`, so nothing
-      # else ever runs in the container.
-      - run: npm audit --omit=dev --audit-level=high
-        continue-on-error: true
 
   e2e:
     name: End-to-end (${{ matrix.browser }})
