@@ -100,7 +100,15 @@ cleanup() {
 	rm -f "$PAGE" "$SETUP_OUT"
 	return "$cleanup_failed"
 }
-trap cleanup EXIT
+
+# shellcheck disable=SC2317 # Invoked indirectly by trap.
+cleanup_on_exit() {
+	local status=$1
+	trap - EXIT
+	cleanup || status=1
+	exit "$status"
+}
+trap 'cleanup_on_exit $?' EXIT
 
 echo "image:      $IMAGE"
 echo "data dir:   $DIR (owned $UIDGID, as an app store would create it)"
