@@ -13,6 +13,7 @@
 	"auth.required": "先にPINを入力してください。",
 	"dialog.cancel": "キャンセル",
 	"error.backToList": "映画リストに戻る",
+	"error.invalidRequest": "リクエストが無効です。",
 	"error.notFound": "ページが見つかりません",
 	"error.notFoundHint": "このリンクは古い可能性があります。",
 	"error.offline": "Popcorn Voteに接続できません。",

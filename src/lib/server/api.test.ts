@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { json } from '@sveltejs/kit';
 import { translator } from '$lib/i18n/translate';
-import { handled, logFailure, requirePerson, shortPath } from './api';
+import { handled, logFailure, requestJsonObject, requirePerson, shortPath } from './api';
 import { RuleError } from './game';
 import { log } from './log';
 
@@ -82,6 +82,25 @@ describe('requirePerson()', () => {
 		await expect(res.json()).resolves.toEqual({
 			error: 'Choose who you are first.'
 		});
+	});
+});
+
+describe('requestJsonObject()', () => {
+	it('returns an ordinary JSON object', async () => {
+		const request = new Request('http://localhost/api/stake', {
+			method: 'POST',
+			body: JSON.stringify({ movieId: 7 })
+		});
+		await expect(requestJsonObject(request)).resolves.toEqual({ movieId: 7 });
+	});
+
+	it.each(['{', 'null', '[]', '"text"'])('turns body %j into a translated 400', async (body) => {
+		const request = new Request('http://localhost/api/stake', { method: 'POST', body });
+		const response = await handled(locals('en'), async () =>
+			json({ body: await requestJsonObject(request) })
+		);
+		expect(response.status).toBe(400);
+		await expect(response.json()).resolves.toEqual({ error: 'The request is invalid.' });
 	});
 });
 

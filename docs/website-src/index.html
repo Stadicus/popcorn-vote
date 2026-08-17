@@ -690,6 +690,8 @@
 				overflow: hidden;
 			}
 			.stripe p {
+				display: inline-block;
+				width: max-content;
 				margin: 0;
 				white-space: nowrap;
 				padding: 0.9rem 0;
@@ -699,6 +701,7 @@
 				letter-spacing: 0.12em;
 				text-transform: uppercase;
 				animation: marquee 26s linear infinite;
+				will-change: transform;
 			}
 			.section {
 				padding: 7rem 0;
@@ -1434,7 +1437,7 @@
 			}
 			@keyframes marquee {
 				to {
-					transform: translateX(-35%);
+					transform: translateX(-50%);
 				}
 			}
 			@keyframes spin {
@@ -1456,6 +1459,9 @@
 				}
 			}
 			@media (max-width: 720px) {
+				.stripe p {
+					animation-duration: 20s;
+				}
 				.hero {
 					padding-top: 2.4rem;
 				}

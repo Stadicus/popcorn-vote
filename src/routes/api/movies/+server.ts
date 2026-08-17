@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { handled, requirePerson } from '$lib/server/api';
+import { handled, requestJsonObject, requirePerson } from '$lib/server/api';
 import { findDuplicates, RuleError } from '$lib/server/game';
 import { fetchDetails } from '$lib/server/tmdb';
 import { keyProblem } from '$lib/server/keys';
@@ -19,7 +19,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 export const POST: RequestHandler = ({ request, locals }) =>
 	handled(locals, async () => {
 		const person = requirePerson(locals);
-		const body = (await request.json()) as { tmdbId?: number; title?: string; year?: number };
+		const body = await requestJsonObject(request);
 
 		let fields;
 		if (body.tmdbId) {

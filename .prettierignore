@@ -15,6 +15,9 @@ docs/website/
 .claude/
 CLAUDE-SECURITY-*/
 
+# Unrelated local project explicitly kept outside this repository.
+family-movie-night/
+
 # The store owns the style here, not this repository. Prettier would rewrite the
 # double quotes the whole Umbrel catalogue uses into single ones, and these two
 # files have to stay byte-identical to the ones in the submission pull request.

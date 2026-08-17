@@ -20,6 +20,7 @@ svelte.config.js vite.config.ts playwright.config.ts eslint.config.js tsconfig.j
 README.md CHANGELOG.md SPECIFICATION.md DOCUMENTATION.md SECURITY.md CONTRIBUTING.md
 CODE_OF_CONDUCT.md
 config.example.yaml .env.example docker-compose.yml Dockerfile render.yaml
+docker-entrypoint.sh packaging .trivyignore.yaml
 )
 
 # Every root has to exist, or a rename would quietly shrink what is scanned and
@@ -99,6 +100,10 @@ allow=(
 	# Generated locale pages and the x-default gateway repeat native language
 	# names and localized copy. Hand-maintained website documentation stays scanned.
 	'^docs/website/(index\.html|(?:en|de|es|fr|pt-br|it|pl|tr|ja)/index\.html):'
+	# Store-facing translation catalogues and CasaOS's required inline de_DE
+	# fields are reviewed localized UI copy, not implementation prose.
+	'^packaging/home-assistant/translations/de\.yaml:'
+	'^packaging/casaos/docker-compose\.template\.yml:'
 	# This script has to name the characters it looks for.
 	'^\.github/no-german-characters\.sh:'
 	# Native language names are shown in the language switcher.

@@ -1,0 +1,55 @@
+name: popcorn-vote
+
+services:
+  popcorn-vote:
+    image: ghcr.io/stadicus/popcorn-vote:__VERSION__
+    restart: unless-stopped
+    ports:
+      - target: 3000
+        published: '3000'
+        protocol: tcp
+    volumes:
+      - /DATA/AppData/$AppID/data:/data
+    healthcheck:
+      test: [CMD, wget, -qO-, http://127.0.0.1:3000/healthz]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+x-casaos:
+  id: org.popcornvote.app
+  main: popcorn-vote
+  index: /
+  port_map: '3000'
+  scheme: http
+  icon: https://raw.githubusercontent.com/Stadicus/popcorn-vote/main/static/icon-512.png
+  title:
+    en_US: Popcorn Vote
+    de_DE: Popcorn Vote
+  tagline:
+    en_US: Settle family movie night fairly
+    de_DE: Entscheidet den Familienfilmabend fair
+  description:
+    en_US: >-
+      Suggest movies, save weekly votes, and settle ties with a wheel. Complete
+      setup in the browser immediately after installing on your trusted LAN.
+    de_DE: >-
+      Filme vorschlagen, wöchentliche Stimmen sparen und Gleichstände per
+      Glücksrad lösen. Die Einrichtung direkt nach der Installation im Browser
+      im vertrauenswürdigen LAN abschließen.
+  author: Stadicus
+  developer: Stadicus
+  category: Media
+  architectures:
+    - amd64
+    - arm64
+  version: '__VERSION__'
+  update_at: '__RELEASE_DATE__'
+  release_notes:
+    en_US: First CasaOS package for Popcorn Vote __VERSION__.
+    de_DE: Erstes CasaOS-Paket für Popcorn Vote __VERSION__.
+  website: https://popcornvote.org
+  repo: https://github.com/Stadicus/popcorn-vote
+  support: https://github.com/Stadicus/popcorn-vote/issues
+  docs: https://github.com/Stadicus/popcorn-vote/blob/main/DOCUMENTATION.md

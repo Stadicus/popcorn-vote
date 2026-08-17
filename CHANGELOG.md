@@ -1,5 +1,27 @@
 # Changelog
 
+## v1.3.0 App-store runtime and release preparation
+
+- Made the production image adopt a root-owned `/data` mount once and then
+  replace itself with the unprivileged `node` process. This enables managed
+  app-store storage without changing the existing explicit `--user` path used
+  by Unraid and Umbrel.
+- Added the Home Assistant image labels to both native release architectures and
+  CI checks that verify the labels, non-root application process, first-run
+  setup, restart, update, port change, backup restore, and both supported data
+  ownership paths.
+- Prepared non-discoverable Home Assistant and CasaOS package templates plus a
+  fail-closed materializer that accepts only a pullable multi-architecture image
+  with matching Home Assistant labels. After this release, one reviewed metadata
+  update can publish both packages and move Umbrel to the same manifest digest.
+- Strengthened package discovery, version-lag, image pinning, architecture,
+  privilege, and registry gates. Store metadata may intentionally remain one
+  release behind the application, but it cannot point at an unavailable image.
+- Gave the strict pull-request publication check an unambiguous status name,
+  added CodeQL to the exact-commit release gate, and made each successful image
+  publication report its manifest digest in a best-effort summary and JSON
+  artifact.
+
 ## v1.2.0 Reliable health, a safer default, and the first app store
 
 - Fixed the container health check, which reported every installation as

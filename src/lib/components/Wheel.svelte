@@ -8,15 +8,15 @@
 
 	const COLORS = ['#e63946', '#1d7fbf', '#2a9d8f', '#e9a11b', '#9b5de5', '#f4845f', '#00b4d8', '#ef476f'];
 
-	const n = labels.length;
-	const repeats = Math.max(2, Math.ceil(8 / n));
-	const total = n * repeats;
-	const seg = 360 / total;
-	const segments = Array.from({ length: total }, (_, s) => s % n);
+	const n = $derived(labels.length);
+	const repeats = $derived(Math.max(2, Math.ceil(8 / n)));
+	const total = $derived(n * repeats);
+	const seg = $derived(360 / total);
+	const segments = $derived(Array.from({ length: total }, (_, s) => s % n));
 
-	const winnerFields = segments.map((c, s) => ({ c, s })).filter((x) => x.c === winnerIndex);
-	const targetField = winnerFields[Math.floor(Math.random() * winnerFields.length)].s;
-	const finalAngle = 360 * 7 + (360 - (targetField * seg + seg / 2));
+	const winnerFields = $derived(segments.map((c, s) => ({ c, s })).filter((x) => x.c === winnerIndex));
+	const targetField = $derived(winnerFields[Math.floor(Math.random() * winnerFields.length)].s);
+	const finalAngle = $derived(360 * 7 + (360 - (targetField * seg + seg / 2)));
 
 	let angle = $state(0);
 	let spinning = $state(false);
@@ -58,22 +58,24 @@
 	const LABEL_INNER = 24;
 	const LABEL_OUTER = 96;
 	const LABEL_LENGTH = LABEL_OUTER - LABEL_INNER;
-	const MAX_FONT = total > 10 ? 7.5 : 9;
+	const MAX_FONT = $derived(total > 10 ? 7.5 : 9);
 	const MIN_FONT = 5.4;
 
 	const CHAR_WIDTH = 0.62; // estimated glyph width per 1 unit of font size
-	const labelSpecs = labels.map((label) => {
-		const fits = LABEL_LENGTH / (CHAR_WIDTH * Math.max(label.length, 1));
-		const fontSize = Math.max(MIN_FONT, Math.min(MAX_FONT, fits));
-		let text = label;
-		if (fits < MIN_FONT) {
-			const maxChars = Math.floor(LABEL_LENGTH / (CHAR_WIDTH * MIN_FONT));
-			text = label.slice(0, maxChars - 1).trimEnd() + '…';
-		}
-		return { text, fontSize };
-	});
+	const labelSpecs = $derived(
+		labels.map((label) => {
+			const fits = LABEL_LENGTH / (CHAR_WIDTH * Math.max(label.length, 1));
+			const fontSize = Math.max(MIN_FONT, Math.min(MAX_FONT, fits));
+			let text = label;
+			if (fits < MIN_FONT) {
+				const maxChars = Math.floor(LABEL_LENGTH / (CHAR_WIDTH * MIN_FONT));
+				text = label.slice(0, maxChars - 1).trimEnd() + '…';
+			}
+			return { text, fontSize };
+		})
+	);
 
-	const studs = Array.from({ length: total }, (_, i) => point(i * seg, 106.5));
+	const studs = $derived(Array.from({ length: total }, (_, i) => point(i * seg, 106.5)));
 </script>
 
 <div class="wrap">

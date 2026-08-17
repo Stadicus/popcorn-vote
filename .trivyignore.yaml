@@ -1,0 +1,7 @@
+misconfigurations:
+  - id: AVD-DS-0002
+    statement: >-
+      The image starts as root only to adopt the app-store-owned /data mount.
+      Its fail-closed entrypoint then execs the application as uid 1000; CI
+      verifies the uid on every supported architecture. An explicit Docker
+      --user bypasses all root-time work.

@@ -13,6 +13,7 @@
 	"auth.required": "Enter the PIN first.",
 	"dialog.cancel": "Cancel",
 	"error.backToList": "Back to movie list",
+	"error.invalidRequest": "The request is invalid.",
 	"error.notFound": "Page not found",
 	"error.notFoundHint": "This link may be outdated.",
 	"error.offline": "Cannot connect to Popcorn Vote.",

@@ -6,6 +6,7 @@ data
 .git
 .github
 .claude
+family-movie-night
 .gitignore
 .env
 .env.*
