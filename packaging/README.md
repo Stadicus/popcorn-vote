@@ -15,19 +15,29 @@ package below has to be checked.
 | `unraid/` | Unraid Community Applications | shipped |
 | `umbrel/` | Umbrel App Store | [submitted](https://github.com/getumbrel/umbrel-apps/pull/5994) |
 | `home-assistant/` | Home Assistant custom app repository | prepared for v1.3.0 |
-| `casaos/` | CasaOS direct import / later app-store contribution | prepared for v1.3.0 |
+| `casaos/` | CasaOS direct import / later app-store contribution | materialized for v1.3.0; upstream submission pending |
 
-Home Assistant and CasaOS metadata is held in non-discoverable templates until
-the v1.3.0 image exists. This avoids advertising an image that cannot yet be
-pulled. After publication and the required device tests,
-`prepare-release-metadata.sh` verifies the multi-architecture image, renders the
-Home Assistant and CasaOS files, and updates Umbrel to the same version and
-manifest-list digest. It never commits, pushes, submits, or publishes anything.
+Home Assistant metadata remains in non-discoverable templates until its required
+Home Assistant OS device test has passed. CasaOS v1.3.0 is materialized for
+direct import, while an official store submission still requires a real CasaOS
+install test and separate authorization. `prepare-release-metadata.sh` verifies
+the multi-architecture image and can render the full coordinated metadata set
+after the Home Assistant gate passes. It never commits, pushes, submits, or
+publishes anything.
 The release workflow uses a retried, best-effort post-publication inspection to
 write that digest to its job summary and the machine-readable
 `release-metadata-<version>` artifact. This avoids manual transcription from raw
 manifest output without letting a transient registry read, summary write, or
 artifact-service outage orphan an already-published image tag.
+
+Every new release also runs `prepare-store-update.sh` and opens a draft PR that
+updates Umbrel to the published manifest digest and materializes the matching
+CasaOS direct-import file. The repository secret `RELEASE_PR_TOKEN` must contain
+a fine-grained token with Contents and Pull requests read/write access. A
+personal token is required because GitHub suppresses follow-up CI for branches
+and pull requests created by the workflow's own `GITHUB_TOKEN`; the release gate
+fails before publication when this token is absent. Home Assistant is excluded
+from this automatic PR until its separate HA OS device-acceptance gate passes.
 
 The CasaOS result supports direct Compose import and is also shaped for a later
 pull request to `IceWhaleTech/CasaOS-AppStore`. Test it on a real CasaOS instance
