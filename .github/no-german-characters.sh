@@ -104,6 +104,7 @@ allow=(
 	# fields are reviewed localized UI copy, not implementation prose.
 	'^packaging/home-assistant/translations/de\.yaml:'
 	'^packaging/casaos/docker-compose\.template\.yml:'
+	'^packaging/casaos/docker-compose\.yml:'
 	# This script has to name the characters it looks for.
 	'^\.github/no-german-characters\.sh:'
 	# Native language names are shown in the language switcher.
