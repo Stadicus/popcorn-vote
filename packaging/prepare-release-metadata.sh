@@ -82,28 +82,8 @@ render packaging/home-assistant/DOCS.template.md packaging/home-assistant/DOCS.m
 render packaging/home-assistant/CHANGELOG.template.md packaging/home-assistant/CHANGELOG.md
 cp static/icon-512.png packaging/home-assistant/icon.png
 cp static/icon-512.png packaging/home-assistant/logo.png
-render packaging/casaos/docker-compose.template.yml packaging/casaos/docker-compose.yml
 
-python3 - "$version" "$digest" <<'PYTHON'
-from pathlib import Path
-import re
-import sys
-
-version, digest = sys.argv[1:]
-manifest = Path('packaging/umbrel/umbrel-app.yml')
-compose = Path('packaging/umbrel/docker-compose.yml')
-manifest.write_text(re.sub(r'(?m)^version: "[^"]+"$', f'version: "{version}"', manifest.read_text()))
-compose.write_text(re.sub(
-    r'(?m)^(\s*image: ghcr\.io/stadicus/popcorn-vote:)[^@\s]+@sha256:[0-9a-f]{64}$',
-    rf'\g<1>{version}@{digest}',
-    compose.read_text(),
-))
-PYTHON
-
-for package in home-assistant casaos; do
-	grep -qx "$package" packaging/required-packages.txt || printf '%s\n' "$package" >> packaging/required-packages.txt
-done
-
-bash packaging/check.sh
+grep -qx home-assistant packaging/required-packages.txt || printf '%s\n' home-assistant >> packaging/required-packages.txt
+RELEASE_DATE=$(date -u +%F) bash packaging/prepare-store-update.sh "$version" "$digest"
 echo "Release metadata for $version is materialized and locally validated."
 echo "Review and test it; this script does not commit, push, submit, or publish anything."

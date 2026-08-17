@@ -2,7 +2,7 @@ name: popcorn-vote
 
 services:
   popcorn-vote:
-    image: ghcr.io/stadicus/popcorn-vote:__VERSION__@__DIGEST__
+    image: ghcr.io/stadicus/popcorn-vote:1.3.0@sha256:115369d57f8fefd2aa952fe269c9fb7a0719319e86ac64f68bd6842631be404d
     restart: unless-stopped
     ports:
       - target: 3000
@@ -44,11 +44,11 @@ x-casaos:
   architectures:
     - amd64
     - arm64
-  version: '__VERSION__'
-  update_at: '__RELEASE_DATE__'
+  version: '1.3.0'
+  update_at: '2026-08-17'
   release_notes:
-    en_US: First CasaOS package for Popcorn Vote __VERSION__.
-    de_DE: Erstes CasaOS-Paket für Popcorn Vote __VERSION__.
+    en_US: First CasaOS package for Popcorn Vote 1.3.0.
+    de_DE: Erstes CasaOS-Paket für Popcorn Vote 1.3.0.
   website: https://popcornvote.org
   repo: https://github.com/Stadicus/popcorn-vote
   support: https://github.com/Stadicus/popcorn-vote/issues
