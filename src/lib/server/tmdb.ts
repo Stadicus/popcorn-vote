@@ -423,6 +423,8 @@ export function extractCertification(
  * put a working key out of action until the next restart.
  */
 const OMDB_REFUSES_THE_KEY = /invalid api key|no api key/i;
+const MAX_POSTER_BYTES = 8 * 1024 * 1024;
+const POSTER_MEDIA_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
 async function fetchImdbRating(config: AppConfig, imdbId: string): Promise<number | null> {
 	if (!config.omdbApiKey) return null;
@@ -453,13 +455,41 @@ async function fetchImdbRating(config: AppConfig, imdbId: string): Promise<numbe
 	}
 }
 
+/** Reads only image responses that fit comfortably in the app's poster cache. */
+export async function readPosterResponse(res: Response): Promise<Buffer | null> {
+	const mediaType = res.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase();
+	if (!mediaType || !POSTER_MEDIA_TYPES.has(mediaType)) return null;
+	const declaredRaw = res.headers.get('content-length');
+	if (declaredRaw !== null) {
+		const declared = Number(declaredRaw);
+		if (!Number.isSafeInteger(declared) || declared < 1 || declared > MAX_POSTER_BYTES) return null;
+	}
+	if (!res.body) return null;
+
+	const reader = res.body.getReader();
+	const chunks: Uint8Array[] = [];
+	let total = 0;
+	while (true) {
+		const { done, value } = await reader.read();
+		if (done) break;
+		total += value.byteLength;
+		if (total > MAX_POSTER_BYTES) {
+			await reader.cancel();
+			return null;
+		}
+		chunks.push(value);
+	}
+	return total > 0 ? Buffer.concat(chunks, total) : null;
+}
+
 async function downloadPoster(config: AppConfig, posterPath: string): Promise<string | null> {
 	try {
 		const res = await fetch(`https://image.tmdb.org/t/p/w500${posterPath}`, {
 			signal: AbortSignal.timeout(15_000)
 		});
 		if (!res.ok) return null;
-		const buffer = Buffer.from(await res.arrayBuffer());
+		const buffer = await readPosterResponse(res);
+		if (!buffer) return null;
 		// Clamped to what `/covers/[file]` will serve. TMDB delivers .jpg in
 		// practice, but an extension outside that list would be stored and then
 		// answered with a 404 by the guard there, the two ends belong together.

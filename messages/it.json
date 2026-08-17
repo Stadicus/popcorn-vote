@@ -13,6 +13,7 @@
 	"auth.required": "Inserisci prima il PIN.",
 	"dialog.cancel": "Annulla",
 	"error.backToList": "Torna alla lista",
+	"error.invalidRequest": "La richiesta non è valida.",
 	"error.notFound": "Pagina non trovata",
 	"error.notFoundHint": "Questo link potrebbe non essere aggiornato.",
 	"error.offline": "Impossibile connettersi a Popcorn Vote.",

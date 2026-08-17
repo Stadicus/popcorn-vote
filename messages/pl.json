@@ -13,6 +13,7 @@
 	"auth.required": "Najpierw wpisz PIN.",
 	"dialog.cancel": "Anuluj",
 	"error.backToList": "Wróć do listy filmów",
+	"error.invalidRequest": "Żądanie jest nieprawidłowe.",
 	"error.notFound": "Nie znaleziono strony",
 	"error.notFoundHint": "Ten link może być nieaktualny.",
 	"error.offline": "Nie można połączyć się z Popcorn Vote.",

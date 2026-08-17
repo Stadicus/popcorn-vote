@@ -66,6 +66,20 @@ export function requirePerson(locals: App.Locals): string {
 	return locals.personId;
 }
 
+/** Parses the JSON object every mutating API endpoint expects. */
+export async function requestJsonObject(request: Request): Promise<Record<string, unknown>> {
+	let value: unknown;
+	try {
+		value = await request.json();
+	} catch {
+		throw new RuleError('error.invalidRequest');
+	}
+	if (!value || typeof value !== 'object' || Array.isArray(value)) {
+		throw new RuleError('error.invalidRequest');
+	}
+	return value as Record<string, unknown>;
+}
+
 /**
  * Wraps every API handler: a broken rule becomes a 400 carrying the sentence the
  * user reads, anything else a 500 plus a log line for whoever runs the container.

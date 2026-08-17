@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { redirectIfUnauthorized } from '$lib/client/api';
 	import { detectStandalone } from '$lib/client/install.svelte';
@@ -38,12 +39,12 @@
 
 	// State machine of the TV stage: standings → (wheel) → winner celebration.
 	type Mode = 'board' | 'wheel' | 'reveal';
-	let mode: Mode = $state(data.winner ? 'reveal' : 'board');
-	let standings: Standing[] = $state(data.standings);
-	let winner: WinnerView | null = $state(data.winner);
+	let mode: Mode = $state(untrack(() => (data.winner ? 'reveal' : 'board')));
+	let standings: Standing[] = $state(untrack(() => data.standings));
+	let winner: WinnerView | null = $state(untrack(() => data.winner));
 	let wheelData: { labels: string[]; winnerIndex: number } | null = $state(null);
 	// Events already present when switching on count as seen, only new ones are celebrated.
-	let seenEventId = $state(data.lastEvent?.id ?? 0);
+	let seenEventId = $state(untrack(() => data.lastEvent?.id ?? 0));
 
 	async function poll() {
 		if (mode === 'wheel') return; // rebuild nothing while it spins

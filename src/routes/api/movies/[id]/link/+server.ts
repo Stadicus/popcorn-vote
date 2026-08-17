@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { handled, requirePerson } from '$lib/server/api';
+import { handled, requestJsonObject, requirePerson } from '$lib/server/api';
 import { RuleError } from '$lib/server/game';
 import { fetchDetails } from '$lib/server/tmdb';
 import { keyProblem } from '$lib/server/keys';
@@ -10,7 +10,7 @@ import { log } from '$lib/server/log';
 export const POST: RequestHandler = ({ request, params, locals }) =>
 	handled(locals, async () => {
 		requirePerson(locals);
-		const { tmdbId } = (await request.json()) as { tmdbId: number };
+		const { tmdbId } = await requestJsonObject(request);
 		let d;
 		try {
 			d = await fetchDetails(locals.config, Number(tmdbId));

@@ -52,17 +52,53 @@ wait_for_healthz() {   # wait_for_healthz <port>, echoes the last status code
 	printf '%s' "$code"
 }
 
+remove_container() {
+	local name=$1 containers
+	for _ in 1 2 3; do
+		docker rm -f "$name" >/dev/null 2>&1 || true
+		if containers=$(docker ps -a --filter "name=^/${name}$" --format '{{.ID}}' 2>/dev/null) && [ -z "$containers" ]; then
+			return 0
+		fi
+		sleep 1
+	done
+	echo "container $name still exists after cleanup retries" >&2
+	return 1
+}
+
+remove_data_dir() {
+	local dir=$1 host_uid host_gid
+	[ -d "$dir" ] || return 0
+	host_uid=$(id -u)
+	host_gid=$(id -g)
+	for _ in 1 2 3; do
+		# App-store users own these bind mounts inside the test. Empty them as
+		# container root, restore the host owner, and require host-side removal.
+		docker run --rm -v "$dir":/x alpine:3.22 sh -c \
+			'find /x -mindepth 1 -delete; chown "$1:$2" /x' sh "$host_uid" "$host_gid" >/dev/null 2>&1 || true
+		if rmdir "$dir" 2>/dev/null; then
+			return 0
+		fi
+		sleep 1
+	done
+	echo "temporary data cleanup failed: $dir" >&2
+	docker run --rm -v "$dir":/x alpine:3.22 find /x -mindepth 1 -print >&2 || true
+	return 1
+}
+
+# shellcheck disable=SC2317 # Invoked indirectly by trap.
 cleanup() {
-	docker rm -f "$NAME" "$NAME-alt" "$NAME-copy" >/dev/null 2>&1
-	docker run --rm -v "$DIR":/x alpine rm -rf /x/. >/dev/null 2>&1
-	rmdir "$DIR" 2>/dev/null
+	local cleanup_failed=0
+	for container in "$NAME" "$NAME-alt" "$NAME-copy"; do
+		remove_container "$container" || cleanup_failed=1
+	done
+	remove_data_dir "$DIR" || cleanup_failed=1
 	# Declared later in the script, so it may not exist yet when a signal
 	# arrives; without this it survived every interrupted run.
-	if [ -n "${COPY:-}" ] && [ -d "${COPY:-}" ]; then
-		docker run --rm -v "$COPY":/x alpine rm -rf /x/. >/dev/null 2>&1
-		rmdir "$COPY" 2>/dev/null
+	if [ -n "${COPY:-}" ]; then
+		remove_data_dir "$COPY" || cleanup_failed=1
 	fi
 	rm -f "$PAGE" "$SETUP_OUT"
+	return "$cleanup_failed"
 }
 trap cleanup EXIT
 
@@ -98,7 +134,12 @@ esac
 
 if [ "$fail" = 0 ]; then
 	code=$(wait_for_healthz "$PORT")
-	[ "$code" = "200" ] && echo "  OK    /healthz 200" || { echo "  FAIL  /healthz $code"; fail=1; }
+	if [ "$code" = "200" ]; then
+		echo "  OK    /healthz 200"
+	else
+		echo "  FAIL  /healthz $code"
+		fail=1
+	fi
 
 	# The whole point of an app store package: a browser lands on something
 	# actionable, with no shell and no file editing.
@@ -111,7 +152,12 @@ if [ "$fail" = 0 ]; then
 
 	# Written as the store's user, so the operator can back the directory up.
 	owner=$(docker run --rm -v "$DIR":/x alpine stat -c '%u:%g' /x/popcornvote.sqlite 2>/dev/null)
-	[ "$owner" = "$UIDGID" ] && echo "  OK    database owned $owner" || { echo "  FAIL  database owned $owner, expected $UIDGID"; fail=1; }
+	if [ "$owner" = "$UIDGID" ]; then
+		echo "  OK    database owned $owner"
+	else
+		echo "  FAIL  database owned $owner, expected $UIDGID"
+		fail=1
+	fi
 
 	# Stores show this state to their users, and compose can be told to wait for
 	# it, so an app that serves fine while reporting unhealthy is a real defect.
@@ -189,7 +235,12 @@ if [ "$fail" = 0 ]; then
 	# a consistent file behind, not a half-written one.
 	docker restart "$NAME" >/dev/null 2>&1
 	code=$(wait_for_healthz "$PORT")
-	[ "$code" = "200" ] && echo "  OK    survives a restart" || { echo "  FAIL  unhealthy after restart ($code)"; fail=1; }
+	if [ "$code" = "200" ]; then
+		echo "  OK    survives a restart"
+	else
+		echo "  FAIL  unhealthy after restart ($code)"
+		fail=1
+	fi
 
 	# Stores let people pick their own host port, and nothing in the app may
 	# assume the one from the template.
@@ -198,7 +249,12 @@ if [ "$fail" = 0 ]; then
 	docker run -d --name "$NAME-alt" $PLATFORM_ARG $EXTRA -p "$ALT_PORT":3000 -v "$DIR":/data "$IMAGE" >/dev/null 2>&1
 	alt=$(wait_for_healthz "$ALT_PORT")
 	docker rm -f "$NAME-alt" >/dev/null 2>&1
-	[ "$alt" = "200" ] && echo "  OK    works on a different host port" || { echo "  FAIL  broken on a different host port ($alt)"; fail=1; }
+	if [ "$alt" = "200" ]; then
+		echo "  OK    works on a different host port"
+	else
+		echo "  FAIL  broken on a different host port ($alt)"
+		fail=1
+	fi
 
 	# Store users back up appdata by copying it. A copy has to start elsewhere
 	# with the same ownership contract as the package under test.
@@ -219,7 +275,10 @@ if [ "$fail" = 0 ]; then
 		*)       echo "  OK    a copied data directory keeps its configuration (backup restore)" ;;
 	esac
 	docker rm -f "$NAME-copy" >/dev/null 2>&1
-	docker run --rm -v "$COPY":/x alpine rm -rf /x/. >/dev/null 2>&1; rmdir "$COPY" 2>/dev/null
+	if ! remove_container "$NAME-copy" || ! remove_data_dir "$COPY"; then
+		echo "  FAIL  copied data cleanup failed"
+		fail=1
+	fi
 fi
 
 echo

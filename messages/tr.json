@@ -13,6 +13,7 @@
 	"auth.required": "Önce PIN'i gir.",
 	"dialog.cancel": "İptal",
 	"error.backToList": "Film listesine dön",
+	"error.invalidRequest": "İstek geçersiz.",
 	"error.notFound": "Sayfa bulunamadı",
 	"error.notFoundHint": "Bu bağlantı eski olabilir.",
 	"error.offline": "Popcorn Vote'a bağlanılamıyor.",

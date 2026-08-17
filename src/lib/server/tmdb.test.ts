@@ -10,7 +10,8 @@ import {
 	extractCertification,
 	trailerChain,
 	trailerRequestLanguages,
-	pickTrailer
+	pickTrailer,
+	readPosterResponse
 } from './tmdb';
 
 // No network: `fetch` is stubbed and the answers come as fixtures from this
@@ -74,6 +75,37 @@ function answerWith(routes: (call: Call) => Record<string, unknown>) {
 }
 
 afterEach(() => vi.unstubAllGlobals());
+
+describe('poster response bounds', () => {
+	it('accepts a small supported image', async () => {
+		const response = new Response(new Uint8Array([1, 2, 3]), {
+			headers: { 'content-type': 'image/jpeg; charset=binary', 'content-length': '3' }
+		});
+		await expect(readPosterResponse(response)).resolves.toEqual(Buffer.from([1, 2, 3]));
+	});
+
+	it('rejects non-images and declared oversized responses before reading them', async () => {
+		const wrongType = new Response('not an image', { headers: { 'content-type': 'text/html' } });
+		await expect(readPosterResponse(wrongType)).resolves.toBeNull();
+
+		const oversized = new Response(new Uint8Array([1]), {
+			headers: { 'content-type': 'image/png', 'content-length': String(8 * 1024 * 1024 + 1) }
+		});
+		await expect(readPosterResponse(oversized)).resolves.toBeNull();
+	});
+
+	it('stops a chunked response once the actual body crosses the limit', async () => {
+		const stream = new ReadableStream<Uint8Array>({
+			start(controller) {
+				controller.enqueue(new Uint8Array(5 * 1024 * 1024));
+				controller.enqueue(new Uint8Array(4 * 1024 * 1024));
+				controller.close();
+			}
+		});
+		const response = new Response(stream, { headers: { 'content-type': 'image/webp' } });
+		await expect(readPosterResponse(response)).resolves.toBeNull();
+	});
+});
 
 /** Answer of the movie endpoint; poster_path stays empty, or the test would download an image. */
 function movieResponse(fields: Record<string, unknown> = {}): Record<string, unknown> {
