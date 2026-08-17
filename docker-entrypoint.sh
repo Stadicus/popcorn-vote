@@ -46,7 +46,7 @@ if [ ! -e "$sentinel" ]; then
 	# to the Home Assistant Supervisor and the application deliberately ignores it.
 	find "$data_dir" -xdev \
 		-path "$data_dir/options.json" -prune -o \
-		-exec chown -h node:node {} \;
+		-exec chown -h node:node {} +
 	: > "$sentinel"
 	chown node:node "$sentinel"
 fi

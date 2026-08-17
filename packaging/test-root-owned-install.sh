@@ -10,6 +10,7 @@ port=${PORT:-$((4200 + run % 80))}
 image=${IMAGE:-popcorn-vote:ci}
 data_dir=$(mktemp -d)
 response=$(mktemp)
+locked_file=$(mktemp)
 fail=0
 
 # shellcheck disable=SC2317 # Invoked indirectly by trap.
@@ -18,6 +19,7 @@ cleanup() {
 	host_uid=$(id -u)
 	host_gid=$(id -g)
 	rm -f "$response"
+	rm -f "$locked_file"
 	for _ in 1 2 3; do
 		docker rm -f "$name" >/dev/null 2>&1 || true
 		if containers=$(docker ps -a --filter "name=^/${name}$" --format '{{.ID}}' 2>/dev/null) && [ -z "$containers" ]; then
@@ -83,6 +85,19 @@ else
 	ok 'symbolic-link ownership marker is rejected without following it'
 fi
 rm -f "$data_dir/.ownership-migrated"
+
+# A read-only nested bind mount behaves like immutable/NFS-backed content: root
+# cannot change its ownership. A partial migration must fail without recording
+# success, so the next start can retry after the operator fixes the mount.
+if docker run --rm -v "$data_dir":/data \
+	--mount "type=bind,source=$locked_file,target=/data/cannot-chown,readonly" \
+	"$image" true >/dev/null 2>&1; then
+	bad 'an ownership migration with an unchownable entry succeeded'
+elif [ -e "$data_dir/.ownership-migrated" ]; then
+	bad 'a failed ownership migration created its marker'
+else
+	ok 'failed ownership migration remains armed for retry'
+fi
 
 if ! docker run -d --name "$name" -p "$port":3000 -v "$data_dir":/data "$image" >/dev/null; then
 	bad 'container did not start'
