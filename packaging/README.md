@@ -145,20 +145,14 @@ complete setup, then stops offering it, survives an update and a restart, works
 on another host port, and comes back from a copied data directory. Two runs may
 overlap; names, ports and temporary files carry the PID.
 
-The ownership is the point of the test, and the two stores do not agree on it:
-Unraid creates appdata as `99:100`, Umbrel as `1000:1000`. The defaults above are
-Unraid's, so the Umbrel package deserves its own pass:
-
-```sh
-UIDGID=1000:1000 EXTRA='--user 1000:1000' bash packaging/test-install.sh
-```
-
-`test-root-owned-install.sh` covers the complementary app-store path used by
-Home Assistant and by Compose-based stores without a published host UID
-convention. The container adopts a root-owned mount once, leaves a platform-owned
-`options.json` alone, records `/data/.ownership-migrated`, and replaces itself
-with the application as uid 1000. If files are later copied into that directory
-as root, remove the marker and restart to repeat the migration.
+The ownership is the point of the test. Unraid creates appdata as `99:100`, so
+its template explicitly runs the container as that user. Umbrel creates the
+app-data directory as root, so its package starts the image entrypoint as root
+once; the entrypoint adopts the mount and then replaces itself with the
+application as uid 1000. `test-root-owned-install.sh` covers that path. It
+leaves a platform-owned `options.json` alone and records
+`/data/.ownership-migrated`; if files are later copied into that directory as
+root, remove the marker and restart to repeat the migration.
 
 CI runs both install paths natively on AMD64 and ARM64. For a local ARM64 check,
 run the scripts on an ARM64 host. QEMU is a slower fallback when no such host is

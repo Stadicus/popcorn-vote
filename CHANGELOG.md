@@ -4,8 +4,7 @@
 
 - Made the production image adopt a root-owned `/data` mount once and then
   replace itself with the unprivileged `node` process. This enables managed
-  app-store storage without changing the existing explicit `--user` path used
-  by Unraid and Umbrel.
+  app-store storage without changing Unraid's existing explicit `--user` path.
 - Added the Home Assistant image labels to both native release architectures and
   CI checks that verify the labels, non-root application process, first-run
   setup, restart, update, port change, backup restore, and both supported data
