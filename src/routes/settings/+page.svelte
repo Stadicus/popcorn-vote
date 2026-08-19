@@ -353,27 +353,29 @@
 	.settings-head {
 		display: flex;
 		justify-content: space-between;
-		align-items: end;
-		margin-bottom: 1.5rem;
-		border-bottom: 3px solid var(--text);
-		padding-bottom: 0.8rem;
+		align-items: center;
+		margin-bottom: 1rem;
 	}
 	.settings-head h1 {
-		font-family: Georgia, serif;
-		font-size: clamp(2rem, 7vw, 3.5rem);
+		font-size: 1.3rem;
 		margin: 0;
-		letter-spacing: -0.04em;
 	}
 	.kicker {
 		margin: 0 0 0.25rem;
-		color: var(--accent);
-		font-size: 0.68rem;
-		font-weight: 850;
-		letter-spacing: 0.16em;
+		color: var(--muted);
+		font-size: 0.75rem;
+		font-weight: 600;
+		letter-spacing: 0.04em;
 	}
 	.reel {
-		font-size: 2rem;
+		display: grid;
+		place-items: center;
+		width: 2.5rem;
+		height: 2.5rem;
+		border-radius: 50%;
+		background: var(--accent-soft);
 		color: var(--accent);
+		font-size: 1.25rem;
 	}
 	.saved {
 		padding: 0.7rem 0.9rem;
@@ -387,9 +389,9 @@
 	}
 	.section-nav {
 		display: flex;
-		gap: 0.35rem;
+		gap: 0.5rem;
 		overflow-x: auto;
-		padding-bottom: 0.3rem;
+		padding: 0 0 0.75rem;
 	}
 	.section-nav button {
 		display: flex;
@@ -397,15 +399,15 @@
 		align-items: center;
 		padding: 0.65rem 0.8rem;
 		border: 1px solid var(--line);
-		border-radius: 999px;
+		border-radius: 10px;
 		white-space: nowrap;
 		color: var(--muted);
 	}
 	.section-nav button.active {
 		color: var(--text);
 		background: var(--accent-soft);
-		border-color: var(--accent);
-		font-weight: 750;
+		border-color: transparent;
+		font-weight: 700;
 	}
 	.panel {
 		min-width: 0;
@@ -419,13 +421,12 @@
 		display: flex;
 		justify-content: space-between;
 		gap: 1rem;
-		padding-bottom: 1rem;
-		margin-bottom: 1.2rem;
-		border-bottom: 1px dashed var(--line);
+		padding-bottom: 0.9rem;
+		margin-bottom: 1rem;
+		border-bottom: 1px solid var(--line);
 	}
 	.section-title h2 {
-		font-family: Georgia, serif;
-		font-size: 1.7rem;
+		font-size: 1.05rem;
 		margin: 0;
 	}
 	.section-title p {
@@ -434,9 +435,9 @@
 		line-height: 1.5;
 	}
 	.section-title > span {
-		color: var(--accent);
-		font-size: 1.7rem;
-		font-weight: 800;
+		color: var(--muted);
+		font-size: 0.8rem;
+		font-weight: 600;
 	}
 	.form-grid {
 		display: grid;
@@ -476,9 +477,8 @@
 		border-radius: 50%;
 		background: var(--accent-soft);
 		color: var(--accent);
-		font-family: Georgia, serif;
-		font-size: 1.25rem;
-		font-weight: 800;
+		font-size: 1rem;
+		font-weight: 700;
 	}
 	.user-row p {
 		margin: 0.15rem 0 0;
@@ -566,7 +566,7 @@
 	.editor-head {
 		display: flex;
 		justify-content: space-between;
-		border-bottom: 1px dashed var(--line);
+		border-bottom: 1px solid var(--line);
 		padding-bottom: 0.8rem;
 	}
 	.editor-head h2 {
@@ -589,16 +589,10 @@
 	}
 	@media (min-width: 760px) {
 		.settings-layout {
-			grid-template-columns: 150px 1fr;
-			align-items: start;
+			grid-template-columns: 1fr;
 		}
 		.section-nav {
-			display: grid;
-			overflow: visible;
-		}
-		.section-nav button {
-			border-radius: 0.7rem;
-			border-color: transparent;
+			overflow: auto;
 		}
 		.form-grid {
 			grid-template-columns: 1fr 1fr;
