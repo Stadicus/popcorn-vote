@@ -206,7 +206,7 @@ jobs:
           set -euo pipefail
           echo "image=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
           echo "slug=${PLATFORM//\//-}" >> "$GITHUB_OUTPUT"
-      - uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
+      - uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4
       - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
         with:
           registry: ghcr.io
@@ -293,7 +293,7 @@ jobs:
           path: ${{ runner.temp }}/digests
           pattern: digest-*
           merge-multiple: true
-      - uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
+      - uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4
         if: steps.target.outputs.publish_candidate == 'true'
       - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
         if: steps.target.outputs.publish_candidate == 'true'
