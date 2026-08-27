@@ -146,13 +146,18 @@ on another host port, and comes back from a copied data directory. Two runs may
 overlap; names, ports and temporary files carry the PID.
 
 The ownership is the point of the test. Unraid creates appdata as `99:100`, so
-its template explicitly runs the container as that user. Umbrel creates the
-app-data directory as root, so its package starts the image entrypoint as root
-once; the entrypoint adopts the mount and then replaces itself with the
-application as uid 1000. `test-root-owned-install.sh` covers that path. It
-leaves a platform-owned `options.json` alone and records
-`/data/.ownership-migrated`; if files are later copied into that directory as
-root, remove the marker and restart to repeat the migration.
+its template explicitly runs the container as that user. Umbrel hands the
+committed `data/` directory to the app owned by `1000:1000` (umbreld clones the
+app store with `chown -R 1000:1000` and copies the package with
+`rsync --archive`), so its package runs the container as `1000:1000`, which is
+the image's own `node` user; CI exercises exactly that with
+`EXTRA='--user 1000:1000'`. Home Assistant and CasaOS create the mount as root,
+so those packages start the image entrypoint as root once; the entrypoint adopts
+the mount and then replaces itself with the application as uid 1000.
+`test-root-owned-install.sh` covers that path. It leaves a platform-owned
+`options.json` alone and records `/data/.ownership-migrated`; if files are later
+copied into that directory as root, remove the marker and restart to repeat the
+migration.
 
 CI runs both install paths natively on AMD64 and ARM64. For a local ARM64 check,
 run the scripts on an ARM64 host. QEMU is a slower fallback when no such host is
