@@ -48,7 +48,11 @@ COPY --from=build /app/build ./build
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/package.json ./
 COPY docker-entrypoint.sh /usr/local/bin/popcorn-vote-entrypoint
-RUN apk add --no-cache su-exec && \
+# Upgrade the base image's Alpine packages first: the node image is rebuilt on
+# its own schedule, and a fixed OpenSSL in the Alpine repository should reach
+# the published image without waiting for it.
+RUN apk upgrade --no-cache && \
+    apk add --no-cache su-exec && \
     rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx && \
     chmod 0755 /usr/local/bin/popcorn-vote-entrypoint && \
     mkdir -p /data && chown node:node /data
