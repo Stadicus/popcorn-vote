@@ -18,4 +18,17 @@ if bash packaging/registry-required.sh HEAD refs/heads/definitely-missing-regist
 	exit 1
 fi
 
+# A binary file in the diff (a gallery image, say) is not metadata and must not
+# break the decision. Built as a detached commit so the test needs no fixture.
+blob=$(printf '\377\330\377\340JFIF' | git hash-object -w --stdin)
+index=$(mktemp)
+trap 'rm -f "$index"' EXIT
+GIT_INDEX_FILE=$index git read-tree HEAD
+GIT_INDEX_FILE=$index git update-index --add --cacheinfo "100644,$blob,docs/store-gallery.jpg"
+tree=$(GIT_INDEX_FILE=$index git write-tree)
+commit=$(GIT_AUTHOR_NAME=test GIT_AUTHOR_EMAIL=test@example.invalid \
+	GIT_COMMITTER_NAME=test GIT_COMMITTER_EMAIL=test@example.invalid \
+	git commit-tree "$tree" -p HEAD -m "binary fixture")
+test "$(bash packaging/registry-required.sh HEAD "$commit")" = false
+
 echo "registry validation decision fails closed"
