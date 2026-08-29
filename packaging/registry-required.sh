@@ -33,7 +33,13 @@ for revision in (base, head):
 
 def read(revision, path):
     result = git('show', f'{revision}:{path}')
-    return result.stdout.decode() if result.returncode == 0 else None
+    if result.returncode != 0:
+        return None
+    try:
+        return result.stdout.decode()
+    except UnicodeDecodeError:
+        # Images and other binaries cannot carry store metadata.
+        return None
 
 def sibling_exists(revision, path, name):
     sibling = str(PurePosixPath(path).parent / name)
