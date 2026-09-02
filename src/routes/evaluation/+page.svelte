@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
-	import { afterNavigate, invalidateAll, replaceState } from '$app/navigation';
+	import { afterNavigate, goto, invalidateAll, replaceState } from '$app/navigation';
 	import { page } from '$app/state';
 	import { call, errorText } from '$lib/client/api';
 	import { supernova } from '$lib/client/celebrate';
@@ -167,11 +167,13 @@
 		// pending, and the evening it belongs to is still this one.
 		if (action === 'watched' && result.ok) {
 			reveal = null;
-			// The evening is over, so who missed it is over with it. A tablet that
-			// never navigates away would otherwise open next week still counting
-			// without Ben. A revert keeps the selection on purpose: that is the same
-			// evening, being run again.
+			// The evening is over, so who missed it is over with it. `confirmWatched()`
+			// has already cleared the shared copy; this is the local one. A revert
+			// keeps the selection on purpose: that is the same evening, run again.
 			absent = [];
+			// Rating is what comes next, and the film is the top card there. Straight
+			// to it rather than leaving an empty evaluation page behind.
+			await goto('/archive');
 		}
 	}
 </script>

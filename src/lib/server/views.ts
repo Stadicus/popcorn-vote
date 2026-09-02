@@ -91,7 +91,11 @@ export interface ArchiveEntry extends MovieView {
 
 export function archiveMovies(db: DB): ArchiveEntry[] {
 	const rows = db
-		.prepare("SELECT * FROM movies WHERE status = 'archived' ORDER BY watched_at DESC")
+		// `id DESC` is the tiebreak, not the guarantee: two films are never confirmed
+		// in the same millisecond, so the freshly watched one is on top through
+		// `watched_at` alone. Without it a collision would be resolved by nothing at
+		// all, which is a worse thing to hand the archive page.
+		.prepare("SELECT * FROM movies WHERE status = 'archived' ORDER BY watched_at DESC, id DESC")
 		.all() as MovieRow[];
 	return rows.map((row) => {
 		const ratings = db
