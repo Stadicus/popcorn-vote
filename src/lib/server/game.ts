@@ -12,6 +12,7 @@ import {
 } from '$lib/standings';
 import type { DB } from './db';
 import type { AppConfig } from './config';
+import { clearTonightAbsent, setTonightAbsent } from './tonight';
 
 /**
  * A broken game rule, carried as a catalogue key rather than as a finished
@@ -188,21 +189,34 @@ export function standings(db: DB): Standing[] {
 }
 
 /**
- * Who is not there tonight, checked and tidied before anything is counted or
- * stored. Returns the deduplicated list, which is what gets written.
+ * Who is not there, deduplicated and checked against the family. Returns the
+ * tidied list, which is what gets stored.
  *
- * The order of the three checks is the order of their cost: an absurdly long
- * list is refused as a malformed request before every id is looked up, and only
- * then does the rule about leaving somebody behind get a say.
+ * The order of the two checks is the order of their cost: an absurdly long list
+ * is refused as a malformed request before every single id is looked up.
+ *
+ * Deliberately allows "everybody is away". While somebody is tapping chips that
+ * is an ordinary in-between state of the interface, and `/api/tonight` has to
+ * be able to record it; only *evaluating* such a night is refused, which is
+ * `requireAbsent()` below.
+ */
+export function validAbsent(config: AppConfig, absent: string[]): string[] {
+	const away = [...new Set(absent)];
+	if (away.length > config.members.length) throw new RuleError('error.invalidRequest');
+	for (const id of away) requireMember(config, id);
+	return away;
+}
+
+/**
+ * The same, plus the rule that somebody has to be left to watch the film. This
+ * is what deciding an evening goes through.
  *
  * The person operating the phone may be among the absent, and that is not
  * enforced either way: somebody has to press the button for the family, and it
  * is no business of the app which of them it is.
  */
 export function requireAbsent(config: AppConfig, absent: string[]): string[] {
-	const away = [...new Set(absent)];
-	if (away.length > config.members.length) throw new RuleError('error.invalidRequest');
-	for (const id of away) requireMember(config, id);
+	const away = validAbsent(config, absent);
 	if (away.length === config.members.length) throw new RuleError('rule.nobodyPresent');
 	return away;
 }
@@ -314,6 +328,10 @@ export function evaluate(
 				blocked
 			})
 		);
+		// The shared evening follows what actually decided it, so the television and
+		// every phone loaded from here on agree with the reveal. An output only:
+		// nothing in this function ever reads it back.
+		setTonightAbsent(db, away);
 		return { winner, wheel, standings, absent: away, blocked };
 	});
 	return tx();
@@ -361,6 +379,10 @@ export function freePick(
 				blocked
 			})
 		);
+		// Same as in `evaluate()`: the free pick decides the evening too, and the
+		// film page never publishes on its own, so this is the only place a pick
+		// from there reaches the shared state.
+		setTonightAbsent(db, away);
 		return { winner: getMovie(db, movieId), absent: away, blocked };
 	});
 	return tx();
@@ -405,6 +427,9 @@ export function confirmWatched(db: DB, config: AppConfig, actor: string): MovieR
 			now(),
 			JSON.stringify({ movieId: winner.id, title: winner.title })
 		);
+		// The evening is over, so who missed it is over with it. `revertWinner()`
+		// deliberately does not do this: that is the same evening, run again.
+		clearTonightAbsent(db);
 		return getMovie(db, winner.id);
 	});
 	return tx();

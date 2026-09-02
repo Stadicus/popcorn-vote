@@ -19,8 +19,11 @@ import {
 	currentWinner,
 	setProposer,
 	standings,
+	requireAbsent,
+	validAbsent,
 	RuleError
 } from './game';
+import { tonightAbsent } from './tonight';
 import { missedCredits, runCreditTick, backupDue } from './schedule';
 import { metaSet, metaGet } from './db';
 
@@ -580,6 +583,73 @@ describe('movie night when someone is away', () => {
 			const before = standings(db);
 			expect(evaluate(db, config, 'anna').standings).toEqual(before);
 		});
+	});
+});
+
+describe('the evening every device shares', () => {
+	function twoCamps(): { a: number; b: number } {
+		give('anna', 1);
+		give('ben', 3);
+		const a = addMovie('A', 'anna');
+		const b = addMovie('B', 'ben');
+		stake(db, config, 'anna', a, 1);
+		for (let i = 0; i < 3; i++) stake(db, config, 'ben', b, 1);
+		return { a, b };
+	}
+
+	it('publishes what actually decided the night', () => {
+		twoCamps();
+		evaluate(db, config, 'anna', undefined, ['ben']);
+		expect(tonightAbsent(db)).toEqual(['ben']);
+	});
+
+	it('publishes an empty evening for a full night, rather than leaving the last one standing', () => {
+		twoCamps();
+		evaluate(db, config, 'anna', undefined, ['ben']);
+		revertWinner(db, config, 'anna');
+		evaluate(db, config, 'anna');
+		expect(tonightAbsent(db)).toEqual([]);
+	});
+
+	it('publishes from a free pick too, which the film page never does itself', () => {
+		const { a } = twoCamps();
+		freePick(db, config, 'anna', a, ['ben']);
+		expect(tonightAbsent(db)).toEqual(['ben']);
+	});
+
+	// A revert re-runs the same evening, so the shared selection has to survive
+	// it — the phones keep theirs as well.
+	it('keeps the evening through a revert', () => {
+		twoCamps();
+		evaluate(db, config, 'anna', undefined, ['ben']);
+		revertWinner(db, config, 'anna');
+		expect(tonightAbsent(db)).toEqual(['ben']);
+	});
+
+	it('ends the evening with "watched"', () => {
+		twoCamps();
+		evaluate(db, config, 'anna', undefined, ['ben']);
+		confirmWatched(db, config, 'anna');
+		expect(tonightAbsent(db)).toEqual([]);
+	});
+});
+
+describe('validAbsent() against requireAbsent()', () => {
+	// The whole reason for the split: /api/tonight has to be able to record
+	// "everybody is away" while somebody is still tapping chips.
+	it('lets validAbsent record an evening nobody would attend', () => {
+		expect(validAbsent(config, ['anna', 'ben', 'cleo'])).toEqual(['anna', 'ben', 'cleo']);
+	});
+
+	it('still refuses to evaluate such a night', () => {
+		expect(() => requireAbsent(config, ['anna', 'ben', 'cleo'])).toThrow('rule.nobodyPresent');
+	});
+
+	it('agrees with requireAbsent on everything else', () => {
+		expect(validAbsent(config, ['ben', 'ben'])).toEqual(['ben']);
+		expect(requireAbsent(config, ['ben', 'ben'])).toEqual(['ben']);
+		expect(() => validAbsent(config, ['mia'])).toThrow('rule.unknownPerson');
+		expect(() => validAbsent(config, ['a', 'b', 'c', 'd'])).toThrow('error.invalidRequest');
 	});
 });
 
