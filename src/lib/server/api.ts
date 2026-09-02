@@ -108,12 +108,19 @@ export function parseAbsent(value: unknown): string[] {
  *
  * `/api/evaluate` took no body at all until partial nights arrived, and `call()`
  * in `$lib/client/api` sends neither a body nor a content type when it has
- * nothing to send, which `requestJsonObject()` would reject. Reading the body
- * only when there is one keeps a bodyless request meaning what it always meant:
- * everybody is here.
+ * nothing to send, which `requestJsonObject()` would reject. No content type
+ * therefore still means what it always meant: everybody is here.
+ *
+ * A content type that is present but is not JSON is refused rather than read as
+ * "nobody is missing". Somebody who sends a body has something to say, and
+ * quietly evaluating a full night because the header was spelled `text/plain`
+ * would count the votes of a person the caller had just declared absent. The
+ * match is case-insensitive because header values are.
  */
 export async function absentFromRequest(request: Request): Promise<string[]> {
-	if (!request.headers.get('content-type')?.includes('application/json')) return [];
+	const type = request.headers.get('content-type');
+	if (!type) return [];
+	if (!/application\/json/i.test(type)) throw new RuleError('error.invalidRequest');
 	return parseAbsent((await requestJsonObject(request)).absent);
 }
 

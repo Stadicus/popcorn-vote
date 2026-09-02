@@ -125,7 +125,7 @@
 		"one": "El voto vuelve a quien lo hizo, hasta un saldo de {cap}. Lo que supere el límite se pierde, así que quizá prefieras eliminarla más tarde.",
 		"other": "Los {n} votos vuelven a quienes los hicieron, hasta un saldo de {cap} por persona. Lo que supere el límite se pierde, así que quizá prefieras eliminarla más tarde."
 	},
-	"movie.confirmPickBlocked": "{names} ha votado por esta película. Sin esa persona, no.",
+	"movie.confirmPickBlocked": "Esta película tiene votos de {names}. Solo cuando estén todos.",
 	"movie.confirmPickBody": "Esto omite la votación.",
 	"movie.confirmPickButton": "Elegir esta película",
 	"movie.confirmPickTitle": "¿Elegir directamente?",
@@ -208,7 +208,7 @@
 	"propose.yearLabel": "Año (opcional)",
 	"propose.yearPlaceholder": "p. ej. 2019",
 	"rule.allBlocked": "Todas las películas con votos esperan a {names}. Retira un voto o elige otra película.",
-	"rule.blockedByAbsent": "{names} ha votado por esta película. Elígela cuando esté aquí.",
+	"rule.blockedByAbsent": "Esta película tiene votos de {names}. Elige otra o espera a que estén todos.",
 	"rule.deleteOnlyFromList": "Solo se pueden eliminar películas de la lista.",
 	"rule.deleteOnlyOwn": "Solo puedes eliminar tus propias propuestas.",
 	"rule.freePickOnlyFromList": "Solo se pueden elegir películas de la lista.",

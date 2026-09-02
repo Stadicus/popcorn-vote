@@ -125,7 +125,7 @@
 		"one": "Oy, {cap} bakiye sınırına kadar sahibine geri döner. Sınırı aşan kısım kaybolur; filmi daha sonra silmek isteyebilirsin.",
 		"other": "{n} oy, kişi başına {cap} bakiye sınırına kadar sahiplerine geri döner. Sınırı aşan kısım kaybolur; filmi daha sonra silmek isteyebilirsin."
 	},
-	"movie.confirmPickBlocked": "Bu filme {names} oy verdi. Onlar olmadan olmaz.",
+	"movie.confirmPickBlocked": "Bu filmde {names} oyu var. Ancak herkes buradayken.",
 	"movie.confirmPickBody": "Bu işlem oylamayı atlar.",
 	"movie.confirmPickButton": "Bu filmi seç",
 	"movie.confirmPickTitle": "Doğrudan seçilsin mi?",
@@ -208,7 +208,7 @@
 	"propose.yearLabel": "Yıl (isteğe bağlı)",
 	"propose.yearPlaceholder": "ör. 2019",
 	"rule.allBlocked": "Oy almış her film {names} için bekliyor. Bir oyu geri al ya da başka bir film seç.",
-	"rule.blockedByAbsent": "Bu filme {names} oy verdi. Yanınızdayken seçin.",
+	"rule.blockedByAbsent": "Bu filmde {names} oyu var. Başka bir film seç ya da herkes gelene kadar bekle.",
 	"rule.deleteOnlyFromList": "Yalnızca listedeki filmler silinebilir.",
 	"rule.deleteOnlyOwn": "Yalnızca kendi önerilerini silebilirsin.",
 	"rule.freePickOnlyFromList": "Yalnızca listedeki filmler seçilebilir.",

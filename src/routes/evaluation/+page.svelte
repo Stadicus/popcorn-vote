@@ -45,11 +45,18 @@
 	 * moment, not a state of the family.
 	 */
 	let absent: string[] = $state([]);
-	let absentOpen = $state(false);
 
 	/** The same count the server will run, so the screen cannot promise otherwise. */
 	const board = $derived(nightBoard(data.movies, absent));
 	const verdict = $derived(nightVerdict(board, absent));
+
+	/**
+	 * A night nobody would be at. The verdict cannot see this on its own: votes of
+	 * a person who has since left the configuration still count as present, so the
+	 * board can read "ready" for an evening with nobody in the room. Same guard as
+	 * the free-pick dialog on the movie page.
+	 */
+	const nobodyLeft = $derived(absent.length >= data.members.length);
 
 	/** Highest token count among the candidates; the highlight follows it. */
 	const highestCount = $derived(
@@ -131,7 +138,14 @@
 		if (!result.ok) error = errorText(result, t);
 		errorHolds = Boolean(result.reference);
 		busy = false;
-		if (action === 'watched') reveal = null;
+		if (action === 'watched') {
+			reveal = null;
+			// The evening is over, so who missed it is over with it. A tablet that
+			// never navigates away would otherwise open next week still counting
+			// without Ben. A revert keeps the selection on purpose: that is the same
+			// evening, being run again.
+			absent = [];
+		}
 	}
 </script>
 
@@ -182,7 +196,7 @@
 		<div class="evalbox">
 			<button
 				class="btn big"
-				disabled={busy || verdict.state !== 'ready'}
+				disabled={busy || nobodyLeft || verdict.state !== 'ready'}
 				onclick={() => (confirmOpen = true)}
 			>
 				🏆 {t('evaluation.run')}
@@ -190,16 +204,7 @@
 			<!-- Right under the big button, not below the ranking: whoever is missing
 			     is the first thing to say about tonight, before anybody reads a
 			     single count. Nobody ticked off means nothing changes anywhere. -->
-			<button
-				class="btn secondary"
-				onclick={() =>
-					absent.length > 0 ? ((absent = []), (absentOpen = false)) : (absentOpen = !absentOpen)}
-			>
-				👥 {absent.length > 0 ? t('evaluation.everyoneHere') : t('evaluation.absentButton')}
-			</button>
-			{#if absentOpen || absent.length > 0}
-				<AbsentPicker members={data.members} bind:absent />
-			{/if}
+			<AbsentPicker members={data.members} bind:absent />
 			{#if verdict.state === 'noTokens'}
 				<p class="muted center">{t('evaluation.needTokens')}</p>
 			{:else if verdict.state === 'allBlocked'}

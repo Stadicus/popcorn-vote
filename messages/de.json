@@ -125,7 +125,7 @@
 		"one": "Die Stimme geht an die abstimmende Person zurück, bis zum Limit von {cap}. Was über das Limit geht, verfällt; lösche den Film gegebenenfalls später.",
 		"other": "Die {n} Stimmen gehen an die Abstimmenden zurück, jeweils bis zum Limit von {cap}. Was über das Limit geht, verfällt; lösche den Film gegebenenfalls später."
 	},
-	"movie.confirmPickBlocked": "{names} hat auf diesen Film gestimmt. Nicht ohne sie.",
+	"movie.confirmPickBlocked": "Auf diesen Film gibt es Stimmen von {names}. Nur, wenn alle da sind.",
 	"movie.confirmPickBody": "Das überspringt die Abstimmung.",
 	"movie.confirmPickButton": "Diesen Film wählen",
 	"movie.confirmPickTitle": "Direkt wählen?",
@@ -208,7 +208,7 @@
 	"propose.yearLabel": "Jahr (optional)",
 	"propose.yearPlaceholder": "z. B. 2019",
 	"rule.allBlocked": "Jeder Film mit Stimmen wartet auf {names}. Nimm eine Stimme zurück oder wähle einen anderen Film.",
-	"rule.blockedByAbsent": "{names} hat auf diesen Film gestimmt. Wähle ihn, wenn alle da sind.",
+	"rule.blockedByAbsent": "Auf diesen Film gibt es Stimmen von {names}. Wähle einen anderen Film oder warte, bis alle da sind.",
 	"rule.deleteOnlyFromList": "Nur Filme aus der Liste können gelöscht werden.",
 	"rule.deleteOnlyOwn": "Du kannst nur eigene Vorschläge löschen.",
 	"rule.freePickOnlyFromList": "Nur Filme aus der Liste können gewählt werden.",

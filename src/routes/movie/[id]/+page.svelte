@@ -25,7 +25,6 @@
 	// Who is not here, for this one pick. Same row of chips as on the evaluation
 	// page, and just as short-lived: closing the page forgets it.
 	let absent: string[] = $state([]);
-	let absentOpen = $state(false);
 	let linking = $state(false);
 	let linkQuery = $state('');
 	let linkHits: { tmdbId: number; title: string; year: number | null; posterUrl: string | null }[] = $state(
@@ -325,15 +324,7 @@
 	{t('movie.confirmPickBody')}
 	{#if movie.tokens > 0}{t('movie.confirmPickTokens', { n: movie.tokens })}{/if}
 	<div class="who">
-		<button
-			class="btn secondary"
-			onclick={() => (absent.length > 0 ? ((absent = []), (absentOpen = false)) : (absentOpen = !absentOpen))}
-		>
-			👥 {absent.length > 0 ? t('evaluation.everyoneHere') : t('evaluation.absentButton')}
-		</button>
-		{#if absentOpen || absent.length > 0}
-			<AbsentPicker members={data.members} bind:absent />
-		{/if}
+		<AbsentPicker members={data.members} bind:absent />
 		{#if blockedBy.length > 0}
 			<p class="blocked">
 				{t('movie.confirmPickBlocked', { names: listNames(data.members, blockedBy, locale()) })}

@@ -40,6 +40,19 @@ function event(body?: unknown): RequestEvent {
 	} as unknown as RequestEvent;
 }
 
+/** A request with a content type of our choosing, for the header cases. */
+function raw(contentType: string, body: string): RequestEvent {
+	return {
+		url: new URL('/api/evaluate', 'http://localhost'),
+		request: new Request('http://localhost/api/evaluate', {
+			method: 'POST',
+			headers: { 'content-type': contentType },
+			body
+		}),
+		locals: { db, personId: 'anna', config, locale: 'en', t: translator('en') }
+	} as unknown as RequestEvent;
+}
+
 function addMovie(title: string, proposedBy: string): number {
 	const result = db
 		.prepare("INSERT INTO movies (status, title, proposed_by, created_at) VALUES ('list', ?, ?, ?)")
@@ -89,6 +102,28 @@ describe('/api/evaluate', () => {
 			expect(response.status, `absent: ${JSON.stringify(absent)}`).toBe(400);
 			await expect(response.json()).resolves.toEqual({ error: 'The request is invalid.' });
 		}
+	});
+
+	// A body the endpoint cannot read must not quietly become "everybody is here":
+	// that would count the votes of the very people the caller declared absent.
+	it('refuses a body it cannot read instead of assuming a full night', async () => {
+		const a = addMovie('A', 'anna');
+		stake(db, config as never, 'anna', a, 1);
+
+		const response = await POST(raw('text/plain', JSON.stringify({ absent: ['ben'] })));
+		expect(response.status).toBe(400);
+		await expect(response.json()).resolves.toEqual({ error: 'The request is invalid.' });
+	});
+
+	it('reads the content type whatever its casing', async () => {
+		const a = addMovie('A', 'anna');
+		const b = addMovie('B', 'ben');
+		stake(db, config as never, 'anna', a, 1);
+		stake(db, config as never, 'ben', b, 1);
+
+		const response = await POST(raw('Application/JSON', JSON.stringify({ absent: ['ben'] })));
+		expect(response.status).toBe(200);
+		expect((await response.json()).absent).toEqual(['ben']);
 	});
 
 	it('answers a blocked night with the name of whoever it waits for', async () => {

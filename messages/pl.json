@@ -127,7 +127,7 @@
 		"many": "{n} głosów wróci do głosujących, do salda {cap} na osobę. Nadwyżka przepadnie, więc lepiej rozważyć usunięcie filmu później.",
 		"other": "Głosy ({n}) wrócą do głosujących, do salda {cap} na osobę. Nadwyżka przepadnie, więc lepiej rozważyć usunięcie filmu później."
 	},
-	"movie.confirmPickBlocked": "Na ten film zagłosowali: {names}. Nie bez nich.",
+	"movie.confirmPickBlocked": "Ten film ma głosy od: {names}. Dopiero gdy wszyscy będą na miejscu.",
 	"movie.confirmPickBody": "To pomija głosowanie.",
 	"movie.confirmPickButton": "Wybierz ten film",
 	"movie.confirmPickTitle": "Wybrać bezpośrednio?",
@@ -216,7 +216,7 @@
 	"propose.yearLabel": "Rok (opcjonalnie)",
 	"propose.yearPlaceholder": "np. 2019",
 	"rule.allBlocked": "Każdy film z głosami czeka na: {names}. Cofnij głos albo wybierz inny film.",
-	"rule.blockedByAbsent": "Na ten film zagłosowali: {names}. Wybierz go, gdy będą na miejscu.",
+	"rule.blockedByAbsent": "Ten film ma głosy od: {names}. Wybierz inny albo poczekaj, aż wszyscy będą na miejscu.",
 	"rule.deleteOnlyFromList": "Można usuwać tylko filmy z listy.",
 	"rule.deleteOnlyOwn": "Możesz usuwać tylko własne propozycje.",
 	"rule.freePickOnlyFromList": "Można wybierać tylko filmy z listy.",
