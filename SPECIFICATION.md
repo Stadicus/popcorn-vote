@@ -22,7 +22,11 @@ proxy.
 - Before an evaluation or a free pick, members can be marked as absent. Only the
   votes of the members present are counted; a film carrying a vote of an absent
   member is not a candidate and cannot be chosen as a free pick.
+- The set of absent members is shared by all devices and is shown on the TV
+  board until the evening is confirmed as watched; it expires twelve hours
+  after the last change.
 - The selected film records who was absent. Reverting the result clears it.
+- Confirming a film as watched opens the archive, where it can be rated.
 - After watching, the selected film is rated and archived. It can be proposed
   again without removing the archive entry.
 - Films can be deleted, restored from the bin, or permanently removed.

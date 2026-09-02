@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- Made the television follow a partial night. Until now the big screen kept
+  counting every vote while the phone next to it counted only the people in the
+  room, so it could crown a film that then did not win. Who is missing is now
+  shared by all devices: tap somebody off on any phone and the board recounts
+  everywhere, their films step to the bottom saying "waits for Ben", and the
+  crown moves to whoever can actually win. The selection survives a reload,
+  reaches the free-pick dialog on a film page, and expires twelve hours after
+  the last change so an evening nobody confirmed cannot colour the next one.
+- Made "We watched it" open the archive, where the film is the top entry and
+  its stars are waiting. Rating was two taps away and easy to forget.
+
 - Added a movie night for the evenings when somebody is out. Before the reveal,
   and before a free pick, the phone can say who is missing: only the votes of
   the people present are counted, and a movie carrying a vote of somebody absent

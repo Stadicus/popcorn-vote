@@ -188,6 +188,10 @@ Ben"* instead of a number, the confirmation reads *"Reveal the winner
 without Ben?"*, and the winner card afterwards carries a small *"Without
 Ben"*. Tap nobody and nothing on this page changes at all.
 
+Confirming **"We watched it"** takes you straight to the archive, where the
+film is the top entry and its stars are waiting. Rating is the natural next
+step, and it should not need looking for.
+
 After the evening, someone confirms **"We watched it"** here – only then
 does the film move to the archive. If the evening falls through, the win can
 instead be **reverted**: the film returns to the list with all its votes
@@ -259,10 +263,15 @@ Here is how it gets onto the television:
   address, enter the PIN once, and choose **More → TV view**.
 
 Voting and evaluating still happen on the phone – the TV view is purely a
-display and cannot break anything. That is also why the standings on the
-television always count *every* vote: the TV does not know who is in the
-room. Who is missing is chosen on the phone, and the television only shows
-it once there is a winner – *"Without Ben"* under the title.
+display and cannot break anything.
+
+It does follow the evening, though. Tap somebody off on a phone and the
+television recounts within a few seconds: their films step to the bottom of
+the board, dimmed, saying *"waits for Ben"*, and the crown moves to whoever
+can actually win tonight. Once there is a winner it says *"Without Ben"*
+under the title. On a television with room for seven films, the waiting ones
+are the first to be cut – the big screen shows what can win, and whoever is
+waiting is on the phone.
 
 ### Data: CSV export and import
 
@@ -373,6 +382,12 @@ rules follow from it:
    your vote back."* Taking a vote back is free and always possible.
 3. **The film remembers who was missing.** The archive and the log say
    *"Without Ben"*, but only for an evening someone actually missed.
+
+The choice belongs to the evening, not to the phone that made it: every
+device shows the same one, and the television follows. Whoever opens the app
+later finds it already set, and **"Everyone is here"** clears it in one tap.
+It expires by itself twelve hours after the last change, so an evening that
+was never confirmed cannot colour the next one.
 
 Nothing else changes: the winner's votes are spent as always, and reverting
 the win clears the absence along with it.

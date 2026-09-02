@@ -65,9 +65,10 @@ test('a complete movie night: add, vote, evaluate, rate', async ({ page }) => {
 
 	await page.getByRole('button', { name: 'Mark as watched' }).click();
 	await page.getByRole('dialog').getByRole('button', { name: 'Mark as watched' }).click();
+	// Confirming lands on the archive by itself, with the film as the top card.
+	await page.waitForURL(/\/archive$/);
 	await expect(page.getByRole('button', { name: 'Mark as watched' })).toHaveCount(0);
-	await page.goto('/archive');
-	await expect(page.locator('strong', { hasText: 'E2E-Test-Movie' })).toBeVisible();
+	await expect(page.locator('.entry').first()).toContainText('E2E-Test-Movie');
 
 	// Rating with half stars. The number is written in the notation of the active
 	// language, so with a dot in English.
@@ -404,12 +405,14 @@ test('a movie night without Ben', async ({ page }) => {
 
 	await page.getByRole('button', { name: 'Mark as watched' }).click();
 	await page.getByRole('dialog').getByRole('button', { name: 'Mark as watched' }).click();
-	await page.goto('/archive');
+	await page.waitForURL(/\/archive$/);
 	await expect(page.locator('.entry', { hasText: 'Night-Alpha' })).toContainText('Watched without Ben');
 
 	// Ben's movie kept its vote through all of it and is back to being a candidate.
+	// The evening ended with "watched", so the chips start empty again.
 	await page.goto('/evaluation');
 	await expect(page.locator('.board li', { hasText: 'Night-Bravo' })).toContainText('1 🍿');
+	await expect(page.getByRole('button', { name: /Someone missing/ })).toBeVisible();
 });
 
 test('a free pick without Ben', async ({ page }) => {
@@ -450,8 +453,61 @@ test('a free pick without Ben', async ({ page }) => {
 
 	await page.getByRole('button', { name: 'Mark as watched' }).click();
 	await page.getByRole('dialog').getByRole('button', { name: 'Mark as watched' }).click();
-	await page.goto('/archive');
+	await page.waitForURL(/\/archive$/);
 	await expect(page.locator('.entry', { hasText: 'Pick-Free' })).toContainText('Watched without Ben');
+});
+
+test('the evening is the same on the television and after a reload', async ({ page }) => {
+	await enterPin(page);
+	await choosePerson(page, 'Anna');
+
+	// Carla, not Ben: by this point in the file Ben has spent all three of his
+	// votes, and this test needs the absent person to actually hold one. The film
+	// titles deliberately carry no member's name — a tile button reading "Put a
+	// vote on Shared-Carla" matches the /Carla/ that picks a person, and
+	// `.first()` would then grab the tile instead of the dialog.
+	await addMovieByHand(page, 'Shared-One');
+	await page.getByRole('button', { name: /Add vote/ }).click();
+	await expect(page.getByText('Anna: 1')).toBeVisible();
+
+	await switchPerson(page, 'Carla');
+	await addMovieByHand(page, 'Shared-Two');
+	const carlasFilm = page.url();
+	await page.getByRole('button', { name: /Add vote/ }).click();
+	await expect(page.getByText('Carla: 1')).toBeVisible();
+
+	await page.goto('/evaluation');
+	await page.getByRole('button', { name: /Someone missing/ }).click();
+	await page.locator('.picker').getByRole('button', { name: /Carla/ }).click();
+	const row = page.locator('.board li', { hasText: 'Shared-Two' });
+	await expect(row).toContainText('waits for Carla');
+
+	// The television is a different page with no idea what was tapped here; it
+	// learns it from the server or not at all.
+	await page.goto('/tv');
+	const tvRow = page.locator('.board li', { hasText: 'Shared-Two' });
+	await expect(tvRow).toContainText('waits for Carla');
+	await expect(tvRow).not.toContainText('🍿');
+
+	// A reload of the phone finds the same evening rather than a full count.
+	await page.goto('/evaluation');
+	await expect(page.locator('.board li', { hasText: 'Shared-Two' })).toContainText('waits for Carla');
+	await expect(page.getByRole('button', { name: /Everyone is here/ })).toBeVisible();
+
+	// The free-pick dialog is the evening's second entrance and reads the same
+	// state: it refuses Carla's film without anybody ticking her off again.
+	await page.goto(carlasFilm);
+	await page.getByRole('button', { name: /Choose for tonight/ }).click();
+	const dialog = page.getByRole('dialog');
+	await expect(dialog).toContainText('Carla voted for this movie');
+	await expect(dialog.getByRole('button', { name: 'Choose this movie' })).toBeDisabled();
+	await dialog.getByRole('button', { name: 'Cancel' }).click();
+	await expect(dialog).toBeHidden();
+
+	// Tidy up, or the next test inherits an evening without Carla.
+	await page.goto('/evaluation');
+	await page.getByRole('button', { name: /Everyone is here/ }).click();
+	await expect(page.locator('.board li', { hasText: 'Shared-Two' })).toContainText('1 🍿');
 });
 
 // Has to go last: the failed attempts lock the IP for the following seconds.
