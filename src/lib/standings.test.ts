@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { byTokensThenTitle, nightBoard, nightVerdict, toBlocked, type NightStanding } from './standings';
+import {
+	byTokensThenTitle,
+	nightBoard,
+	nightVerdict,
+	toBlocked,
+	tvBoard,
+	type NightStanding
+} from './standings';
 
 // The rule both sides run. Whatever this file says is what the phone greys out
 // and what the server refuses, so the cases here are written as nights rather
@@ -131,5 +138,55 @@ describe('nightVerdict()', () => {
 
 	it('handles an empty list as "no votes"', () => {
 		expect(nightVerdict([] as NightStanding[], [])).toEqual({ state: 'noTokens' });
+	});
+});
+
+describe('tvBoard()', () => {
+	it('puts the candidates first and whoever is waiting after them', () => {
+		// B leads on the phone with two of Anna's votes, but Ben has one on it too.
+		const board = nightBoard([movie(1, 'A', { anna: 1 }), movie(2, 'B', { anna: 2, ben: 1 })], ['ben']);
+		expect(board.map((s) => s.title)).toEqual(['B', 'A']);
+		expect(tvBoard(board).map((s) => s.title)).toEqual(['A', 'B']);
+	});
+
+	it('leaves the order of the shared comparator intact inside both groups', () => {
+		const board = nightBoard(
+			[
+				movie(1, 'Arrival', { anna: 1 }),
+				movie(2, 'Brazil', { anna: 3 }),
+				movie(3, 'Coco', { ben: 1, anna: 2 }),
+				movie(4, 'Dune', { ben: 3, anna: 4 })
+			],
+			['ben']
+		);
+		// Inside each group the shared comparator still rules: candidates by their
+		// votes, and the two waiting rows by theirs (four beats two), not by the
+		// order they happened to arrive in.
+		expect(tvBoard(board).map((s) => s.title)).toEqual(['Brazil', 'Arrival', 'Dune', 'Coco']);
+	});
+
+	it('drops movies nobody voted for but keeps one that is only waiting', () => {
+		const board = nightBoard(
+			[movie(1, 'A', { anna: 1 }), movie(2, 'Nobody'), movie(3, 'Waiting', { ben: 2 })],
+			['ben']
+		);
+		expect(tvBoard(board).map((s) => s.title)).toEqual(['A', 'Waiting']);
+	});
+
+	// The case the whole sort rule exists for: seven waiting rows carrying more
+	// votes than the leader must not push the leader off the seven visible rows.
+	it('keeps the leading candidate inside the first seven rows', () => {
+		const movies = [movie(99, 'Leader', { anna: 1 })];
+		for (let i = 0; i < 8; i++) movies.push(movie(i, `Waiting ${i}`, { anna: 5, ben: 1 }));
+		const board = tvBoard(nightBoard(movies, ['ben']));
+
+		expect(board[0].title).toBe('Leader');
+		expect(board.slice(0, 7).some((s) => s.title === 'Leader')).toBe(true);
+		expect(board.slice(0, 7).filter((s) => s.blockedBy.length === 0)).toHaveLength(1);
+	});
+
+	it('is the plain board when nobody is away', () => {
+		const board = nightBoard([movie(1, 'A', { anna: 1 }), movie(2, 'B', { anna: 2 })], []);
+		expect(tvBoard(board)).toEqual(board);
 	});
 });

@@ -108,6 +108,32 @@ export function toBlocked(board: NightStanding[]): BlockedMovie[] {
 }
 
 /**
+ * The board for the television: candidates first, whoever is waiting after
+ * them.
+ *
+ * The phone leaves waiting movies where their votes put them — it is the
+ * working surface, and the list is the list. The television is the stage, and
+ * the stage shows what can win tonight. Sorting the waiting rows to the end is
+ * what makes `board[0]` the leading candidate again, and with that the crown,
+ * the fade and the seven visible rows all stay correct without a special case
+ * of their own.
+ *
+ * The sort is stable (guaranteed since ES2019), so the order `nightBoard()`
+ * produced survives inside both groups; the shared comparator still decides
+ * ties exactly as it does on the phone.
+ *
+ * Rows nobody voted for are dropped, as before — from across the living room
+ * they are noise. A blocked row with no votes of the people present is kept:
+ * it has votes, they just belong to somebody who is not here, and it should be
+ * visibly waiting rather than gone.
+ */
+export function tvBoard(standings: NightStanding[]): NightStanding[] {
+	return standings
+		.filter((s) => s.tokens > 0 || s.blockedBy.length > 0)
+		.sort((a, b) => Number(a.blockedBy.length > 0) - Number(b.blockedBy.length > 0));
+}
+
+/**
  * What can be done with this board, as three states that cannot overlap.
  *
  * `noTokens` and `allBlocked` are kept apart because they need different words:
