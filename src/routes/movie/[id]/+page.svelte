@@ -57,7 +57,8 @@
 	 * away, or nobody would be left at the movie night at all. Said here rather
 	 * than only in the error afterwards; the server checks both again regardless.
 	 */
-	const pickRefused = $derived(blockedBy.length > 0 || absent.length >= data.members.length);
+	const nobodyLeft = $derived(absent.length >= data.members.length);
+	const pickRefused = $derived(blockedBy.length > 0 || nobodyLeft);
 
 	/** Person for an id; unknown ids (a removed person) stay renderable. */
 	function member(id: string): Member {
@@ -329,6 +330,8 @@
 			<p class="blocked">
 				{t('movie.confirmPickBlocked', { names: listNames(data.members, blockedBy, locale()) })}
 			</p>
+		{:else if nobodyLeft}
+			<p class="blocked">{t('rule.nobodyPresent')}</p>
 		{/if}
 	</div>
 </ConfirmDialog>

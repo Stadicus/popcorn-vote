@@ -138,7 +138,9 @@
 		if (!result.ok) error = errorText(result, t);
 		errorHolds = Boolean(result.reference);
 		busy = false;
-		if (action === 'watched') {
+		// Only once it actually went through: an offline "watched" leaves the winner
+		// pending, and the evening it belongs to is still this one.
+		if (action === 'watched' && result.ok) {
 			reveal = null;
 			// The evening is over, so who missed it is over with it. A tablet that
 			// never navigates away would otherwise open next week still counting
@@ -205,7 +207,11 @@
 			     is the first thing to say about tonight, before anybody reads a
 			     single count. Nobody ticked off means nothing changes anywhere. -->
 			<AbsentPicker members={data.members} bind:absent />
-			{#if verdict.state === 'noTokens'}
+			<!-- A disabled button always says why. "Nobody left" comes first: it is
+			     the reason the verdict cannot see. -->
+			{#if nobodyLeft}
+				<p class="muted center">{t('rule.nobodyPresent')}</p>
+			{:else if verdict.state === 'noTokens'}
 				<p class="muted center">{t('evaluation.needTokens')}</p>
 			{:else if verdict.state === 'allBlocked'}
 				<p class="muted center">{t('evaluation.allBlocked')}</p>

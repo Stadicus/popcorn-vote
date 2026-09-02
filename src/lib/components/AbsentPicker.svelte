@@ -48,7 +48,7 @@
 	}
 </script>
 
-<button class="btn secondary" onclick={toggleRow}>
+<button type="button" class="btn secondary" aria-expanded={shown} onclick={toggleRow}>
 	👥 {absent.length > 0 ? t('evaluation.everyoneHere') : t('evaluation.absentButton')}
 </button>
 
