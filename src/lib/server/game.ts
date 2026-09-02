@@ -1,7 +1,15 @@
 import crypto from 'node:crypto';
 import type { MessageKey } from '$lib/i18n/catalogues';
 import type { Params } from '$lib/i18n/translate';
-import { byTokensThenTitle } from '$lib/standings';
+import {
+	byTokensThenTitle,
+	nightBoard,
+	nightVerdict,
+	toBlocked,
+	type BlockedMovie,
+	type NightStanding,
+	type StakeCount
+} from '$lib/standings';
 import type { DB } from './db';
 import type { AppConfig } from './config';
 
@@ -13,11 +21,17 @@ import type { AppConfig } from './config';
  *
  * `super(key)` keeps the key visible in stack traces and in anything that logs
  * an unexpected `Error`, never a blank message.
+ *
+ * `personIds` is kept apart from `params` because ids are not text: a sentence
+ * naming two people has to read "Ben and Cleo" in English and "Ben und Cleo" in
+ * German, and only the request knows which. `handled()` turns them into the
+ * `{names}` of the message; the rules here stay free of presentation.
  */
 export class RuleError extends Error {
 	constructor(
 		readonly key: MessageKey,
-		readonly params?: Params
+		readonly params?: Params,
+		readonly personIds?: string[]
 	) {
 		super(key);
 	}
@@ -173,46 +187,121 @@ export function standings(db: DB): Standing[] {
 	return rows.sort(byTokensThenTitle);
 }
 
+/**
+ * Who is not there tonight, checked and tidied before anything is counted or
+ * stored. Returns the deduplicated list, which is what gets written.
+ *
+ * The order of the three checks is the order of their cost: an absurdly long
+ * list is refused as a malformed request before every id is looked up, and only
+ * then does the rule about leaving somebody behind get a say.
+ *
+ * The person operating the phone may be among the absent, and that is not
+ * enforced either way: somebody has to press the button for the family, and it
+ * is no business of the app which of them it is.
+ */
+export function requireAbsent(config: AppConfig, absent: string[]): string[] {
+	const away = [...new Set(absent)];
+	if (away.length > config.members.length) throw new RuleError('error.invalidRequest');
+	for (const id of away) requireMember(config, id);
+	if (away.length === config.members.length) throw new RuleError('rule.nobodyPresent');
+	return away;
+}
+
+/** The board of a night: every movie on the list with the stakes on it. */
+export function nightStandings(db: DB, absent: string[]): NightStanding[] {
+	const movies = db
+		.prepare("SELECT id, title FROM movies WHERE status = 'list' ORDER BY created_at ASC")
+		.all() as { id: number; title: string }[];
+	const rows = db.prepare('SELECT movie_id, person_id, count FROM stakes').all() as StakeRow[];
+	const byMovie = new Map<number, StakeCount[]>();
+	for (const row of rows) {
+		const stakes = byMovie.get(row.movie_id) ?? [];
+		stakes.push({ personId: row.person_id, count: row.count });
+		byMovie.set(row.movie_id, stakes);
+	}
+	return nightBoard(
+		movies.map((m) => ({ ...m, stakes: byMovie.get(m.id) ?? [] })),
+		absent
+	);
+}
+
+/** The board as it travels: without the arithmetic that produced it. */
+function asStanding(s: NightStanding): Standing {
+	return { movieId: s.movieId, title: s.title, tokens: s.tokens };
+}
+
+/** `NULL` for the usual night, so "everybody was there" needs no marker. */
+function absentColumn(absent: string[]): string | null {
+	return absent.length > 0 ? JSON.stringify(absent) : null;
+}
+
 export interface EvaluationResult {
 	winner: MovieRow;
 	wheel: { candidates: Standing[]; winnerMovieId: number } | null;
 	standings: Standing[];
+	/** Who was not there, empty for a full night. */
+	absent: string[];
+	/** What waited for one of them, empty for a full night. */
+	blocked: BlockedMovie[];
 }
 
+/**
+ * `absent` comes last so that every existing call with three or four arguments
+ * keeps meaning what it meant, and a caller who wants to name the absent without
+ * touching the random source passes `undefined` for `rng`.
+ *
+ * There is deliberately no second code path for a partial night: the count always
+ * runs through `nightStandings()` and `nightVerdict()`, and an empty `absent`
+ * makes that the plain count by construction rather than by a branch somebody
+ * has to remember to keep in step.
+ */
 export function evaluate(
 	db: DB,
 	config: AppConfig,
 	actor: string,
-	rng: () => number = secureRandom
+	rng: () => number = secureRandom,
+	absent: string[] = []
 ): EvaluationResult {
 	requireMember(config, actor);
+	const away = requireAbsent(config, absent);
 	const tx = db.transaction((): EvaluationResult => {
 		if (currentWinner(db)) throw new RuleError('rule.winnerPending');
-		const board = standings(db);
-		const totalTokens = board.reduce((sum, s) => sum + s.tokens, 0);
-		if (totalTokens === 0) throw new RuleError('rule.noTokensPlaced');
-
-		const top = board[0].tokens;
-		const candidates = board.filter((s) => s.tokens === top);
-		let wheel: EvaluationResult['wheel'] = null;
-		let winnerId = candidates[0].movieId;
-		if (candidates.length > 1) {
-			winnerId = candidates[Math.floor(rng() * candidates.length)].movieId;
-			wheel = { candidates, winnerMovieId: winnerId };
+		const board = nightStandings(db, away);
+		const verdict = nightVerdict(board, away);
+		if (verdict.state === 'noTokens') throw new RuleError('rule.noTokensPlaced');
+		// Never a quiet fallback to the full count: if everything carrying a vote
+		// waits for somebody, the evening says whose votes they are and stops.
+		if (verdict.state === 'allBlocked') {
+			throw new RuleError('rule.allBlocked', undefined, verdict.personIds);
 		}
 
-		db.prepare("UPDATE movies SET status = 'winner', won_at = ?, won_via = ? WHERE id = ?").run(
+		// The wheel spins among candidates only. A movie that waits for somebody
+		// cannot be in the lead, however many votes the people present put on it.
+		const candidates = board.filter((s) => s.blockedBy.length === 0);
+		const top = candidates[0].tokens;
+		const tied = candidates.filter((s) => s.tokens === top).map(asStanding);
+		let wheel: EvaluationResult['wheel'] = null;
+		let winnerId = tied[0].movieId;
+		if (tied.length > 1) {
+			winnerId = tied[Math.floor(rng() * tied.length)].movieId;
+			wheel = { candidates: tied, winnerMovieId: winnerId };
+		}
+
+		db.prepare("UPDATE movies SET status = 'winner', won_at = ?, won_via = ?, absent = ? WHERE id = ?").run(
 			now(),
 			wheel ? 'wheel' : 'vote',
+			absentColumn(away),
 			winnerId
 		);
 		const winner = getMovie(db, winnerId);
+		const standings = board.map(asStanding);
+		const blocked = toBlocked(board);
 		db.prepare('INSERT INTO events (type, actor, created_at, payload) VALUES (?, ?, ?, ?)').run(
 			'evaluation',
 			actor,
 			now(),
 			JSON.stringify({
-				standings: board,
+				standings,
 				winnerMovieId: winnerId,
 				winnerTitle: winner.title,
 				wheel: wheel
@@ -220,32 +309,59 @@ export function evaluate(
 							candidates: wheel.candidates.map((c) => ({ movieId: c.movieId, title: c.title })),
 							result: winner.title
 						}
-					: null
+					: null,
+				absent: away,
+				blocked
 			})
 		);
-		return { winner, wheel, standings: board };
+		return { winner, wheel, standings, absent: away, blocked };
 	});
 	return tx();
 }
 
-export function freePick(db: DB, config: AppConfig, actor: string, movieId: number): MovieRow {
+export interface FreePickResult {
+	winner: MovieRow;
+	absent: string[];
+	blocked: BlockedMovie[];
+}
+
+export function freePick(
+	db: DB,
+	config: AppConfig,
+	actor: string,
+	movieId: number,
+	absent: string[] = []
+): FreePickResult {
 	requireMember(config, actor);
-	const tx = db.transaction((): MovieRow => {
+	const away = requireAbsent(config, absent);
+	const tx = db.transaction((): FreePickResult => {
 		if (currentWinner(db)) throw new RuleError('rule.winnerPending');
 		const movie = getMovie(db, movieId);
 		if (movie.status !== 'list') throw new RuleError('rule.freePickOnlyFromList');
-		const board = standings(db);
-		db.prepare("UPDATE movies SET status = 'winner', won_at = ?, won_via = 'free_pick' WHERE id = ?").run(
-			now(),
-			movieId
-		);
+		// Counted while the movie is still on the list, so the pick itself is in the
+		// board this reads. `blocked` is information for the log; by the rule right
+		// below it, the winner is never one of them.
+		const board = nightStandings(db, away);
+		const blocked = toBlocked(board);
+		const waiting = blocked.find((b) => b.movieId === movieId);
+		if (waiting) throw new RuleError('rule.blockedByAbsent', undefined, waiting.byPersonIds);
+
+		db.prepare(
+			"UPDATE movies SET status = 'winner', won_at = ?, won_via = 'free_pick', absent = ? WHERE id = ?"
+		).run(now(), absentColumn(away), movieId);
 		db.prepare('INSERT INTO events (type, actor, created_at, payload) VALUES (?, ?, ?, ?)').run(
 			'free_pick',
 			actor,
 			now(),
-			JSON.stringify({ standings: board, winnerMovieId: movieId, winnerTitle: movie.title })
+			JSON.stringify({
+				standings: board.map(asStanding),
+				winnerMovieId: movieId,
+				winnerTitle: movie.title,
+				absent: away,
+				blocked
+			})
 		);
-		return getMovie(db, movieId);
+		return { winner: getMovie(db, movieId), absent: away, blocked };
 	});
 	return tx();
 }
@@ -255,9 +371,11 @@ export function revertWinner(db: DB, config: AppConfig, actor: string): MovieRow
 	const tx = db.transaction((): MovieRow => {
 		const winner = currentWinner(db);
 		if (!winner) throw new RuleError('rule.noWinnerPending');
-		db.prepare("UPDATE movies SET status = 'list', won_at = NULL, won_via = NULL WHERE id = ?").run(
-			winner.id
-		);
+		// `absent` goes with the win it belonged to: the list is back as it was, and
+		// a later, full night must not inherit anybody's absence.
+		db.prepare(
+			"UPDATE movies SET status = 'list', won_at = NULL, won_via = NULL, absent = NULL WHERE id = ?"
+		).run(winner.id);
 		db.prepare('INSERT INTO events (type, actor, created_at, payload) VALUES (?, ?, ?, ?)').run(
 			'reverted',
 			actor,
@@ -274,7 +392,11 @@ export function confirmWatched(db: DB, config: AppConfig, actor: string): MovieR
 	const tx = db.transaction((): MovieRow => {
 		const winner = currentWinner(db);
 		if (!winner) throw new RuleError('rule.noWinnerPending');
-		// Now the winner's tokens are finally spent.
+		// Now the winner's tokens are finally spent. Unchanged by partial nights, and
+		// that rests on an invariant rather than on luck: a winner never carries a
+		// vote of somebody who was away (it would not have been a candidate), and
+		// `stake()` refuses every movie that is not on the list, so nobody can put one
+		// there between the reveal and this moment. Nothing to give back.
 		db.prepare('DELETE FROM stakes WHERE movie_id = ?').run(winner.id);
 		db.prepare("UPDATE movies SET status = 'archived', watched_at = ? WHERE id = ?").run(now(), winner.id);
 		db.prepare('INSERT INTO events (type, actor, created_at, payload) VALUES (?, ?, ?, ?)').run(
