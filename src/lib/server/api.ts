@@ -61,6 +61,19 @@ export function logFailure(
 	return reference;
 }
 
+/**
+ * Person ids as a sentence reads them: "Ben and Cleo" in English, "Ben und Cleo"
+ * in German, and whatever the language of the request calls for elsewhere.
+ *
+ * An id with nobody configured for it stays the id rather than disappearing. A
+ * message that names one person fewer than the rule actually blocked on would
+ * send the family looking for a mistake that is not there.
+ */
+export function listNames(locals: App.Locals, ids: string[]): string {
+	const names = ids.map((id) => locals.config.members.find((m) => m.id === id)?.name ?? id);
+	return new Intl.ListFormat(locals.locale, { type: 'conjunction' }).format(names);
+}
+
 export function requirePerson(locals: App.Locals): string {
 	if (!locals.personId) throw new RuleError('rule.pickPerson');
 	return locals.personId;
@@ -81,6 +94,33 @@ export async function requestJsonObject(request: Request): Promise<Record<string
 }
 
 /**
+ * The shape of an `absent` field, and nothing beyond it: a list of strings, or
+ * nothing at all. Whether those strings are people, and whether anybody would be
+ * left at home, is the rule's business in `requireAbsent()`.
+ */
+export function parseAbsent(value: unknown): string[] {
+	if (value === undefined || value === null) return [];
+	if (!Array.isArray(value) || value.some((id) => typeof id !== 'string')) {
+		throw new RuleError('error.invalidRequest');
+	}
+	return value as string[];
+}
+
+/**
+ * Who is not there tonight, for an endpoint whose body is optional.
+ *
+ * `/api/evaluate` took no body at all until partial nights arrived, and `call()`
+ * in `$lib/client/api` sends neither a body nor a content type when it has
+ * nothing to send, which `requestJsonObject()` would reject. Reading the body
+ * only when there is one keeps a bodyless request meaning what it always meant:
+ * everybody is here.
+ */
+export async function absentFromRequest(request: Request): Promise<string[]> {
+	if (!request.headers.get('content-type')?.includes('application/json')) return [];
+	return parseAbsent((await requestJsonObject(request)).absent);
+}
+
+/**
  * Wraps every API handler: a broken rule becomes a 400 carrying the sentence the
  * user reads, anything else a 500 plus a log line for whoever runs the container.
  *
@@ -95,7 +135,10 @@ export async function handled(locals: App.Locals, fn: () => Response | Promise<R
 		return await fn();
 	} catch (err) {
 		if (err instanceof RuleError) {
-			return json({ error: locals.t(err.key, err.params) }, { status: 400 });
+			// Ids become names here and nowhere earlier: the rules in game.ts carry
+			// keys and ids, this is the first place that knows the language.
+			const params = err.personIds ? { ...err.params, names: listNames(locals, err.personIds) } : err.params;
+			return json({ error: locals.t(err.key, params) }, { status: 400 });
 		}
 		const reference = logFailure('Unexpected error in an API call', 500, err, requestContext());
 		const body: Record<string, unknown> = { error: locals.t('error.unexpectedRetry') };

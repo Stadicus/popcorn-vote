@@ -11,7 +11,14 @@ import { log } from './log';
 
 /** Only the fields `handled()` and `requirePerson()` actually touch. */
 function locals(locale: 'de' | 'en', personId: string | null = 'anna'): App.Locals {
-	return { locale, t: translator(locale), personId } as unknown as App.Locals;
+	const config = {
+		members: [
+			{ id: 'anna', name: 'Anna', color: '#e63946', emoji: '' },
+			{ id: 'ben', name: 'Ben', color: '#457b9d', emoji: '' },
+			{ id: 'cleo', name: 'Cleo', color: '#2a9d8f', emoji: '' }
+		]
+	};
+	return { locale, t: translator(locale), personId, config } as unknown as App.Locals;
 }
 
 describe('handled()', () => {
@@ -41,6 +48,38 @@ describe('handled()', () => {
 		await expect(res.json()).resolves.toEqual({
 			error: 'Höchstens 200 Filme auf einmal importieren.'
 		});
+	});
+
+	it('turns person ids into names, in the language of the request', async () => {
+		const broken = () => {
+			throw new RuleError('rule.allBlocked', undefined, ['ben', 'cleo']);
+		};
+
+		const english = await handled(locals('en'), broken);
+		expect((await english.json()).error).toContain('Ben and Cleo');
+
+		const german = await handled(locals('de'), broken);
+		expect((await german.json()).error).toContain('Ben und Cleo');
+	});
+
+	// A name that is no longer configured must not silently drop out of the
+	// sentence, or the message blames fewer people than the rule actually did.
+	it('leaves an id that belongs to nobody standing as the id', async () => {
+		const res = await handled(locals('en'), () => {
+			throw new RuleError('rule.blockedByAbsent', undefined, ['mia']);
+		});
+		expect((await res.json()).error).toContain('mia');
+	});
+
+	it('fills {names} in both rules that carry people', async () => {
+		for (const key of ['rule.allBlocked', 'rule.blockedByAbsent'] as const) {
+			const res = await handled(locals('en'), () => {
+				throw new RuleError(key, undefined, ['ben']);
+			});
+			const { error } = await res.json();
+			expect(error, key).toContain('Ben');
+			expect(error, key).not.toContain('{names}');
+		}
 	});
 
 	it('turns everything else into a 500 that does not leak the inner error', async () => {
