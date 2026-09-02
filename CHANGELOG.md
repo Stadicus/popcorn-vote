@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased
+
+- Added a movie night for the evenings when somebody is out. Before the reveal,
+  and before a free pick, the phone can say who is missing: only the votes of
+  the people present are counted, and a movie carrying a vote of somebody absent
+  is no candidate at all. It stays on the list, greyed out, marked "waits for
+  Ben", and it cannot be chosen as a free pick either. Taking a vote back is the
+  way to release a movie, exactly as it always was, so nothing new had to be
+  invented and nobody's favourite gets watched without them.
+- Recorded who was away on the movie itself, so the archive, the log and the TV
+  say "Without Ben" for that evening and nothing at all for a full one.
+  Reverting a win clears it. Whoever ticks nobody off sees no change anywhere:
+  there is no new setting, no new environment variable, and the standings on the
+  television keep counting every vote, because the TV does not know who is in
+  the room.
+
 ## v1.3.0 App-store runtime and release preparation
 
 - Made the production image adopt a root-owned `/data` mount once and then

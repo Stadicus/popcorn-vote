@@ -61,6 +61,10 @@ family's film diary.
 - **Choose for tonight:** A movie on the list can be chosen directly, without a
   vote. Its votes expire, with a clear warning before the choice is made.
 
+- **Hold a movie night without everyone:** Say who is missing before the
+  reveal, and only the votes of the people present count. Movies carrying a vote
+  of somebody absent wait for them instead of being watched without them.
+
 - **Keep a rated archive:** Rate watched movies from 1 to 5 stars in half steps,
   change a rating at any time, or use **Suggest again** to put a film back on
   the list.

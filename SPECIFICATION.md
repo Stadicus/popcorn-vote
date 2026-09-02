@@ -19,6 +19,10 @@ proxy.
 - Evaluation selects a film with the highest number of votes. A tie is resolved
   randomly. Votes on the selected film are spent; all other votes remain.
 - A film can also be selected as a free pick. Its votes expire.
+- Before an evaluation or a free pick, members can be marked as absent. Only the
+  votes of the members present are counted; a film carrying a vote of an absent
+  member is not a candidate and cannot be chosen as a free pick.
+- The selected film records who was absent. Reverting the result clears it.
 - After watching, the selected film is rated and archived. It can be proposed
   again without removing the archive entry.
 - Films can be deleted, restored from the bin, or permanently removed.
