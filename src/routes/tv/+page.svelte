@@ -4,7 +4,8 @@
 	import { redirectIfUnauthorized } from '$lib/client/api';
 	import { detectStandalone } from '$lib/client/install.svelte';
 	import { supernova } from '$lib/client/celebrate';
-	import { getI18n } from '$lib/i18n/context';
+	import { getI18n, getLocale } from '$lib/i18n/context';
+	import { listNames } from '$lib/member';
 	import Poster from '$lib/components/Poster.svelte';
 	import Wheel from '$lib/components/Wheel.svelte';
 
@@ -22,6 +23,7 @@
 		genres: string | null;
 		poster: string | null;
 		wonVia: string | null;
+		absent: string[] | null;
 	}
 
 	interface TvEvent {
@@ -36,6 +38,7 @@
 	let { data } = $props();
 
 	const t = getI18n();
+	const locale = getLocale();
 
 	// State machine of the TV stage: standings → (wheel) → winner celebration.
 	type Mode = 'board' | 'wheel' | 'reveal';
@@ -381,6 +384,12 @@
 						<p class="rvia">✨ &nbsp;{t('evaluation.viaFreePick')}</p>
 					{:else}
 						<p class="rvia">🏆 &nbsp;{t('tv.viaVote')}</p>
+					{/if}
+					<!-- The board above counts every vote; the television never knows who is
+					     in the room. This one line is the only place the evening's absence
+					     reaches the big screen. -->
+					{#if winner.absent}
+						<p class="rvia">{t('tv.without', { names: listNames(data.members, winner.absent, locale()) })}</p>
 					{/if}
 				</div>
 			</div>

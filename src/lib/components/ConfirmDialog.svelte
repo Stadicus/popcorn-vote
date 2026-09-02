@@ -9,6 +9,7 @@
 		confirmText,
 		danger = false,
 		busy = false,
+		disabled = false,
 		onconfirm,
 		children
 	}: {
@@ -17,6 +18,8 @@
 		confirmText: string;
 		danger?: boolean;
 		busy?: boolean;
+		/** For a dialog that can show why the answer is no before it is asked. */
+		disabled?: boolean;
 		onconfirm: () => void;
 		children: Snippet;
 	} = $props();
@@ -54,7 +57,7 @@
 	<div class="body">{@render children()}</div>
 	<div class="row">
 		<button class="btn secondary" onclick={() => (open = false)}>{t('dialog.cancel')}</button>
-		<button class="btn" class:danger disabled={busy} onclick={onconfirm}>{confirmText}</button>
+		<button class="btn" class:danger disabled={busy || disabled} onclick={onconfirm}>{confirmText}</button>
 	</div>
 </dialog>
 

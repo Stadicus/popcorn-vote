@@ -3,6 +3,7 @@
 	import Poster from '$lib/components/Poster.svelte';
 	import Stars from '$lib/components/Stars.svelte';
 	import { getI18n, getLocale } from '$lib/i18n/context';
+	import { listNames } from '$lib/member';
 
 	let { data } = $props();
 
@@ -59,6 +60,12 @@
 					<div class="info">
 						<strong>{entry.title}</strong>
 						<div class="muted">{t('archive.watchedOn', { date: formatDate(entry.watchedAt) })}</div>
+						<!-- Only for a night somebody missed; a full night says nothing at all. -->
+						{#if entry.absent}
+							<div class="muted">
+								{t('archive.withoutNames', { names: listNames(data.members, entry.absent, locale()) })}
+							</div>
+						{/if}
 						{#if entry.average != null}
 							<div class="avg">
 								<Stars value={entry.average} size="1rem" />

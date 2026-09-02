@@ -1,6 +1,8 @@
 <script lang="ts">
 	import type { MessageKey } from '$lib/i18n/catalogues';
 	import { getI18n, getLocale } from '$lib/i18n/context';
+	import { listNames } from '$lib/member';
+	import type { BlockedMovie } from '$lib/standings';
 
 	let { data } = $props();
 
@@ -34,6 +36,19 @@
 		const entry = headlines[type];
 		return entry ? `${entry.icon} ${t(entry.key)}` : type;
 	}
+
+	/**
+	 * The two fields a partial night adds to an evaluation or a free pick. Entries
+	 * written before the feature existed simply carry neither, so both are read
+	 * defensively, the way `standings` already is.
+	 */
+	function absentIn(payload: Record<string, unknown>): string[] {
+		return Array.isArray(payload.absent) ? (payload.absent as string[]) : [];
+	}
+
+	function blockedIn(payload: Record<string, unknown>): BlockedMovie[] {
+		return Array.isArray(payload.blocked) ? (payload.blocked as BlockedMovie[]) : [];
+	}
 </script>
 
 <svelte:head><title>{t('log.title')}</title></svelte:head>
@@ -55,11 +70,21 @@
 				<div class="muted">{t('log.triggeredBy', { name: personName(event.actor) })}</div>
 
 				{#if event.type === 'evaluation' || event.type === 'free_pick'}
+					{@const absent = absentIn(event.payload)}
+					{@const blocked = blockedIn(event.payload)}
 					<div class="body">
 						{#if event.type === 'free_pick'}
 							<p>{t('log.freePickBody', { title: String(event.payload.winnerTitle) })}</p>
 						{:else}
 							<p>{t('log.winner', { title: String(event.payload.winnerTitle) })}</p>
+						{/if}
+						{#if absent.length > 0}
+							<p class="muted">{t('log.without', { names: listNames(data.members, absent, locale()) })}</p>
+						{/if}
+						{#if blocked.length > 0}
+							<p class="muted">
+								{t('log.blocked', { titles: blocked.map((b) => b.title).join(', ') })}
+							</p>
 						{/if}
 						{#if event.payload.wheel}
 							{@const wheel = event.payload.wheel as { candidates: { title: string }[]; result: string }}
@@ -78,8 +103,16 @@
 									     and two films may carry the same one, which a keyed each answers by
 									     throwing on every visit from then on. The order is fixed once the event
 									     is written, so the position is the stable identity here. -->
-									{#each event.payload.standings as { title, tokens }, i (i)}
-										<li>{title}: {tokens} 🍿</li>
+									{#each event.payload.standings as { movieId, title, tokens }, i (i)}
+										<!-- On a partial night these counts are the votes of whoever was there,
+										     so a movie that waited has to be marked as such or its number reads
+										     as a defeat it never suffered. -->
+										{@const waited = blocked.find((b) => b.movieId === movieId)}
+										<li class:waiting={waited}>
+											{title}: {#if waited}{t('evaluation.waitingFor', {
+													names: listNames(data.members, waited.byPersonIds, locale())
+												})}{:else}{tokens} 🍿{/if}
+										</li>
 									{/each}
 								</ul>
 							</details>
@@ -131,5 +164,9 @@
 	details ul {
 		margin: 0.4rem 0 0;
 		padding-left: 1.2rem;
+	}
+
+	li.waiting {
+		color: var(--muted);
 	}
 </style>

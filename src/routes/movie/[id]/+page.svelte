@@ -3,9 +3,10 @@
 	import { call, errorText, redirectIfUnauthorized, type ApiResult } from '$lib/client/api';
 	import { supernova } from '$lib/client/celebrate';
 	import { getI18n, getLocale } from '$lib/i18n/context';
+	import AbsentPicker from '$lib/components/AbsentPicker.svelte';
 	import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
 	import PersonBadge from '$lib/components/PersonBadge.svelte';
-	import { unknownMember, type Member } from '$lib/member';
+	import { listNames, unknownMember, type Member } from '$lib/member';
 	import Poster from '$lib/components/Poster.svelte';
 	import Toast from '$lib/components/Toast.svelte';
 
@@ -21,6 +22,10 @@
 	let busy = $state(false);
 	let confirmPick = $state(false);
 	let confirmDelete = $state(false);
+	// Who is not here, for this one pick. Same row of chips as on the evaluation
+	// page, and just as short-lived: closing the page forgets it.
+	let absent: string[] = $state([]);
+	let absentOpen = $state(false);
 	let linking = $state(false);
 	let linkQuery = $state('');
 	let linkHits: { tmdbId: number; title: string; year: number | null; posterUrl: string | null }[] = $state(
@@ -42,6 +47,18 @@
 	 */
 	const rating = (value: number) =>
 		value.toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+	/** Whoever is ticked off and still has a vote on this movie. */
+	const blockedBy = $derived(
+		absent.filter((id) => movie.stakes.some((s) => s.personId === id && s.count > 0))
+	);
+
+	/**
+	 * A pick the server would refuse: the movie carries a vote of somebody who is
+	 * away, or nobody would be left at the movie night at all. Said here rather
+	 * than only in the error afterwards; the server checks both again regardless.
+	 */
+	const pickRefused = $derived(blockedBy.length > 0 || absent.length >= data.members.length);
 
 	/** Person for an id; unknown ids (a removed person) stay renderable. */
 	function member(id: string): Member {
@@ -82,7 +99,7 @@
 
 	async function freePick() {
 		confirmPick = false;
-		const result = await run(() => call('/api/free-pick', { body: { movieId: movie.id } }));
+		const result = await run(() => call('/api/free-pick', { body: { movieId: movie.id, absent } }));
 		// The parameter is what tells the evaluation page to celebrate: this click
 		// made a winner, and the page it lands on cannot tell that by itself.
 		if (result?.ok) await goto('/evaluation?celebrate=1');
@@ -302,10 +319,27 @@
 	title={t('movie.confirmPickTitle')}
 	confirmText={t('movie.confirmPickButton')}
 	{busy}
+	disabled={pickRefused}
 	onconfirm={freePick}
 >
 	{t('movie.confirmPickBody')}
 	{#if movie.tokens > 0}{t('movie.confirmPickTokens', { n: movie.tokens })}{/if}
+	<div class="who">
+		<button
+			class="btn secondary"
+			onclick={() => (absent.length > 0 ? ((absent = []), (absentOpen = false)) : (absentOpen = !absentOpen))}
+		>
+			👥 {absent.length > 0 ? t('evaluation.everyoneHere') : t('evaluation.absentButton')}
+		</button>
+		{#if absentOpen || absent.length > 0}
+			<AbsentPicker members={data.members} bind:absent />
+		{/if}
+		{#if blockedBy.length > 0}
+			<p class="blocked">
+				{t('movie.confirmPickBlocked', { names: listNames(data.members, blockedBy, locale()) })}
+			</p>
+		{/if}
+	</div>
 </ConfirmDialog>
 
 <ConfirmDialog
@@ -393,6 +427,20 @@
 
 	.entry label > span {
 		min-width: 7.5rem;
+	}
+
+	/* The absence row inside the free-pick dialog, set off from the sentence above
+	   it so the dialog reads as "this is what happens" and then "who is here". */
+	.who {
+		display: grid;
+		gap: 0.5rem;
+		margin-top: 0.9rem;
+	}
+
+	.blocked {
+		margin: 0;
+		color: var(--danger);
+		font-weight: 600;
 	}
 
 	.entry select {
