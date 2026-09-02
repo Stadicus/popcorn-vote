@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { getRequestEvent } from '$app/server';
 import { randomUUID } from 'node:crypto';
+import { listNames as joinNames } from '$lib/member';
 import { RuleError } from './game';
 import { log, writes } from './log';
 
@@ -62,16 +63,12 @@ export function logFailure(
 }
 
 /**
- * Person ids as a sentence reads them: "Ben and Cleo" in English, "Ben und Cleo"
- * in German, and whatever the language of the request calls for elsewhere.
- *
- * An id with nobody configured for it stays the id rather than disappearing. A
- * message that names one person fewer than the rule actually blocked on would
- * send the family looking for a mistake that is not there.
+ * Person ids as the language of the request names them. The same helper the
+ * pages use, so an error message and the screen behind it join two names the
+ * same way.
  */
 export function listNames(locals: App.Locals, ids: string[]): string {
-	const names = ids.map((id) => locals.config.members.find((m) => m.id === id)?.name ?? id);
-	return new Intl.ListFormat(locals.locale, { type: 'conjunction' }).format(names);
+	return joinNames(locals.config.members, ids, locals.locale);
 }
 
 export function requirePerson(locals: App.Locals): string {
