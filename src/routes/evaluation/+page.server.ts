@@ -12,7 +12,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		// The evening as every device sees it. Without this the shared state would
 		// be a one-way street to the television: a second phone, or this one after
 		// a reload, would show the full count and evaluate with nobody absent.
-		absent: tonightAbsent(locals.db),
+		absent: tonightAbsent(locals.db, locals.config.members),
 		winner: winnerMovie(locals.db)
 	};
 };

@@ -600,7 +600,7 @@ describe('the evening every device shares', () => {
 	it('publishes what actually decided the night', () => {
 		twoCamps();
 		evaluate(db, config, 'anna', undefined, ['ben']);
-		expect(tonightAbsent(db)).toEqual(['ben']);
+		expect(tonightAbsent(db, config.members)).toEqual(['ben']);
 	});
 
 	it('publishes an empty evening for a full night, rather than leaving the last one standing', () => {
@@ -608,13 +608,13 @@ describe('the evening every device shares', () => {
 		evaluate(db, config, 'anna', undefined, ['ben']);
 		revertWinner(db, config, 'anna');
 		evaluate(db, config, 'anna');
-		expect(tonightAbsent(db)).toEqual([]);
+		expect(tonightAbsent(db, config.members)).toEqual([]);
 	});
 
 	it('publishes from a free pick too, which the film page never does itself', () => {
 		const { a } = twoCamps();
 		freePick(db, config, 'anna', a, ['ben']);
-		expect(tonightAbsent(db)).toEqual(['ben']);
+		expect(tonightAbsent(db, config.members)).toEqual(['ben']);
 	});
 
 	// A revert re-runs the same evening, so the shared selection has to survive
@@ -623,14 +623,14 @@ describe('the evening every device shares', () => {
 		twoCamps();
 		evaluate(db, config, 'anna', undefined, ['ben']);
 		revertWinner(db, config, 'anna');
-		expect(tonightAbsent(db)).toEqual(['ben']);
+		expect(tonightAbsent(db, config.members)).toEqual(['ben']);
 	});
 
 	it('ends the evening with "watched"', () => {
 		twoCamps();
 		evaluate(db, config, 'anna', undefined, ['ben']);
 		confirmWatched(db, config, 'anna');
-		expect(tonightAbsent(db)).toEqual([]);
+		expect(tonightAbsent(db, config.members)).toEqual([]);
 	});
 });
 

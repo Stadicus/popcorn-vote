@@ -14,6 +14,6 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	return {
 		movie: toView(locals.db, row),
 		sources: locals.config.sources,
-		absent: tonightAbsent(locals.db)
+		absent: tonightAbsent(locals.db, locals.config.members)
 	};
 };

@@ -62,7 +62,10 @@
 	}
 </script>
 
-<button type="button" class="btn secondary" aria-expanded={shown} onclick={toggleRow}>
+<!-- `busy` belongs on this one as much as on the chips: it also publishes, and
+     a tap on it while a chip change is still in the air would put a second
+     request on the wire. -->
+<button type="button" class="btn secondary" aria-expanded={shown} disabled={busy} onclick={toggleRow}>
 	👥 {absent.length > 0 ? t('evaluation.everyoneHere') : t('evaluation.absentButton')}
 </button>
 

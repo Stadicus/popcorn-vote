@@ -2,6 +2,8 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { createDb, metaSet, type DB } from './db';
 import { clearTonightAbsent, setTonightAbsent, tonightAbsent } from './tonight';
 
+const family = [{ id: 'anna' }, { id: 'ben' }, { id: 'cleo' }];
+
 // The shared "who is away tonight" row. Everything here is about it being
 // impossible to break: it hangs off the TV poll and off loading two pages, so a
 // mangled row has to read as "everybody is here", never as an exception.
@@ -19,23 +21,23 @@ afterEach(() => {
 describe('who is away tonight', () => {
 	it('reads back what was written', () => {
 		setTonightAbsent(db, ['ben', 'cleo']);
-		expect(tonightAbsent(db)).toEqual(['ben', 'cleo']);
+		expect(tonightAbsent(db, family)).toEqual(['ben', 'cleo']);
 	});
 
 	it('is empty when nothing was ever written', () => {
-		expect(tonightAbsent(db)).toEqual([]);
+		expect(tonightAbsent(db, family)).toEqual([]);
 	});
 
 	it('stores an empty list as its own answer', () => {
 		setTonightAbsent(db, ['ben']);
 		setTonightAbsent(db, []);
-		expect(tonightAbsent(db)).toEqual([]);
+		expect(tonightAbsent(db, family)).toEqual([]);
 	});
 
 	it('is empty after the evening was cleared', () => {
 		setTonightAbsent(db, ['ben']);
 		clearTonightAbsent(db);
-		expect(tonightAbsent(db)).toEqual([]);
+		expect(tonightAbsent(db, family)).toEqual([]);
 	});
 });
 
@@ -56,8 +58,8 @@ describe('a row that cannot be trusted', () => {
 		['an unparseable timestamp', '{"absent":["ben"],"at":"whenever"}']
 	])('reads %s as nobody being away', (_label, raw) => {
 		metaSet(db, 'tonight_absent', raw);
-		expect(() => tonightAbsent(db)).not.toThrow();
-		expect(tonightAbsent(db)).toEqual([]);
+		expect(() => tonightAbsent(db, family)).not.toThrow();
+		expect(tonightAbsent(db, family)).toEqual([]);
 	});
 });
 
@@ -68,7 +70,7 @@ describe('the twelve hours', () => {
 		setTonightAbsent(db, ['ben']);
 
 		vi.setSystemTime(new Date('2026-09-03T07:00:00.000Z'));
-		expect(tonightAbsent(db)).toEqual(['ben']);
+		expect(tonightAbsent(db, family)).toEqual(['ben']);
 	});
 
 	it('forgets an evening from thirteen hours ago', () => {
@@ -77,7 +79,7 @@ describe('the twelve hours', () => {
 		setTonightAbsent(db, ['ben']);
 
 		vi.setSystemTime(new Date('2026-09-03T09:00:00.000Z'));
-		expect(tonightAbsent(db)).toEqual([]);
+		expect(tonightAbsent(db, family)).toEqual([]);
 	});
 
 	// Every write restarts the twelve hours, which is what makes a late POST
@@ -91,6 +93,22 @@ describe('the twelve hours', () => {
 		setTonightAbsent(db, ['ben']);
 
 		vi.setSystemTime(new Date('2026-09-03T17:00:00.000Z'));
-		expect(tonightAbsent(db)).toEqual(['ben']);
+		expect(tonightAbsent(db, family)).toEqual(['ben']);
+	});
+});
+
+describe('somebody who left the family', () => {
+	// A stored id nobody is configured for any more must not come back: the chip
+	// row would not show them, so there would be no way to untick them, and the
+	// evening would be refused with `rule.unknownPerson` from a screen that marks
+	// nobody as away.
+	it('is dropped from the stored evening', () => {
+		setTonightAbsent(db, ['ben', 'cleo']);
+		expect(tonightAbsent(db, [{ id: 'anna' }, { id: 'ben' }])).toEqual(['ben']);
+	});
+
+	it('leaves nothing behind when they were the only one away', () => {
+		setTonightAbsent(db, ['cleo']);
+		expect(tonightAbsent(db, [{ id: 'anna' }, { id: 'ben' }])).toEqual([]);
 	});
 });

@@ -389,8 +389,9 @@ later finds it already set, and **"Everyone is here"** clears it in one tap.
 It expires by itself twelve hours after the last change, so an evening that
 was never confirmed cannot colour the next one.
 
-Nothing else changes: the winner's votes are spent as always, and reverting
-the win clears the absence along with it.
+Nothing else changes: the winner's votes are spent as always. Reverting the
+win clears what the *film* recorded about that evening — the evening itself
+stays set, because a revert means running the same one again.
 
 Two honest footnotes. First, this is **an agreement, not a lock**: whoever
 holds the phone can mark anyone as absent and move anyone's votes, exactly

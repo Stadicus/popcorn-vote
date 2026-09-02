@@ -47,28 +47,50 @@
 	 * that would then decide somebody's film without them.
 	 */
 	let absent: string[] = $state(untrack(() => data.absent));
-	// The chips are dead while a change is on its way, which is all the ordering
-	// this needs: never two requests in flight, so an older selection cannot
-	// overtake a newer one.
+	// The whole row, chips and toggle alike, is dead while a change is on its way.
 	let publishing = $state(false);
+	// …and a counter behind it, because "dead" is a promise the interface makes
+	// and a race does not have to keep. Only the answer to the newest request may
+	// touch the selection; an older, slower one is dropped rather than allowed to
+	// overtake it.
+	let publishSeq = 0;
 
 	/**
 	 * Tells the other devices who is away. Deliberately quiet about failure: this
 	 * is a display hint, not a move in the game, and the next successful tap
-	 * catches up. The timeout keeps a hanging network from freezing the whole chip
-	 * row until the browser gives up, which on a phone is about a minute.
+	 * catches up.
 	 */
 	async function publishAbsent(next: string[]) {
+		const seq = ++publishSeq;
 		publishing = true;
-		const result = await call<{ absent: string[] }>('/api/tonight', {
-			body: { absent: next },
-			refresh: false,
-			signal: AbortSignal.timeout(4000)
-		});
-		publishing = false;
-		// The server tidies duplicates and refuses outright while a winner is on the
-		// table. Either way, its answer is the truth about the evening.
-		if (result.ok && result.data) absent = result.data.absent;
+		try {
+			const result = await call<{ absent: string[] }>('/api/tonight', {
+				body: { absent: next },
+				refresh: false,
+				signal: publishTimeout()
+			});
+			if (seq !== publishSeq) return; // a newer tap has taken over
+			// The server tidies duplicates and refuses outright while a winner is on
+			// the table. Either way, its answer is the truth about the evening.
+			if (result.ok && result.data) absent = result.data.absent;
+		} finally {
+			// Whatever went wrong, the row has to be usable again.
+			if (seq === publishSeq) publishing = false;
+		}
+	}
+
+	/**
+	 * Four seconds, so a wifi that accepts the connection and then says nothing
+	 * cannot freeze the chip row until the browser gives up — on a phone that is
+	 * about a minute.
+	 *
+	 * Guarded because `AbortSignal.timeout` arrived in Safari 16, and this app
+	 * still meets older iPhones (see the `Intl.Segmenter` fallback in
+	 * `$lib/member`). Without the guard this would throw before the request was
+	 * even made, and the row would stay dead for good.
+	 */
+	function publishTimeout(): AbortSignal | undefined {
+		return typeof AbortSignal.timeout === 'function' ? AbortSignal.timeout(4000) : undefined;
 	}
 
 	/** The same count the server will run, so the screen cannot promise otherwise. */

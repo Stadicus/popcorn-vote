@@ -44,8 +44,14 @@ interface Stored {
  * mangled row has to read as "everybody is here" rather than as a 500: the
  * worst case of getting this wrong is a board that counts every vote, which is
  * exactly what the app did before this existed.
+ *
+ * Filtered against the family as it is configured *now*. Somebody removed from
+ * the configuration while the evening was running would otherwise come back as
+ * a bare id nobody can untick: the chip row would not show them, the
+ * confirmation would name the raw id, and `/api/evaluate` would refuse the whole
+ * night with `rule.unknownPerson` from a screen that marks nobody as away.
  */
-export function tonightAbsent(db: DB): string[] {
+export function tonightAbsent(db: DB, members: { id: string }[]): string[] {
 	const raw = metaGet(db, KEY);
 	if (!raw) return [];
 
@@ -63,7 +69,8 @@ export function tonightAbsent(db: DB): string[] {
 	const written = Date.parse(String(at));
 	if (!Number.isFinite(written) || Date.now() - written > MAX_AGE_MS) return [];
 
-	return absent as string[];
+	const known = new Set(members.map((m) => m.id));
+	return (absent as string[]).filter((id) => known.has(id));
 }
 
 /**

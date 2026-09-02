@@ -48,14 +48,14 @@ describe('/api/tonight', () => {
 		const response = await POST(event({ absent: ['ben', 'ben'] }));
 		expect(response.status).toBe(200);
 		expect(await response.json()).toEqual({ ok: true, absent: ['ben'] });
-		expect(tonightAbsent(db)).toEqual(['ben']);
+		expect(tonightAbsent(db, config.members)).toEqual(['ben']);
 	});
 
 	it('records everybody being here again', async () => {
 		setTonightAbsent(db, ['ben']);
 		const response = await POST(event({ absent: [] }));
 		expect(await response.json()).toEqual({ ok: true, absent: [] });
-		expect(tonightAbsent(db)).toEqual([]);
+		expect(tonightAbsent(db, config.members)).toEqual([]);
 	});
 
 	// The reason validAbsent() exists apart from requireAbsent(): a finger moving
@@ -63,14 +63,14 @@ describe('/api/tonight', () => {
 	it('accepts an evening nobody would attend, which /api/evaluate refuses', async () => {
 		const response = await POST(event({ absent: ['anna', 'ben'] }));
 		expect(response.status).toBe(200);
-		expect(tonightAbsent(db)).toEqual(['anna', 'ben']);
+		expect(tonightAbsent(db, config.members)).toEqual(['anna', 'ben']);
 	});
 
 	it('refuses an id that is nobody', async () => {
 		const response = await POST(event({ absent: ['mia'] }));
 		expect(response.status).toBe(400);
 		expect((await response.json()).error).toContain('Unknown person');
-		expect(tonightAbsent(db)).toEqual([]);
+		expect(tonightAbsent(db, config.members)).toEqual([]);
 	});
 
 	it('refuses anything that is not a list of ids', async () => {
@@ -79,7 +79,7 @@ describe('/api/tonight', () => {
 			expect(response.status, JSON.stringify(absent)).toBe(400);
 			await expect(response.json()).resolves.toEqual({ error: 'The request is invalid.' });
 		}
-		expect(tonightAbsent(db)).toEqual([]);
+		expect(tonightAbsent(db, config.members)).toEqual([]);
 	});
 
 	// Between the reveal and "watched" the evening is settled. A phone that keeps
@@ -93,6 +93,6 @@ describe('/api/tonight', () => {
 		const response = await POST(event({ absent: [] }));
 		expect(response.status).toBe(200);
 		expect(await response.json()).toEqual({ ok: true, absent: ['ben'] });
-		expect(tonightAbsent(db)).toEqual(['ben']);
+		expect(tonightAbsent(db, config.members)).toEqual(['ben']);
 	});
 });

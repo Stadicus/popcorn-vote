@@ -25,7 +25,7 @@ export const POST: RequestHandler = ({ request, locals }) =>
 		// has nothing left to say about it. Not an error — the caller did nothing
 		// wrong — so the stored evening goes back and the phone corrects itself.
 		if (currentWinner(locals.db)) {
-			return json({ ok: true, absent: tonightAbsent(locals.db) });
+			return json({ ok: true, absent: tonightAbsent(locals.db, locals.config.members) });
 		}
 
 		setTonightAbsent(locals.db, absent);

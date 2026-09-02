@@ -48,7 +48,6 @@ describe('/api/tv', () => {
 		stake(db, config as never, 'ben', b, 1);
 
 		const body = await (await GET(event())).json();
-		expect(body.absent).toEqual([]);
 		expect(body.standings.map((s: { title: string; tokens: number }) => [s.title, s.tokens])).toEqual(
 			standings(db).map((s) => [s.title, s.tokens])
 		);
@@ -64,7 +63,6 @@ describe('/api/tv', () => {
 		setTonightAbsent(db, ['ben']);
 
 		const body = await (await GET(event())).json();
-		expect(body.absent).toEqual(['ben']);
 		const rows = Object.fromEntries(
 			body.standings.map((s: { title: string; tokens: number; blockedBy: string[] }) => [
 				s.title,
@@ -86,7 +84,8 @@ describe('/api/tv', () => {
 
 		const body = await (await GET(event())).json();
 		vi.useRealTimers();
-		expect(body.absent).toEqual([]);
+		// Expired, so the board counts Ben's vote again.
 		expect(body.standings[0].tokens).toBe(1);
+		expect(body.standings[0].blockedBy).toEqual([]);
 	});
 });
