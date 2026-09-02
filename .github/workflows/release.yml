@@ -154,6 +154,16 @@ jobs:
           fi
           echo "v$VERSION is new and has notes."
           echo "version_new=true" >> "$GITHUB_OUTPUT"
+      - name: Require post-release store PR credentials for a new version
+        if: steps.notes.outputs.version_new == 'true'
+        shell: bash
+        env:
+          RELEASE_PR_TOKEN: ${{ secrets.RELEASE_PR_TOKEN }}
+        run: |
+          if [ -z "$RELEASE_PR_TOKEN" ]; then
+            echo "::error::RELEASE_PR_TOKEN is required so a new release can open its Umbrel/CasaOS update PR and trigger the protected PR checks."
+            exit 1
+          fi
 
   # One architecture per runner, each native rather than emulated: better-sqlite3
   # is compiled from source on Alpine (musl), which takes a multiple of the time
@@ -510,3 +520,138 @@ jobs:
             --target "${{ needs.gate.outputs.release_sha }}" \
             --title "$tag" \
             --notes-file "$notes"
+
+  store-metadata:
+    name: Open Umbrel and CasaOS update PR
+    if: needs.gate.outputs.publish == 'true' && needs.notes.outputs.version_new == 'true' && needs.image.outputs.published == 'true'
+    needs: [gate, notes, image, release]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.gate.outputs.release_sha }}
+          fetch-depth: 0
+          # The persisted GITHUB_TOKEN is read-only here and would override the
+          # PAT used below. It would also suppress follow-up CI if permissions
+          # were widened, so leave Git authentication to RELEASE_PR_TOKEN.
+          persist-credentials: false
+      - uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4
+      - name: Resolve the published manifest digest
+        id: digest
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IMAGE: ghcr.io/${{ github.repository }}
+          VERSION: ${{ needs.notes.outputs.version }}
+          RELEASE_SHA: ${{ needs.gate.outputs.release_sha }}
+          PUBLISHED_DIGEST: ${{ needs.image.outputs.manifest_digest }}
+        run: |
+          set -euo pipefail
+          digest=$PUBLISHED_DIGEST
+          if [ -z "$digest" ]; then
+            for attempt in 1 2 3 4 5; do
+              inspection=$(docker buildx imagetools inspect "${IMAGE,,}:$VERSION" 2>/dev/null || true)
+              digest=$(awk '/^Digest:[[:space:]]+sha256:/{print $2; exit}' <<< "$inspection")
+              [ -n "$digest" ] && break
+              [ "$attempt" -eq 5 ] || sleep 5
+            done
+          fi
+          if [[ ! $digest =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo "::error::Could not resolve the published manifest digest for v$VERSION."
+            exit 1
+          fi
+          release=$(gh release view "v$VERSION" --json publishedAt,targetCommitish)
+          release_target=$(jq -r .targetCommitish <<< "$release")
+          release_date=$(jq -r '.publishedAt[0:10]' <<< "$release")
+          if [ "$release_target" != "$RELEASE_SHA" ] || [[ ! $release_date =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+            echo "::error::The published release metadata does not match source commit $RELEASE_SHA."
+            exit 1
+          fi
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+          echo "release_date=$release_date" >> "$GITHUB_OUTPUT"
+      - name: Materialize the published store metadata
+        env:
+          VERSION: ${{ needs.notes.outputs.version }}
+          DIGEST: ${{ steps.digest.outputs.digest }}
+          RELEASE_DATE: ${{ steps.digest.outputs.release_date }}
+        run: bash packaging/prepare-store-update.sh "$VERSION" "$DIGEST"
+      - name: Commit, push, and open the protected update PR
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PR_TOKEN }}
+          VERSION: ${{ needs.notes.outputs.version }}
+          RELEASE_SHA: ${{ needs.gate.outputs.release_sha }}
+          DIGEST: ${{ steps.digest.outputs.digest }}
+        run: |
+          set -euo pipefail
+          branch="release/store-metadata-v$VERSION"
+          files=(
+            packaging/casaos/docker-compose.yml
+            packaging/required-packages.txt
+            packaging/umbrel/docker-compose.yml
+            packaging/umbrel/umbrel-app.yml
+          )
+
+          body="$RUNNER_TEMP/store-pr.md"
+          {
+            printf '%s\n' \
+              '## What changed' \
+              '' \
+              "- update Umbrel to v$VERSION and pin the published multi-architecture manifest" \
+              "- materialize the CasaOS v$VERSION direct-import package" \
+              '' \
+              '## Published artifact' \
+              ''
+            printf -- '- Source commit: <code>%s</code>\n' "$RELEASE_SHA"
+            printf -- '- Manifest digest: <code>%s</code>\n' "$DIGEST"
+            printf '%s\n' \
+              '' \
+              'Home Assistant remains gated on a real Home Assistant OS device acceptance test.'
+          } > "$body"
+
+          gh auth setup-git
+          if gh api "repos/$GITHUB_REPOSITORY/git/matching-refs/heads/$branch" --jq '.[].ref' | grep -qx "refs/heads/$branch"; then
+            git fetch origin "refs/heads/$branch:refs/remotes/origin/$branch"
+            if ! git diff --quiet "origin/$branch" -- "${files[@]}"; then
+              echo "::error::$branch already exists with different store metadata. Refusing to overwrite it."
+              exit 1
+            fi
+            existing_pr=$(gh pr list --state all --head "$branch" --json mergedAt,state,url --jq '.[0] // empty')
+            if [ -n "$existing_pr" ]; then
+              existing_url=$(jq -r .url <<< "$existing_pr")
+              existing_state=$(jq -r .state <<< "$existing_pr")
+              existing_merged=$(jq -r .mergedAt <<< "$existing_pr")
+              if [ "$existing_state" = OPEN ] || [ "$existing_merged" != null ]; then
+                echo "Store metadata PR already exists: $existing_url"
+                exit 0
+              fi
+              echo "::error::Store metadata PR $existing_url was closed without merging. Reopen it or remove $branch before retrying."
+              exit 1
+            fi
+            gh pr create \
+              --base main \
+              --head "$branch" \
+              --draft \
+              --title "Update Umbrel and CasaOS to v$VERSION" \
+              --body-file "$body"
+            exit 0
+          fi
+
+          git switch -c "$branch"
+          git config user.name github-actions
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add "${files[@]}"
+          if git diff --cached --quiet; then
+            echo "::error::The release produced no store metadata changes."
+            exit 1
+          fi
+          git commit -m "chore(packaging): update stores to v$VERSION"
+          git push origin "HEAD:refs/heads/$branch"
+          gh pr create \
+            --base main \
+            --head "$branch" \
+            --draft \
+            --title "Update Umbrel and CasaOS to v$VERSION" \
+            --body-file "$body"
