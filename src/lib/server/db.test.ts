@@ -6,7 +6,7 @@ import { applySchema, createDb, metaGet, metaSet } from './db';
 // has shipped therefore needs its own catch-up, and this is where that is
 // checked, against a database built the way an older version left it.
 
-/** The `movies` table as it looked before `tmdb_rating` existed. */
+/** The `movies` table as it looked before `tmdb_rating` and `absent` existed. */
 const MOVIES_BEFORE = `
 CREATE TABLE movies (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -80,14 +80,34 @@ describe('catching up an older database', () => {
 		applySchema(db);
 		expect(() => applySchema(db)).not.toThrow();
 		expect(columns(db).filter((c) => c === 'tmdb_rating')).toHaveLength(1);
+		expect(columns(db).filter((c) => c === 'absent')).toHaveLength(1);
 		expect(db.prepare('SELECT count(*) AS n FROM movies').get()).toEqual({ n: 1 });
+	});
+
+	it('adds absent and leaves the existing rows on "everybody was there"', () => {
+		const db = databaseFromBefore();
+		expect(columns(db)).not.toContain('absent');
+
+		applySchema(db);
+
+		expect(columns(db)).toContain('absent');
+		// NULL, not an empty array: every movie won before partial nights existed
+		// was watched by whoever was around, and the app must not claim otherwise.
+		const row = db.prepare('SELECT title, absent FROM movies').get() as {
+			title: string;
+			absent: string | null;
+		};
+		expect(row.title).toBe('Das Boot');
+		expect(row.absent).toBeNull();
 	});
 
 	it('leaves a current database alone', () => {
 		const db = createDb(':memory:');
 		expect(columns(db)).toContain('tmdb_rating');
+		expect(columns(db)).toContain('absent');
 		applySchema(db);
 		expect(columns(db)).toContain('tmdb_rating');
+		expect(columns(db)).toContain('absent');
 	});
 });
 

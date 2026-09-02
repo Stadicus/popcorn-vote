@@ -44,6 +44,7 @@ export interface MovieRow {
 	created_at: string;
 	won_at: string | null;
 	won_via: string | null;
+	absent: string | null;
 	watched_at: string | null;
 	deleted_at: string | null;
 	deleted_by: string | null;

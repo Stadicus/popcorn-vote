@@ -68,6 +68,20 @@ describe('order of the movie list', () => {
 	});
 });
 
+describe('who was not there', () => {
+	it('reads the stored ids back as a list', () => {
+		const id = addMovie('Das Boot', 0);
+		db.prepare('UPDATE movies SET absent = ? WHERE id = ?').run(JSON.stringify(['ben', 'cleo']), id);
+		expect(listMovies(db)[0].absent).toEqual(['ben', 'cleo']);
+	});
+
+	// The usual night, and by far the common case: nothing stored, nothing shown.
+	it('is null when everybody was there', () => {
+		addMovie('Das Boot', 0);
+		expect(listMovies(db)[0].absent).toBeNull();
+	});
+});
+
 function addEvent(type: string): void {
 	db.prepare('INSERT INTO events (type, actor, created_at, payload) VALUES (?, ?, ?, ?)').run(
 		type,

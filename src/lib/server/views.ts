@@ -29,6 +29,8 @@ export interface MovieView {
 	createdAt: string;
 	wonAt: string | null;
 	wonVia: string | null;
+	/** Who was not there that night, or `null` for the usual case: everybody. */
+	absent: string[] | null;
 	watchedAt: string | null;
 	tokens: number;
 	stakes: StakeInfo[];
@@ -58,6 +60,7 @@ export function toView(db: DB, row: MovieRow): MovieView {
 		createdAt: row.created_at,
 		wonAt: row.won_at,
 		wonVia: row.won_via,
+		absent: row.absent ? (JSON.parse(row.absent) as string[]) : null,
 		watchedAt: row.watched_at,
 		tokens: stakes.reduce((sum, s) => sum + s.count, 0),
 		stakes
