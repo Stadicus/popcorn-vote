@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
 	import { afterNavigate, invalidateAll, replaceState } from '$app/navigation';
 	import { page } from '$app/state';
 	import { call, errorText } from '$lib/client/api';
@@ -40,11 +41,35 @@
 	let reveal: WinnerView | null = $state(null);
 
 	/**
-	 * Who is not here tonight. Client-only and deliberately not remembered: a
-	 * reload is back to "everybody is here", because presence is an input of the
-	 * moment, not a state of the family.
+	 * Who is not here tonight, shared with every other device through
+	 * `/api/tonight`. Starts from what the server holds, so a second phone or a
+	 * reload sees the same evening the television shows, rather than a full count
+	 * that would then decide somebody's film without them.
 	 */
-	let absent: string[] = $state([]);
+	let absent: string[] = $state(untrack(() => data.absent));
+	// The chips are dead while a change is on its way, which is all the ordering
+	// this needs: never two requests in flight, so an older selection cannot
+	// overtake a newer one.
+	let publishing = $state(false);
+
+	/**
+	 * Tells the other devices who is away. Deliberately quiet about failure: this
+	 * is a display hint, not a move in the game, and the next successful tap
+	 * catches up. The timeout keeps a hanging network from freezing the whole chip
+	 * row until the browser gives up, which on a phone is about a minute.
+	 */
+	async function publishAbsent(next: string[]) {
+		publishing = true;
+		const result = await call<{ absent: string[] }>('/api/tonight', {
+			body: { absent: next },
+			refresh: false,
+			signal: AbortSignal.timeout(4000)
+		});
+		publishing = false;
+		// The server tidies duplicates and refuses outright while a winner is on the
+		// table. Either way, its answer is the truth about the evening.
+		if (result.ok && result.data) absent = result.data.absent;
+	}
 
 	/** The same count the server will run, so the screen cannot promise otherwise. */
 	const board = $derived(nightBoard(data.movies, absent));
@@ -206,7 +231,7 @@
 			<!-- Right under the big button, not below the ranking: whoever is missing
 			     is the first thing to say about tonight, before anybody reads a
 			     single count. Nobody ticked off means nothing changes anywhere. -->
-			<AbsentPicker members={data.members} bind:absent />
+			<AbsentPicker members={data.members} bind:absent busy={publishing} onchange={publishAbsent} />
 			<!-- A disabled button always says why. "Nobody left" comes first: it is
 			     the reason the verdict cannot see. -->
 			{#if nobodyLeft}

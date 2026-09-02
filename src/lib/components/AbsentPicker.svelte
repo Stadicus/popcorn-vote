@@ -18,7 +18,19 @@
 		emoji: string;
 	}
 
-	let { members, absent = $bindable() }: { members: Person[]; absent: string[] } = $props();
+	let {
+		members,
+		absent = $bindable(),
+		busy = false,
+		onchange
+	}: {
+		members: Person[];
+		absent: string[];
+		/** Chips are dead while the page publishes the change. */
+		busy?: boolean;
+		/** Called after every change, the reset to nobody included. */
+		onchange?: (absent: string[]) => void;
+	} = $props();
 
 	const t = getI18n();
 
@@ -32,6 +44,7 @@
 		if (absent.length > 0) {
 			absent = [];
 			open = false;
+			onchange?.(absent);
 			return;
 		}
 		open = !open;
@@ -45,6 +58,7 @@
 	function toggle(id: string) {
 		const away = absent.includes(id) ? absent.filter((other) => other !== id) : [...absent, id];
 		absent = members.filter((m) => away.includes(m.id)).map((m) => m.id);
+		onchange?.(absent);
 	}
 </script>
 
@@ -60,7 +74,14 @@
 				{@const away = absent.includes(m.id)}
 				<!-- Pressed means "marked as away", which is what tapping this button
 				     does. The dimmed, struck-through chip is that state made visible. -->
-				<button type="button" class="chip" class:away aria-pressed={away} onclick={() => toggle(m.id)}>
+				<button
+					type="button"
+					class="chip"
+					class:away
+					aria-pressed={away}
+					disabled={busy}
+					onclick={() => toggle(m.id)}
+				>
 					<PersonBadge member={m} />
 					<span class="cname">{m.name}</span>
 				</button>

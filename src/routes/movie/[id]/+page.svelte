@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { call, errorText, redirectIfUnauthorized, type ApiResult } from '$lib/client/api';
 	import { supernova } from '$lib/client/celebrate';
@@ -22,9 +23,11 @@
 	let busy = $state(false);
 	let confirmPick = $state(false);
 	let confirmDelete = $state(false);
-	// Who is not here, for this one pick. Same row of chips as on the evaluation
-	// page, and just as short-lived: closing the page forgets it.
-	let absent: string[] = $state([]);
+	// Who is not here, as every device sees it. The dialog *reads* the shared
+	// evening but never sets it: a free pick is one act on one film and can be
+	// cancelled, which must not repaint the television. Only `freePick()` itself
+	// writes, once the choice is actually made.
+	let absent: string[] = $state(untrack(() => data.absent));
 	let linking = $state(false);
 	let linkQuery = $state('');
 	let linkHits: { tmdbId: number; title: string; year: number | null; posterUrl: string | null }[] = $state(
