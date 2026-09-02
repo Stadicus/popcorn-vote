@@ -2,7 +2,8 @@
 
 ## TMDB content
 
-The demonstration screenshots and video under `docs/screenshots/` contain film
+The demonstration screenshots and video under `docs/screenshots/` and the
+store gallery under `docs/store-gallery/` contain film
 posters supplied by The Movie Database (TMDB). Those posters are third-party
 content and are **not** licensed under this repository's MIT License. They are
 included solely to show the application and remain subject to the

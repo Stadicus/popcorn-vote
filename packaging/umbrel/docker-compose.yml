@@ -17,10 +17,13 @@ services:
 
   main:
     image: ghcr.io/stadicus/popcorn-vote:1.3.0@sha256:115369d57f8fefd2aa952fe269c9fb7a0719319e86ac64f68bd6842631be404d
-    # Umbrel creates the app-data directory as root before starting the app.
-    # Start the image's entrypoint as root so it can adopt that mount once; it
-    # then replaces itself with the unprivileged node process (uid/gid 1000).
-    user: "0:0"
+    # umbreld clones the app store with `chown -R 1000:1000` and copies the
+    # package into app-data with `rsync --archive`, so the committed `data/`
+    # directory arrives owned by 1000:1000 (umbrel:umbrel). That is the image's
+    # own `node` user; stated explicitly so a future base-image change cannot
+    # silently move it and leave the data directory unwritable. Starting as root
+    # is neither needed here nor welcome in App Store review.
+    user: "1000:1000"
     restart: on-failure
     stop_grace_period: 1m
     volumes:
