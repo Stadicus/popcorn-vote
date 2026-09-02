@@ -32,6 +32,12 @@ async function addMovieByHand(page: Page, title: string) {
 	await page.waitForURL(/\/movie\/\d+/);
 }
 
+/** Hand the shared phone to somebody else, mid-test. */
+async function switchPerson(page: Page, name: string) {
+	await page.locator('header .who').click();
+	await choosePerson(page, name);
+}
+
 /** Titles of the tiles in the order they appear in the DOM. */
 function tileOrder(page: Page): Promise<string[]> {
 	return page.locator('.tile .name').allInnerTexts();
@@ -357,6 +363,95 @@ test('TMDB search is configured while optional OMDb may stay unavailable', async
 	await page.goto('/more');
 	await expect(page.getByText('IMDb ratings are unavailable. TMDB ratings are shown instead.')).toBeVisible();
 	await expect(page.getByText('No OMDb key is configured.')).toBeVisible();
+});
+
+test('a movie night without Ben', async ({ page }) => {
+	await enterPin(page);
+	await choosePerson(page, 'Anna');
+
+	// Two votes on Alpha so it leads the field outright once Ben's movies drop
+	// out: a tie would send the evening to the wheel and this test to chance.
+	await addMovieByHand(page, 'Night-Alpha');
+	await page.getByRole('button', { name: /Add vote/ }).click();
+	await expect(page.getByText('Anna: 1')).toBeVisible();
+
+	await switchPerson(page, 'David');
+	await page.getByRole('button', { name: /Add vote/ }).click();
+	await expect(page.getByText('David: 1')).toBeVisible();
+
+	await switchPerson(page, 'Ben');
+	await addMovieByHand(page, 'Night-Bravo');
+	await page.getByRole('button', { name: /Add vote/ }).click();
+	await expect(page.getByText('Ben: 1')).toBeVisible();
+
+	await page.goto('/evaluation');
+	const bravo = page.locator('.board li', { hasText: 'Night-Bravo' });
+	await expect(bravo).toContainText('1 🍿');
+
+	// Ben is not here tonight, so his movie stops being a candidate and says so.
+	await page.getByRole('button', { name: /Someone missing/ }).click();
+	await page.locator('.picker').getByRole('button', { name: /Ben/ }).click();
+	await expect(bravo).toContainText('waits for Ben');
+	await expect(bravo).not.toContainText('🍿');
+
+	await page.getByRole('button', { name: 'Reveal winner' }).click();
+	const dialog = page.getByRole('dialog');
+	await expect(dialog.getByRole('heading', { name: 'Reveal the winner without Ben?' })).toBeVisible();
+	await dialog.getByRole('button', { name: 'Reveal winner' }).click();
+	await expect(page.getByRole('heading', { name: /Tonight's movie is/ })).toBeVisible();
+	await expect(page.locator('.winner')).toContainText('Night-Alpha');
+	await expect(page.locator('.winner')).toContainText('Without Ben');
+
+	await page.getByRole('button', { name: 'Mark as watched' }).click();
+	await page.getByRole('dialog').getByRole('button', { name: 'Mark as watched' }).click();
+	await page.goto('/archive');
+	await expect(page.locator('.entry', { hasText: 'Night-Alpha' })).toContainText('Watched without Ben');
+
+	// Ben's movie kept its vote through all of it and is back to being a candidate.
+	await page.goto('/evaluation');
+	await expect(page.locator('.board li', { hasText: 'Night-Bravo' })).toContainText('1 🍿');
+});
+
+test('a free pick without Ben', async ({ page }) => {
+	await enterPin(page);
+	await choosePerson(page, 'Ben');
+
+	await addMovieByHand(page, 'Pick-Blocked');
+	await page.getByRole('button', { name: /Add vote/ }).click();
+	await expect(page.getByText('Ben: 1')).toBeVisible();
+	const blocked = page.url();
+
+	await switchPerson(page, 'Anna');
+	await addMovieByHand(page, 'Pick-Free');
+	const free = page.url();
+
+	// A movie Ben voted for cannot be tonight's movie without him, and the dialog
+	// says so before anybody presses anything.
+	await page.goto(blocked);
+	await page.getByRole('button', { name: /Choose for tonight/ }).click();
+	const dialog = page.getByRole('dialog');
+	await dialog.getByRole('button', { name: /Someone missing/ }).click();
+	await dialog.locator('.picker').getByRole('button', { name: /Ben/ }).click();
+	await expect(dialog).toContainText('Ben voted for this movie');
+	await expect(dialog.getByRole('button', { name: 'Choose this movie' })).toBeDisabled();
+	await dialog.getByRole('button', { name: 'Cancel' }).click();
+	await expect(dialog).toBeHidden();
+
+	// A movie nobody absent voted for goes through, and the evening is recorded
+	// as the one Ben missed.
+	await page.goto(free);
+	await page.getByRole('button', { name: /Choose for tonight/ }).click();
+	await dialog.getByRole('button', { name: /Someone missing/ }).click();
+	await dialog.locator('.picker').getByRole('button', { name: /Ben/ }).click();
+	await dialog.getByRole('button', { name: 'Choose this movie' }).click();
+	await page.waitForURL(/\/evaluation/);
+	await expect(page.locator('.winner')).toContainText('Pick-Free');
+	await expect(page.locator('.winner')).toContainText('Without Ben');
+
+	await page.getByRole('button', { name: 'Mark as watched' }).click();
+	await page.getByRole('dialog').getByRole('button', { name: 'Mark as watched' }).click();
+	await page.goto('/archive');
+	await expect(page.locator('.entry', { hasText: 'Pick-Free' })).toContainText('Watched without Ben');
 });
 
 // Has to go last: the failed attempts lock the IP for the following seconds.
