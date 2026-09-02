@@ -23,20 +23,22 @@ describe('byTokensThenTitle()', () => {
 	it('puts the most tokens first and breaks a tie alphabetically', () => {
 		const list = [
 			{ title: 'Zodiac', tokens: 1 },
-			{ title: 'Amélie', tokens: 1 },
+			{ title: 'Arrival', tokens: 1 },
 			{ title: 'Brazil', tokens: 4 }
 		];
-		expect([...list].sort(byTokensThenTitle).map((s) => s.title)).toEqual(['Brazil', 'Amélie', 'Zodiac']);
+		expect([...list].sort(byTokensThenTitle).map((s) => s.title)).toEqual(['Brazil', 'Arrival', 'Zodiac']);
 	});
 
-	it('sorts umlauts with their base letter and ignores case', () => {
+	it('ignores case on a tie', () => {
 		const list = [
-			{ title: 'Ödipus', tokens: 0 },
-			{ title: 'oben', tokens: 0 },
-			{ title: 'Ozean', tokens: 0 }
+			{ title: 'ocean', tokens: 0 },
+			{ title: 'Nomad', tokens: 0 }
 		];
-		expect([...list].sort(byTokensThenTitle).map((s) => s.title)).toEqual(['oben', 'Ödipus', 'Ozean']);
+		expect([...list].sort(byTokensThenTitle).map((s) => s.title)).toEqual(['Nomad', 'ocean']);
 	});
+
+	// Collation by German rules is asserted where the German test data already
+	// lives, in views.test.ts, so this file stays free of umlauts.
 });
 
 describe('nightBoard()', () => {
@@ -66,11 +68,11 @@ describe('nightBoard()', () => {
 	});
 
 	it('counts exactly like a full night when nobody is away', () => {
-		const movies = [movie(1, 'Amélie', { anna: 1 }), movie(2, 'Brazil', { anna: 2, ben: 1 })];
+		const movies = [movie(1, 'Arrival', { anna: 1 }), movie(2, 'Brazil', { anna: 2, ben: 1 })];
 		const board = nightBoard(movies, []);
 		expect(board.map((s) => [s.title, s.tokens])).toEqual([
 			['Brazil', 3],
-			['Amélie', 1]
+			['Arrival', 1]
 		]);
 		expect(board.every((s) => s.blockedBy.length === 0)).toBe(true);
 		expect(board.every((s) => s.tokens === s.allTokens)).toBe(true);
