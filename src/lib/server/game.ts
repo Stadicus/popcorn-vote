@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import type { MessageKey } from '$lib/i18n/catalogues';
 import type { Params } from '$lib/i18n/translate';
+import { byTokensThenTitle } from '$lib/standings';
 import type { DB } from './db';
 import type { AppConfig } from './config';
 
@@ -157,22 +158,6 @@ export interface Standing {
 	movieId: number;
 	title: string;
 	tokens: number;
-}
-
-/**
- * One order for the movie list, the evaluation page and the TV board: most
- * tokens at the top, on a tie alphabetically by German rules (umlauts sort with
- * their base letter, case ignored).
- *
- * Every view has to use the same comparison, otherwise, on a tie, the television
- * shows a different order than the phone beside it. SQLite cannot do this
- * (COLLATE knows no umlauts), so the sorting happens in JavaScript.
- */
-export function byTokensThenTitle(
-	a: { tokens: number; title: string },
-	b: { tokens: number; title: string }
-): number {
-	return b.tokens - a.tokens || a.title.localeCompare(b.title, 'de', { sensitivity: 'base' });
 }
 
 export function standings(db: DB): Standing[] {

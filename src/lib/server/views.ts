@@ -1,7 +1,8 @@
 import type { DB } from './db';
 import type { AppConfig } from './config';
 import type { MovieRow } from './game';
-import { byTokensThenTitle, getBalance } from './game';
+import { byTokensThenTitle } from '$lib/standings';
+import { getBalance } from './game';
 
 export interface StakeInfo {
 	personId: string;
