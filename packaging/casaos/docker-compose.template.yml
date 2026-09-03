@@ -47,8 +47,8 @@ x-casaos:
   version: '__VERSION__'
   update_at: '__RELEASE_DATE__'
   release_notes:
-    en_US: First CasaOS package for Popcorn Vote __VERSION__.
-    de_DE: Erstes CasaOS-Paket für Popcorn Vote __VERSION__.
+    en_US: Updates Popcorn Vote to version __VERSION__. See the full release notes at https://github.com/Stadicus/popcorn-vote/releases/tag/v__VERSION__.
+    de_DE: Aktualisiert Popcorn Vote auf Version __VERSION__. Die vollständigen Release Notes stehen unter https://github.com/Stadicus/popcorn-vote/releases/tag/v__VERSION__.
   website: https://popcornvote.org
   repo: https://github.com/Stadicus/popcorn-vote
   support: https://github.com/Stadicus/popcorn-vote/issues

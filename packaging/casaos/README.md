@@ -1,8 +1,8 @@
 # CasaOS package source
 
 `docker-compose.template.yml` is the reviewed source for the CasaOS package.
-The released v1.3.0 image now exists, so `docker-compose.yml` is materialized as
-a directly importable, version-pinned package.
+Every release materializes `docker-compose.yml` from it as a directly
+importable package pinned to that release's image digest.
 
 The result supports direct import through CasaOS **Install a customised app**
 and is also shaped for a later contribution to the official CasaOS/ZimaOS app
