@@ -1,17 +1,6 @@
 # Changelog
 
-## Unreleased
-
-- Made the television follow a partial night. Until now the big screen kept
-  counting every vote while the phone next to it counted only the people in the
-  room, so it could crown a film that then did not win. Who is missing is now
-  shared by all devices: tap somebody off on any phone and the board recounts
-  everywhere, their films step to the bottom saying "waits for Ben", and the
-  crown moves to whoever can actually win. The selection survives a reload,
-  reaches the free-pick dialog on a film page, and expires twelve hours after
-  the last change so an evening nobody confirmed cannot colour the next one.
-- Made "We watched it" open the archive, where the film is the top entry and
-  its stars are waiting. Rating was two taps away and easy to forget.
+## v1.4.0 Movie night when somebody is out
 
 - Added a movie night for the evenings when somebody is out. Before the reveal,
   and before a free pick, the phone can say who is missing: only the votes of
@@ -19,13 +8,26 @@
   is no candidate at all. It stays on the list, greyed out, marked "waits for
   Ben", and it cannot be chosen as a free pick either. Taking a vote back is the
   way to release a movie, exactly as it always was, so nothing new had to be
-  invented and nobody's favourite gets watched without them.
+  invented and nobody's favourite gets watched without them. Whoever ticks
+  nobody off sees no change anywhere: there is no new setting and no new
+  environment variable.
 - Recorded who was away on the movie itself, so the archive, the log and the TV
   say "Without Ben" for that evening and nothing at all for a full one.
-  Reverting a win clears it. Whoever ticks nobody off sees no change anywhere:
-  there is no new setting, no new environment variable, and the standings on the
-  television keep counting every vote, because the TV does not know who is in
-  the room.
+  Reverting a win clears it.
+- Made the television follow a partial night. Who is missing is shared by all
+  devices: tap somebody off on the evaluation page of any phone and the board
+  recounts everywhere, their films step to the bottom saying "waits for Ben",
+  and the crown moves to whoever can actually win. The selection survives a
+  reload, reaches the free-pick dialog on a film page, and expires twelve hours
+  after the last change so an evening nobody confirmed cannot colour the next
+  one. A revert keeps it: that is the same evening, run again.
+- Made "We watched it" open the archive, where the film is the top entry and
+  its stars are waiting. Rating was two taps away and easy to forget.
+- Made every new release open a draft pull request that moves Umbrel to the
+  published manifest digest and materializes the matching CasaOS package, so
+  the store metadata no longer waits for a manual run. The CasaOS package for
+  v1.3.0 is materialized for direct import; Home Assistant stays in its
+  templates until the Home Assistant OS device test has passed.
 
 ## v1.3.0 App-store runtime and release preparation
 
