@@ -378,13 +378,13 @@ def validate_ha(data, expected_version):
     for key in ('privileged', 'devices', 'map'):
         require(not data.get(key), f'Home Assistant must not request {key}')
 
-def validate_casa(data, expected_version):
+def validate_casa(data, expected_version, expected_digest):
     meta = data.get('x-casaos') or {}
     services = data.get('services') or {}
     main_name = meta.get('main')
     main = services.get(main_name) or {}
     require(main_name == 'popcorn-vote', 'CasaOS main service drifted')
-    require(main.get('image') == f'ghcr.io/stadicus/popcorn-vote:{expected_version}', 'CasaOS image is not version-pinned')
+    require(main.get('image') == f'ghcr.io/stadicus/popcorn-vote:{expected_version}@{expected_digest}', 'CasaOS image is not pinned to the expected version and digest')
     require(set(meta.get('architectures') or []) == {'amd64', 'arm64'}, 'CasaOS architectures are incomplete')
     require(meta.get('category') == 'Media', 'CasaOS category must use the official Media spelling')
     require(str(meta.get('port_map')) == '3000', 'CasaOS web port is not 3000')
@@ -400,7 +400,7 @@ def validate_casa(data, expected_version):
 ha_template = yaml_file('packaging/home-assistant/config.template.yaml')
 validate_ha(ha_template, '__VERSION__')
 casa_template = yaml_file('packaging/casaos/docker-compose.template.yml')
-validate_casa(casa_template, '__VERSION__')
+validate_casa(casa_template, '__VERSION__', '__DIGEST__')
 
 application_version = json.loads(Path('package.json').read_text())['version']
 store_versions = []
@@ -424,7 +424,10 @@ casa_path = Path('packaging/casaos/docker-compose.yml')
 if casa_path.exists():
     casa = yaml_file(casa_path)
     casa_version = (casa.get('x-casaos') or {}).get('version')
-    validate_casa(casa, casa_version)
+    casa_image = (((casa.get('services') or {}).get('popcorn-vote') or {}).get('image') or '')
+    digest_match = re.fullmatch(rf'ghcr\.io/stadicus/popcorn-vote:{re.escape(casa_version or "")}@(sha256:[0-9a-f]{{64}})', casa_image)
+    require(digest_match is not None, 'CasaOS image is not pinned to a manifest digest')
+    validate_casa(casa, casa_version, digest_match.group(1))
     require(version(casa_version) <= version(application_version), 'CasaOS is newer than package.json')
     store_versions.append(casa_version)
 
