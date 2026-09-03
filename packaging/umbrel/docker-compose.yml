@@ -16,7 +16,7 @@ services:
       PROXY_AUTH_ADD: "false"
 
   main:
-    image: ghcr.io/stadicus/popcorn-vote:1.3.0@sha256:115369d57f8fefd2aa952fe269c9fb7a0719319e86ac64f68bd6842631be404d
+    image: ghcr.io/stadicus/popcorn-vote:1.4.0@sha256:eb9e21d87780a45900bebaff5ea887d6d585bcb91e52aff96b79be3bb7d2b7c6
     # umbreld clones the app store with `chown -R 1000:1000` and copies the
     # package into app-data with `rsync --archive`, so the committed `data/`
     # directory arrives owned by 1000:1000 (umbrel:umbrel). That is the image's
