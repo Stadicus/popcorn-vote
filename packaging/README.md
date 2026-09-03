@@ -14,11 +14,11 @@ package below has to be checked.
 |---|---|---|
 | `unraid/` | Unraid Community Applications | shipped |
 | `umbrel/` | Umbrel App Store | [submitted](https://github.com/getumbrel/umbrel-apps/pull/5994) |
-| `home-assistant/` | Home Assistant custom app repository | prepared for v1.3.0 |
-| `casaos/` | CasaOS direct import / later app-store contribution | materialized for v1.3.0; upstream submission pending |
+| `home-assistant/` | Home Assistant custom app repository | templates ready; waits for the HA OS device test |
+| `casaos/` | CasaOS direct import / later app-store contribution | materialized for v1.4.0; upstream submission pending |
 
 Home Assistant metadata remains in non-discoverable templates until its required
-Home Assistant OS device test has passed. CasaOS v1.3.0 is materialized for
+Home Assistant OS device test has passed. CasaOS v1.4.0 is materialized for
 direct import, while an official store submission still requires a real CasaOS
 install test and separate authorization. `prepare-release-metadata.sh` verifies
 the multi-architecture image and can render the full coordinated metadata set
