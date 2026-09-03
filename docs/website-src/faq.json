@@ -13,6 +13,10 @@
 				"answer": "Each family member receives the same number of votes on a shared schedule. Votes can be saved, placed on one or several films, and moved until movie night. The film with the most votes wins; a wheel settles ties."
 			},
 			{
+				"question": "What if somebody is not there on movie night?",
+				"answer": "Before the reveal, mark who is missing. Only the votes of the people present count, and a film with a vote from somebody absent waits for them instead of being watched without them. The selection is shared by every phone and the TV, and it clears itself after the evening."
+			},
+			{
 				"question": "Do family members need an account?",
 				"answer": "No. A family shares one installation and one four-digit PIN; each person then simply chooses their name on any phone, tablet, or computer. Named accounts with individual PINs can be added later under Settings, for families who prefer separate sign-ins."
 			},
@@ -50,6 +54,10 @@
 			{
 				"question": "Wie funktioniert die Abstimmung?",
 				"answer": "Jedes Familienmitglied erhält nach demselben Zeitplan gleich viele Stimmen. Stimmen lassen sich sparen, auf einen oder mehrere Filme verteilen und bis zum Filmabend verschieben. Der Film mit den meisten Stimmen gewinnt; bei Gleichstand entscheidet das Glücksrad."
+			},
+			{
+				"question": "Was ist, wenn jemand am Filmabend nicht da ist?",
+				"answer": "Vor der Enthüllung lässt sich markieren, wer fehlt. Dann zählen nur die Stimmen der Anwesenden, und ein Film mit einer Stimme von jemandem, der fehlt, wartet auf diese Person, statt ohne sie geschaut zu werden. Die Auswahl gilt auf jedem Handy und auf dem Fernseher und setzt sich nach dem Abend von selbst zurück."
 			},
 			{
 				"question": "Brauchen Familienmitglieder ein Konto?",
@@ -91,6 +99,10 @@
 				"answer": "Cada miembro de la familia recibe el mismo número de votos con un calendario común. Los votos se pueden guardar, repartir entre una o varias películas y mover hasta la noche de cine. Gana la película con más votos; una ruleta resuelve los empates."
 			},
 			{
+				"question": "¿Qué pasa si alguien no está en la noche de cine?",
+				"answer": "Antes de la revelación se marca quién falta. Solo cuentan los votos de quienes están presentes, y una película con un voto de alguien ausente espera a esa persona en vez de verse sin ella. La selección se comparte entre todos los teléfonos y el televisor, y se borra sola después de la velada."
+			},
+			{
 				"question": "¿Los miembros de la familia necesitan una cuenta?",
 				"answer": "No. La familia comparte una instalación y un PIN de cuatro cifras; después, cada persona solo elige su nombre desde cualquier teléfono, tableta u ordenador. Quien prefiera PIN individuales puede crear más adelante cuentas con nombre en Ajustes."
 			},
@@ -128,6 +140,10 @@
 			{
 				"question": "Comment fonctionne le vote ?",
 				"answer": "Chaque membre de la famille reçoit le même nombre de voix selon un calendrier commun. Les voix peuvent être économisées, réparties entre un ou plusieurs films et déplacées jusqu’à la soirée. Le film ayant le plus de voix gagne ; une roue départage les égalités."
+			},
+			{
+				"question": "Et si quelqu’un n’est pas là le soir du film ?",
+				"answer": "Avant la révélation, on indique qui manque. Seuls les votes des personnes présentes comptent, et un film qui a reçu le vote d’un absent l’attend au lieu d’être regardé sans lui. La sélection est partagée par tous les téléphones et le téléviseur, et elle s’efface d’elle-même après la soirée."
 			},
 			{
 				"question": "Les membres de la famille ont-ils besoin d’un compte ?",
@@ -169,6 +185,10 @@
 				"answer": "Cada membro da família recebe o mesmo número de votos em um cronograma comum. Os votos podem ser guardados, distribuídos entre um ou vários filmes e movidos até a noite do filme. O filme com mais votos vence; uma roleta resolve empates."
 			},
 			{
+				"question": "E se alguém não estiver na noite de cinema?",
+				"answer": "Antes da revelação, marque quem está faltando. Só contam os votos de quem está presente, e um filme com voto de alguém ausente espera por essa pessoa em vez de ser assistido sem ela. A seleção é compartilhada por todos os celulares e pela TV, e se apaga sozinha depois da noite."
+			},
+			{
 				"question": "Os familiares precisam de uma conta?",
 				"answer": "Não. A família compartilha uma instalação e um PIN de quatro dígitos; depois, cada pessoa apenas escolhe seu nome em qualquer celular, tablet ou computador. Contas nomeadas com PIN individual podem ser criadas depois em Configurações, para quem preferir logins separados."
 			},
@@ -206,6 +226,10 @@
 			{
 				"question": "Come funziona la votazione?",
 				"answer": "Ogni membro della famiglia riceve lo stesso numero di voti secondo un calendario comune. I voti si possono conservare, distribuire su uno o più film e spostare fino alla serata. Vince il film con più voti; una ruota risolve i pareggi."
+			},
+			{
+				"question": "E se qualcuno non c’è la sera del film?",
+				"answer": "Prima della rivelazione si indica chi manca. Contano solo i voti dei presenti, e un film con il voto di una persona assente la aspetta invece di essere visto senza di lei. La selezione è condivisa da tutti i telefoni e dalla TV, e si azzera da sola dopo la serata."
 			},
 			{
 				"question": "I familiari devono creare un account?",
@@ -247,6 +271,10 @@
 				"answer": "Każdy członek rodziny otrzymuje tyle samo głosów według wspólnego harmonogramu. Głosy można oszczędzać, rozdzielać między jeden lub kilka filmów i przenosić aż do wieczoru filmowego. Wygrywa film z największą liczbą głosów; remisy rozstrzyga koło."
 			},
 			{
+				"question": "Co, jeśli kogoś nie ma na wieczorze filmowym?",
+				"answer": "Przed ujawnieniem wyniku zaznacza się, kogo brakuje. Liczą się tylko głosy osób obecnych, a film z głosem osoby nieobecnej czeka na nią, zamiast być oglądany bez niej. Wybór jest wspólny dla wszystkich telefonów i telewizora i sam się kasuje po zakończeniu wieczoru."
+			},
+			{
 				"question": "Czy członkowie rodziny potrzebują konta?",
 				"answer": "Nie. Rodzina korzysta ze wspólnej instalacji i czterocyfrowego kodu PIN; następnie każda osoba po prostu wybiera swoje imię na telefonie, tablecie lub komputerze. Później można utworzyć osobne konta z indywidualnym kodem PIN w Ustawieniach, dla rodzin, które wolą oddzielne logowanie."
 			},
@@ -286,6 +314,10 @@
 				"answer": "Her aile üyesi ortak bir programa göre aynı sayıda oy alır. Oylar biriktirilebilir, bir veya birkaç filme dağıtılabilir ve film gecesine kadar taşınabilir. En çok oy alan film kazanır; eşitlikleri çark çözer."
 			},
 			{
+				"question": "Film gecesinde biri yoksa ne olur?",
+				"answer": "Açıklamadan önce kimin eksik olduğu işaretlenir. Yalnızca orada bulunanların oyları sayılır ve olmayan birinin oy verdiği film, onsuz izlenmek yerine onu bekler. Seçim tüm telefonlar ve TV tarafından paylaşılır ve gece bittikten sonra kendiliğinden silinir."
+			},
+			{
 				"question": "Aile üyelerinin hesaba ihtiyacı var mı?",
 				"answer": "Hayır. Aile tek bir kurulumu ve dört haneli PIN’i paylaşır; ardından herkes telefon, tablet veya bilgisayarda yalnızca kendi adını seçer. Ayrı girişleri tercih eden aileler için daha sonra Ayarlar’dan kendi PIN’ine sahip adlandırılmış hesaplar oluşturulabilir."
 			},
@@ -323,6 +355,10 @@
 			{
 				"question": "投票はどのように行われますか？",
 				"answer": "家族全員が共通のスケジュールで同じ数の票を受け取ります。票は貯めたり、1本または複数の映画に配分したり、映画の夜まで移動したりできます。最多得票の映画が選ばれ、同点の場合はルーレットで決めます。"
+			},
+			{
+				"question": "映画の夜に誰かがいない場合はどうなりますか？",
+				"answer": "結果発表の前に、誰がいないかを選びます。その場にいる人の票だけが数えられ、いない人が投票した映画はその人抜きで観られることなく、帰ってくるまで待ちます。この選択はすべてのスマートフォンとTVで共有され、その夜が終わると自動的に解除されます。"
 			},
 			{
 				"question": "家族それぞれにアカウントが必要ですか？",

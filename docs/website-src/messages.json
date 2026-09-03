@@ -146,7 +146,9 @@
 			"Dark mode",
 			"Popcorn Vote is brand new. A star on GitHub would mean a lot.",
 			"Star this project",
-			"Dismiss this note"
+			"Dismiss this note",
+			"Movie night without everyone. Still fair.",
+			"Say who is missing before the reveal and only the votes of the people in the room count. Films somebody absent voted for wait for them instead of being watched without them."
 		],
 		"de": [
 			"Popcorn Vote ist eine kostenlose, selbst gehostete App für den Familienfilmabend. Schlagen Sie Filme vor, sammeln Sie Stimmen, lösen Sie Stimmengleichheit mit einem Rad auf und führen Sie ein gemeinsames Filmtagebuch.",
@@ -236,7 +238,9 @@
 			"Dunkelmodus",
 			"Popcorn Vote ist brandneu. Ein Stern auf GitHub würde mir viel bedeuten.",
 			"Stern vergeben",
-			"Hinweis schließen"
+			"Hinweis schließen",
+			"Filmabend ohne alle. Trotzdem fair.",
+			"Sag vor der Enthüllung, wer fehlt – dann zählen nur die Stimmen der Leute im Raum. Filme, für die jemand Abwesendes gestimmt hat, warten auf diese Person, statt ohne sie geschaut zu werden."
 		],
 		"es": [
 			"Popcorn Vote es una aplicación gratuita y autohospedada para una noche de cine familiar. Sugiera películas, acumule votos, resuelva empates con una rueda y lleve un diario cinematográfico compartido.",
@@ -326,7 +330,9 @@
 			"Modo oscuro",
 			"Popcorn Vote acaba de nacer. Una estrella en GitHub significaría mucho.",
 			"Dar una estrella",
-			"Cerrar el aviso"
+			"Cerrar el aviso",
+			"Noche de cine sin todos. Igual de justa.",
+			"Di quién falta antes de la revelación y solo contarán los votos de quienes están en la sala. Las películas que votó alguien ausente esperan a esa persona en vez de verse sin ella."
 		],
 		"fr": [
 			"Popcorn Vote est une application gratuite et auto-hébergée pour une soirée cinéma en famille. Suggérez des films, accumulez des votes, résolvez les votes à égalité avec une roue et tenez un journal de film partagé.",
@@ -416,7 +422,9 @@
 			"Mode sombre",
 			"Popcorn Vote est tout nouveau. Une étoile sur GitHub compterait beaucoup.",
 			"Mettre une étoile",
-			"Fermer cette note"
+			"Fermer cette note",
+			"Soirée cinéma sans tout le monde. Toujours équitable.",
+			"Dis qui manque avant la révélation et seuls les votes des personnes présentes comptent. Les films pour lesquels un absent a voté l’attendent au lieu d’être regardés sans lui."
 		],
 		"pt-BR": [
 			"Popcorn Vote é um aplicativo gratuito e auto-hospedado para noites de cinema em família. Sugira filmes, acumule votos, resolva votos empatados com uma roda e mantenha um diário de filmes compartilhado.",
@@ -506,7 +514,9 @@
 			"Modo escuro",
 			"O Popcorn Vote é novinho. Uma estrela no GitHub significaria muito.",
 			"Dar uma estrela",
-			"Fechar este aviso"
+			"Fechar este aviso",
+			"Noite de cinema sem todo mundo. Ainda assim justa.",
+			"Diga quem está faltando antes da revelação e só os votos de quem está na sala contam. Filmes com voto de alguém ausente esperam por essa pessoa em vez de serem assistidos sem ela."
 		],
 		"it": [
 			"Popcorn Vote è un'app gratuita e self-hosted per serate di cinema in famiglia. Suggerisci film, accumula voti, risolvi i voti in parità con una ruota e tieni un diario cinematografico condiviso.",
@@ -596,7 +606,9 @@
 			"Modalità scura",
 			"Popcorn Vote è appena nato. Una stella su GitHub significherebbe molto.",
 			"Lascia una stella",
-			"Chiudi questo avviso"
+			"Chiudi questo avviso",
+			"Serata cinema senza tutti. Comunque giusta.",
+			"Indica chi manca prima della rivelazione e contano solo i voti di chi è in sala. I film votati da qualcuno assente aspettano quella persona invece di essere visti senza di lei."
 		],
 		"pl": [
 			"Popcorn Vote to bezpłatna aplikacja hostowana na własnym serwerze, przeznaczona na rodzinny wieczór filmowy. Sugeruj filmy, zbieraj głosy, rozstrzygaj remisowe głosy za pomocą koła i prowadź wspólny dziennik filmowy.",
@@ -686,7 +698,9 @@
 			"Tryb ciemny",
 			"Popcorn Vote jest zupełnie nowy. Gwiazdka na GitHubie wiele by znaczyła.",
 			"Zostaw gwiazdkę",
-			"Zamknij to powiadomienie"
+			"Zamknij to powiadomienie",
+			"Wieczór filmowy bez kompletu. Nadal uczciwy.",
+			"Przed ujawnieniem wyniku zaznacz, kogo brakuje, a liczą się tylko głosy osób w pokoju. Filmy, na które głosował ktoś nieobecny, czekają na tę osobę, zamiast być oglądane bez niej."
 		],
 		"tr": [
 			"Popcorn Vote aile film geceleri için ücretsiz, kendi kendine barındırılan bir uygulamadır. Film önerin, oy toplayın, eşit oyları çarkla çözün ve ortak bir film günlüğü tutun.",
@@ -776,7 +790,9 @@
 			"Karanlık mod",
 			"Popcorn Vote yepyeni. GitHub’da bir yıldız çok şey ifade eder.",
 			"Yıldız ver",
-			"Bu notu kapat"
+			"Bu notu kapat",
+			"Herkes olmasa da film gecesi. Yine de adil.",
+			"Açıklamadan önce kimin eksik olduğunu söyle; yalnızca odadakilerin oyları sayılır. Olmayan birinin oy verdiği filmler, onsuz izlenmek yerine onu bekler."
 		],
 		"ja": [
 			"Popcorn Vote は、家族で映画鑑賞をするための無料の自己ホスト型アプリです。映画を提案し、投票を蓄積し、ホイールで同数の票を解決し、共有の映画日記を付けます。",
@@ -866,7 +882,9 @@
 			"ダークモード",
 			"Popcorn Vote はできたばかりです。GitHub でスターをいただけると励みになります。",
 			"スターを付ける",
-			"このお知らせを閉じる"
+			"このお知らせを閉じる",
+			"全員そろわない夜も。それでも公平。",
+			"結果発表の前に誰がいないかを選ぶと、その場にいる人の票だけが数えられます。いない人が投票した映画は、その人抜きで観られることなく、帰ってくるまで待ちます。"
 		]
 	}
 }
