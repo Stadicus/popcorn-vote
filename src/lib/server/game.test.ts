@@ -18,8 +18,12 @@ import {
 	findDuplicates,
 	currentWinner,
 	setProposer,
+	standings,
+	requireAbsent,
+	validAbsent,
 	RuleError
 } from './game';
+import { tonightAbsent } from './tonight';
 import { missedCredits, runCreditTick, backupDue } from './schedule';
 import { metaSet, metaGet } from './db';
 
@@ -303,7 +307,7 @@ describe('free pick', () => {
 		const b = addMovie('B', 'ben');
 		for (let i = 0; i < 3; i++) stake(db, config, 'anna', a, 1);
 		stake(db, config, 'ben', b, 1);
-		const winner = freePick(db, config, 'cleo', b); // B has fewer tokens, no matter
+		const { winner } = freePick(db, config, 'cleo', b); // B has fewer tokens, no matter
 		expect(winner.id).toBe(b);
 		expect(winner.won_via).toBe('free_pick');
 		confirmWatched(db, config, 'cleo');
@@ -327,6 +331,325 @@ describe('free pick', () => {
 		freePick(db, config, 'cleo', b);
 		const event = db.prepare("SELECT * FROM events WHERE type = 'free_pick'").get() as { actor: string };
 		expect(event.actor).toBe('cleo');
+	});
+});
+
+describe('movie night when someone is away', () => {
+	/** Anna on A, Ben on B, so "without Ben" has something to change. */
+	function twoCamps(): { a: number; b: number } {
+		give('anna', 1);
+		give('ben', 3);
+		const a = addMovie('A', 'anna');
+		const b = addMovie('B', 'ben');
+		stake(db, config, 'anna', a, 1);
+		for (let i = 0; i < 3; i++) stake(db, config, 'ben', b, 1);
+		return { a, b };
+	}
+
+	function storedAbsent(movieId: number): string | null {
+		return (db.prepare('SELECT absent FROM movies WHERE id = ?').get(movieId) as { absent: string | null })
+			.absent;
+	}
+
+	it('counts only the votes of the people who are there', () => {
+		const { a } = twoCamps();
+		// B leads three to one, and every one of those three is Ben's.
+		const result = evaluate(db, config, 'anna', undefined, ['ben']);
+		expect(result.winner.id).toBe(a);
+	});
+
+	it('keeps a movie out of the running even when someone present voted for it too', () => {
+		give('anna', 5);
+		const a = addMovie('A', 'anna');
+		const b = addMovie('B', 'ben');
+		for (let i = 0; i < 4; i++) stake(db, config, 'anna', b, 1); // four of Anna's on B
+		stake(db, config, 'anna', a, 1);
+		give('ben', 1);
+		stake(db, config, 'ben', b, 1); // one of Ben's is enough
+		const result = evaluate(db, config, 'anna', undefined, ['ben']);
+		expect(result.winner.id).toBe(a);
+		expect(result.blocked).toEqual([{ movieId: b, title: 'B', byPersonIds: ['ben'] }]);
+	});
+
+	it('spins the wheel among the candidates only', () => {
+		give('anna', 2);
+		give('ben', 2);
+		const a = addMovie('A', 'anna');
+		const b = addMovie('B', 'ben');
+		const c = addMovie('C', 'cleo');
+		stake(db, config, 'anna', a, 1);
+		stake(db, config, 'anna', c, 1);
+		for (let i = 0; i < 2; i++) stake(db, config, 'ben', b, 1); // B would lead
+		const result = evaluate(db, config, 'anna', () => 0.9, ['ben']);
+		expect(result.wheel?.candidates.map((x) => x.movieId).sort()).toEqual([a, c].sort());
+		expect(result.winner.id).toBe(c);
+	});
+
+	// The four states of the board, which must never overlap and never fall back
+	// to the full count.
+	it('still asks for a vote when the list carries none at all', () => {
+		addMovie('A', 'anna');
+		expect(() => evaluate(db, config, 'anna', undefined, ['ben'])).toThrow('rule.noTokensPlaced');
+	});
+
+	it('names who everything is waiting for when only the absent have voted', () => {
+		give('ben', 1);
+		const b = addMovie('B', 'ben');
+		stake(db, config, 'ben', b, 1);
+		try {
+			evaluate(db, config, 'anna', undefined, ['ben']);
+			expect.unreachable('the evaluation should have stopped');
+		} catch (err) {
+			expect(err).toBeInstanceOf(RuleError);
+			expect((err as RuleError).key).toBe('rule.allBlocked');
+			expect((err as RuleError).personIds).toEqual(['ben']);
+		}
+	});
+
+	it('stops just the same when the votes of the present sit on blocked movies only', () => {
+		give('anna', 1);
+		give('ben', 1);
+		const b = addMovie('B', 'ben');
+		addMovie('A', 'anna'); // on the list, but nobody voted for it
+		stake(db, config, 'anna', b, 1);
+		stake(db, config, 'ben', b, 1);
+		expect(() => evaluate(db, config, 'anna', undefined, ['ben'])).toThrow('rule.allBlocked');
+	});
+
+	it('goes ahead as soon as one candidate carries a vote of somebody present', () => {
+		const { a } = twoCamps();
+		expect(evaluate(db, config, 'anna', undefined, ['ben']).winner.id).toBe(a);
+	});
+
+	it('refuses a night nobody would be at', () => {
+		twoCamps();
+		expect(() => evaluate(db, config, 'anna', undefined, ['anna', 'ben', 'cleo'])).toThrow(
+			'rule.nobodyPresent'
+		);
+	});
+
+	it('refuses an id that is nobody', () => {
+		twoCamps();
+		expect(() => evaluate(db, config, 'anna', undefined, ['mia'])).toThrow('rule.unknownPerson');
+	});
+
+	it('refuses more absentees than there are people, before looking any of them up', () => {
+		twoCamps();
+		expect(() => evaluate(db, config, 'anna', undefined, ['a', 'b', 'c', 'd'])).toThrow(
+			'error.invalidRequest'
+		);
+	});
+
+	it('counts a name given twice once', () => {
+		const { a } = twoCamps();
+		const result = evaluate(db, config, 'anna', undefined, ['ben', 'ben']);
+		expect(result.winner.id).toBe(a);
+		expect(result.absent).toEqual(['ben']);
+	});
+
+	it('remembers on the movie who was away, and forgets it again on a revert', () => {
+		const { a } = twoCamps();
+		evaluate(db, config, 'anna', undefined, ['ben']);
+		expect(JSON.parse(storedAbsent(a)!)).toEqual(['ben']);
+
+		revertWinner(db, config, 'anna');
+		expect(storedAbsent(a)).toBeNull();
+	});
+
+	it('keeps it through "watched" and does not carry it into a fresh suggestion', () => {
+		const { a } = twoCamps();
+		evaluate(db, config, 'anna', undefined, ['ben']);
+		confirmWatched(db, config, 'anna');
+		expect(JSON.parse(storedAbsent(a)!)).toEqual(['ben']);
+
+		const again = reproposeFromArchive(db, config, 'anna', a);
+		expect(storedAbsent(again)).toBeNull();
+	});
+
+	it('stores nothing at all for a full night', () => {
+		const { b } = twoCamps();
+		evaluate(db, config, 'anna');
+		expect(storedAbsent(b)).toBeNull();
+	});
+
+	/**
+	 * The invariant behind `confirmWatched()` staying untouched: a winner of a
+	 * partial night carries no vote of anybody who was away, and nobody can put one
+	 * there afterwards, so there is never anything to hand back.
+	 */
+	it('leaves the absent no way onto the winner, so nothing has to be refunded', () => {
+		const { a, b } = twoCamps();
+		evaluate(db, config, 'anna', undefined, ['ben']); // A wins, Ben has nothing on it
+		give('ben', 1);
+		expect(() => stake(db, config, 'ben', a, 1)).toThrow('rule.stakeNotPossible');
+
+		confirmWatched(db, config, 'anna');
+		expect(getBalance(db, 'anna')).toBe(0); // Anna's vote is spent
+		expect(getBalance(db, 'ben')).toBe(1); // untouched, and B still carries his three
+		const onB = db.prepare('SELECT SUM(count) AS n FROM stakes WHERE movie_id = ?').get(b);
+		expect(onB).toEqual({ n: 3 });
+	});
+
+	it('writes who was away and what waited into the log', () => {
+		const { a, b } = twoCamps();
+		evaluate(db, config, 'anna', undefined, ['ben']);
+		const event = db.prepare("SELECT payload FROM events WHERE type = 'evaluation'").get() as {
+			payload: string;
+		};
+		const payload = JSON.parse(event.payload);
+		expect(payload.absent).toEqual(['ben']);
+		expect(payload.blocked).toEqual([{ movieId: b, title: 'B', byPersonIds: ['ben'] }]);
+		// The standings in the payload are the count of the evening, not of everybody.
+		expect(payload.standings).toEqual([
+			{ movieId: a, title: 'A', tokens: 1 },
+			{ movieId: b, title: 'B', tokens: 0 }
+		]);
+	});
+
+	it('writes empty fields for a full night rather than leaving them out', () => {
+		twoCamps();
+		evaluate(db, config, 'anna');
+		const event = db.prepare("SELECT payload FROM events WHERE type = 'evaluation'").get() as {
+			payload: string;
+		};
+		const payload = JSON.parse(event.payload);
+		expect(payload.absent).toEqual([]);
+		expect(payload.blocked).toEqual([]);
+	});
+
+	describe('free pick', () => {
+		it('refuses a movie somebody absent voted for', () => {
+			const { b } = twoCamps();
+			try {
+				freePick(db, config, 'anna', b, ['ben']);
+				expect.unreachable('the free pick should have been refused');
+			} catch (err) {
+				expect((err as RuleError).key).toBe('rule.blockedByAbsent');
+				expect((err as RuleError).personIds).toEqual(['ben']);
+			}
+		});
+
+		it('allows any other movie and remembers who was away', () => {
+			const { a, b } = twoCamps();
+			const result = freePick(db, config, 'anna', a, ['ben']);
+			expect(result.winner.id).toBe(a);
+			expect(result.absent).toEqual(['ben']);
+			expect(result.blocked).toEqual([{ movieId: b, title: 'B', byPersonIds: ['ben'] }]);
+			expect(JSON.parse(storedAbsent(a)!)).toEqual(['ben']);
+		});
+
+		it('refuses a night nobody would be at', () => {
+			const { a } = twoCamps();
+			expect(() => freePick(db, config, 'anna', a, ['anna', 'ben', 'cleo'])).toThrow('rule.nobodyPresent');
+		});
+
+		it('stores nothing and blocks nothing for a full night', () => {
+			const { b } = twoCamps();
+			const result = freePick(db, config, 'anna', b);
+			expect(result.absent).toEqual([]);
+			expect(result.blocked).toEqual([]);
+			expect(storedAbsent(b)).toBeNull();
+		});
+	});
+
+	// The whole point of a single code path: with nobody named, every one of the
+	// three ways to call this has to behave exactly as it did before the feature.
+	describe('a full night, however it is called', () => {
+		it('gives the same winner with three, four and five arguments', () => {
+			const expected = () => {
+				const { b } = twoCamps();
+				return b;
+			};
+			const b = expected();
+			const three = evaluate(db, config, 'anna');
+			expect(three.winner.id).toBe(b);
+			expect(three.absent).toEqual([]);
+			expect(three.blocked).toEqual([]);
+			revertWinner(db, config, 'anna');
+
+			const four = evaluate(db, config, 'anna', () => 0);
+			expect(four.winner.id).toBe(b);
+			revertWinner(db, config, 'anna');
+
+			const five = evaluate(db, config, 'anna', undefined, []);
+			expect(five.winner.id).toBe(b);
+		});
+
+		it('ranks exactly like the plain standings', () => {
+			twoCamps();
+			addMovie('C', 'cleo');
+			// Read before the evaluation: the winner leaves the list, and `standings()`
+			// would then have one movie fewer to compare against.
+			const before = standings(db);
+			expect(evaluate(db, config, 'anna').standings).toEqual(before);
+		});
+	});
+});
+
+describe('the evening every device shares', () => {
+	function twoCamps(): { a: number; b: number } {
+		give('anna', 1);
+		give('ben', 3);
+		const a = addMovie('A', 'anna');
+		const b = addMovie('B', 'ben');
+		stake(db, config, 'anna', a, 1);
+		for (let i = 0; i < 3; i++) stake(db, config, 'ben', b, 1);
+		return { a, b };
+	}
+
+	it('publishes what actually decided the night', () => {
+		twoCamps();
+		evaluate(db, config, 'anna', undefined, ['ben']);
+		expect(tonightAbsent(db, config.members)).toEqual(['ben']);
+	});
+
+	it('publishes an empty evening for a full night, rather than leaving the last one standing', () => {
+		twoCamps();
+		evaluate(db, config, 'anna', undefined, ['ben']);
+		revertWinner(db, config, 'anna');
+		evaluate(db, config, 'anna');
+		expect(tonightAbsent(db, config.members)).toEqual([]);
+	});
+
+	it('publishes from a free pick too, which the film page never does itself', () => {
+		const { a } = twoCamps();
+		freePick(db, config, 'anna', a, ['ben']);
+		expect(tonightAbsent(db, config.members)).toEqual(['ben']);
+	});
+
+	// A revert re-runs the same evening, so the shared selection has to survive
+	// it — the phones keep theirs as well.
+	it('keeps the evening through a revert', () => {
+		twoCamps();
+		evaluate(db, config, 'anna', undefined, ['ben']);
+		revertWinner(db, config, 'anna');
+		expect(tonightAbsent(db, config.members)).toEqual(['ben']);
+	});
+
+	it('ends the evening with "watched"', () => {
+		twoCamps();
+		evaluate(db, config, 'anna', undefined, ['ben']);
+		confirmWatched(db, config, 'anna');
+		expect(tonightAbsent(db, config.members)).toEqual([]);
+	});
+});
+
+describe('validAbsent() against requireAbsent()', () => {
+	// The whole reason for the split: /api/tonight has to be able to record
+	// "everybody is away" while somebody is still tapping chips.
+	it('lets validAbsent record an evening nobody would attend', () => {
+		expect(validAbsent(config, ['anna', 'ben', 'cleo'])).toEqual(['anna', 'ben', 'cleo']);
+	});
+
+	it('still refuses to evaluate such a night', () => {
+		expect(() => requireAbsent(config, ['anna', 'ben', 'cleo'])).toThrow('rule.nobodyPresent');
+	});
+
+	it('agrees with requireAbsent on everything else', () => {
+		expect(validAbsent(config, ['ben', 'ben'])).toEqual(['ben']);
+		expect(requireAbsent(config, ['ben', 'ben'])).toEqual(['ben']);
+		expect(() => validAbsent(config, ['mia'])).toThrow('rule.unknownPerson');
+		expect(() => validAbsent(config, ['a', 'b', 'c', 'd'])).toThrow('error.invalidRequest');
 	});
 });
 

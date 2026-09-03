@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createDb, type DB } from './db';
 import { standings } from './game';
-import { listMovies, latestEvent } from './views';
+import { archiveMovies, listMovies, latestEvent } from './views';
 
 let db: DB;
 
@@ -65,6 +65,45 @@ describe('order of the movie list', () => {
 		addMovie('Über allen Gipfeln', 5);
 		expect(titles()).toEqual(standings(db).map((s) => s.title));
 		expect(titles()).toEqual(['Über allen Gipfeln', 'Amelie', 'Zorro']);
+	});
+});
+
+describe('who was not there', () => {
+	it('reads the stored ids back as a list', () => {
+		const id = addMovie('Das Boot', 0);
+		db.prepare('UPDATE movies SET absent = ? WHERE id = ?').run(JSON.stringify(['ben', 'cleo']), id);
+		expect(listMovies(db)[0].absent).toEqual(['ben', 'cleo']);
+	});
+
+	// The usual night, and by far the common case: nothing stored, nothing shown.
+	it('is null when everybody was there', () => {
+		addMovie('Das Boot', 0);
+		expect(listMovies(db)[0].absent).toBeNull();
+	});
+});
+
+describe('order of the archive', () => {
+	function archived(title: string, watchedAt: string): number {
+		const result = db
+			.prepare(
+				"INSERT INTO movies (status, title, proposed_by, created_at, watched_at) VALUES ('archived', ?, ?, ?, ?)"
+			)
+			.run(title, 'anna', new Date().toISOString(), watchedAt);
+		return Number(result.lastInsertRowid);
+	}
+
+	it('puts the most recently watched film first', () => {
+		archived('Older', '2026-09-01T20:00:00.000Z');
+		archived('Newer', '2026-09-02T20:00:00.000Z');
+		expect(archiveMovies(db).map((m) => m.title)).toEqual(['Newer', 'Older']);
+	});
+
+	// Two films are never confirmed in the same millisecond, but if it ever
+	// happened the order must not be left to the storage engine.
+	it('breaks a tie on the same timestamp deterministically', () => {
+		archived('First', '2026-09-02T20:00:00.000Z');
+		archived('Second', '2026-09-02T20:00:00.000Z');
+		expect(archiveMovies(db).map((m) => m.title)).toEqual(['Second', 'First']);
 	});
 });
 

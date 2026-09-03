@@ -18,6 +18,20 @@ export function unknownMember(id: string): Member {
 	return { name: id, color: '#6b7280', emoji: '' };
 }
 
+/**
+ * Ids as a sentence names them: "Ben and Cleo" in English, "Ben und Cleo" in
+ * German, joined the way the language joins a list.
+ *
+ * An id with nobody configured for it stays visible as the id, for the same
+ * reason `unknownMember()` keeps its dot on the list: a message that quietly
+ * names one person fewer than the rule blocked on sends the family looking for
+ * a mistake that is not there.
+ */
+export function listNames(members: { id: string; name: string }[], ids: string[], locale: string): string {
+	const names = ids.map((id) => members.find((m) => m.id === id)?.name ?? id);
+	return new Intl.ListFormat(locale, { type: 'conjunction' }).format(names);
+}
+
 const LIGHT = '#fff';
 // Pure black, not #111: for colours around a luminance of 0.19 even the better
 // of the two text colours sits at 4.34:1 with #111, and that is below the limit

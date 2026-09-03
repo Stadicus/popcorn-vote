@@ -27,13 +27,16 @@ export function redirectIfUnauthorized(res: Response): boolean {
 
 export async function call<T = Record<string, unknown>>(
 	url: string,
-	options: { method?: string; body?: unknown; refresh?: boolean } = {}
+	options: { method?: string; body?: unknown; refresh?: boolean; signal?: AbortSignal } = {}
 ): Promise<ApiResult<T>> {
 	try {
 		const res = await fetch(url, {
 			method: options.method ?? 'POST',
 			headers: options.body !== undefined ? { 'Content-Type': 'application/json' } : undefined,
-			body: options.body !== undefined ? JSON.stringify(options.body) : undefined
+			body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+			// For callers that must not hang: an aborted fetch throws and lands in the
+			// catch below as `error.offline`, which is what a timeout amounts to.
+			signal: options.signal
 		});
 		if (res.status === 401) {
 			window.location.assign('/pin');

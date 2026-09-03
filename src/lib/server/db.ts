@@ -35,6 +35,9 @@ CREATE TABLE IF NOT EXISTS movies (
 	created_at TEXT NOT NULL,
 	won_at TEXT,
 	won_via TEXT,
+	-- Who was not there when this movie won, as a JSON array of person ids. NULL
+	-- is the normal case: everybody was there.
+	absent TEXT,
 	watched_at TEXT,
 	deleted_at TEXT,
 	deleted_by TEXT,
@@ -88,6 +91,7 @@ function ensureColumn(db: DB, table: string, column: string, type: string): void
 export function applySchema(db: DB): void {
 	db.exec(SCHEMA);
 	ensureColumn(db, 'movies', 'tmdb_rating', 'REAL');
+	ensureColumn(db, 'movies', 'absent', 'TEXT');
 }
 
 export function createDb(file: string): DB {

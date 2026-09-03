@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { getRequestEvent } from '$app/server';
 import { randomUUID } from 'node:crypto';
+import { listNames as joinNames } from '$lib/member';
 import { RuleError } from './game';
 import { log, writes } from './log';
 
@@ -61,6 +62,15 @@ export function logFailure(
 	return reference;
 }
 
+/**
+ * Person ids as the language of the request names them. The same helper the
+ * pages use, so an error message and the screen behind it join two names the
+ * same way.
+ */
+export function listNames(locals: App.Locals, ids: string[]): string {
+	return joinNames(locals.config.members, ids, locals.locale);
+}
+
 export function requirePerson(locals: App.Locals): string {
 	if (!locals.personId) throw new RuleError('rule.pickPerson');
 	return locals.personId;
@@ -81,6 +91,40 @@ export async function requestJsonObject(request: Request): Promise<Record<string
 }
 
 /**
+ * The shape of an `absent` field, and nothing beyond it: a list of strings, or
+ * nothing at all. Whether those strings are people, and whether anybody would be
+ * left at home, is the rule's business in `requireAbsent()`.
+ */
+export function parseAbsent(value: unknown): string[] {
+	if (value === undefined || value === null) return [];
+	if (!Array.isArray(value) || value.some((id) => typeof id !== 'string')) {
+		throw new RuleError('error.invalidRequest');
+	}
+	return value as string[];
+}
+
+/**
+ * Who is not there tonight, for an endpoint whose body is optional.
+ *
+ * `/api/evaluate` took no body at all until partial nights arrived, and `call()`
+ * in `$lib/client/api` sends neither a body nor a content type when it has
+ * nothing to send, which `requestJsonObject()` would reject. No content type
+ * therefore still means what it always meant: everybody is here.
+ *
+ * A content type that is present but is not JSON is refused rather than read as
+ * "nobody is missing". Somebody who sends a body has something to say, and
+ * quietly evaluating a full night because the header was spelled `text/plain`
+ * would count the votes of a person the caller had just declared absent. The
+ * match is case-insensitive because header values are.
+ */
+export async function absentFromRequest(request: Request): Promise<string[]> {
+	const type = request.headers.get('content-type');
+	if (!type) return [];
+	if (!/application\/json/i.test(type)) throw new RuleError('error.invalidRequest');
+	return parseAbsent((await requestJsonObject(request)).absent);
+}
+
+/**
  * Wraps every API handler: a broken rule becomes a 400 carrying the sentence the
  * user reads, anything else a 500 plus a log line for whoever runs the container.
  *
@@ -95,7 +139,10 @@ export async function handled(locals: App.Locals, fn: () => Response | Promise<R
 		return await fn();
 	} catch (err) {
 		if (err instanceof RuleError) {
-			return json({ error: locals.t(err.key, err.params) }, { status: 400 });
+			// Ids become names here and nowhere earlier: the rules in game.ts carry
+			// keys and ids, this is the first place that knows the language.
+			const params = err.personIds ? { ...err.params, names: listNames(locals, err.personIds) } : err.params;
+			return json({ error: locals.t(err.key, params) }, { status: 400 });
 		}
 		const reference = logFailure('Unexpected error in an API call', 500, err, requestContext());
 		const body: Record<string, unknown> = { error: locals.t('error.unexpectedRetry') };

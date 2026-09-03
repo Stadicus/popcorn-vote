@@ -181,6 +181,17 @@ everyone involved. Afterwards: the winner is announced with a large poster
 and a burst of popcorn that fills the screen. A free pick is celebrated the
 same way.
 
+Above the standings sits a second, quieter button: **"Someone missing?"**.
+Tap it and a row of the family appears; tap whoever is not there tonight and
+the list recounts on the spot. Their films step back and say *"waits for
+Ben"* instead of a number, the confirmation reads *"Reveal the winner
+without Ben?"*, and the winner card afterwards carries a small *"Without
+Ben"*. Tap nobody and nothing on this page changes at all.
+
+Confirming **"We watched it"** takes you straight to the archive, where the
+film is the top entry and its stars are waiting. Rating is the natural next
+step, and it should not need looking for.
+
 After the evening, someone confirms **"We watched it"** here – only then
 does the film move to the archive. If the evening falls through, the win can
 instead be **reverted**: the film returns to the list with all its votes
@@ -253,6 +264,14 @@ Here is how it gets onto the television:
 
 Voting and evaluating still happen on the phone – the TV view is purely a
 display and cannot break anything.
+
+It does follow the evening, though. Tap somebody off on a phone and the
+television recounts within a few seconds: their films step to the bottom of
+the board, dimmed, saying *"waits for Ben"*, and the crown moves to whoever
+can actually win tonight. Once there is a winner it says *"Without Ben"*
+under the title. On a television with room for seven films, the waiting ones
+are the first to be cut – the big screen shows what can win, and whoever is
+waiting is on the phone.
 
 ### Data: CSV export and import
 
@@ -348,6 +367,40 @@ film expire exactly as they would if it had won normally. After that,
 exactly the same rules apply as for a normal winner. The free pick is
 clearly marked in the log, including who triggered it.
 
+### When someone is not there
+
+Not every week has an evening when the whole family is at home. Before an
+evaluation or a free pick you can therefore say who is missing, and three
+rules follow from it:
+
+1. **Only the votes of those present count.** Whoever is not there does not
+   decide tonight.
+2. **Films carrying a vote of someone absent are not candidates.** They stay
+   on the list, greyed out, marked *"waits for Ben"* – and they cannot be
+   chosen as a free pick either. The sentence for the child is: *"We do not
+   watch films Mia voted for without Mia. If you do not mind a film, take
+   your vote back."* Taking a vote back is free and always possible.
+3. **The film remembers who was missing.** The archive and the log say
+   *"Without Ben"*, but only for an evening someone actually missed.
+
+The choice belongs to the evening, not to the phone that made it: every
+device shows the same one, and the television follows. Whoever opens the app
+later finds it already set, and **"Everyone is here"** clears it in one tap.
+It expires by itself twelve hours after the last change, so an evening that
+was never confirmed cannot colour the next one.
+
+Nothing else changes: the winner's votes are spent as always. Reverting the
+win clears what the *film* recorded about that evening — the evening itself
+stays set, because a revert means running the same one again.
+
+Two honest footnotes. First, this is **an agreement, not a lock**: whoever
+holds the phone can mark anyone as absent and move anyone's votes, exactly
+as everywhere else in this app. What it does do is make the fair thing the
+easy thing, and the log records who evaluated and who was counted as away.
+Second, whoever puts a vote on **every** film blocks every partial evening
+until they take votes back – which is the same lever, used the other way
+round.
+
 ### Deleting
 
 You may only delete **your own suggestions**. Doing so, all votes that
@@ -379,6 +432,8 @@ continue to show their name.
 | A film bypassing the vote? | Yes, the free pick – its votes expire |
 | Who may delete? | Only their own suggestion; votes go back |
 | Who may rate? | Everyone, optional, 1–5 stars in half steps, changeable |
+| Someone is away? | Say so before evaluating – only the votes of those present count |
+| Their films? | Wait for them, and cannot be picked either – unless they take the vote back |
 
 ---
 

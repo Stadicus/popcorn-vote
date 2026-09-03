@@ -1,9 +1,13 @@
 <script lang="ts">
-	import { afterNavigate, invalidateAll, replaceState } from '$app/navigation';
+	import { untrack } from 'svelte';
+	import { afterNavigate, goto, invalidateAll, replaceState } from '$app/navigation';
 	import { page } from '$app/state';
 	import { call, errorText } from '$lib/client/api';
 	import { supernova } from '$lib/client/celebrate';
-	import { getI18n } from '$lib/i18n/context';
+	import { getI18n, getLocale } from '$lib/i18n/context';
+	import { listNames } from '$lib/member';
+	import { nightBoard, nightVerdict } from '$lib/standings';
+	import AbsentPicker from '$lib/components/AbsentPicker.svelte';
 	import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
 	import Poster from '$lib/components/Poster.svelte';
 	import Toast from '$lib/components/Toast.svelte';
@@ -23,6 +27,7 @@
 	let { data } = $props();
 
 	const t = getI18n();
+	const locale = getLocale();
 
 	let error = $state('');
 	// Set when the message names a reference: the toast then waits to be
@@ -35,21 +40,85 @@
 	let wheel: WheelData | null = $state(null);
 	let reveal: WinnerView | null = $state(null);
 
-	const totalTokens = $derived(
-		data.standings.reduce((sum: number, s: { tokens: number }) => sum + s.tokens, 0)
+	/**
+	 * Who is not here tonight, shared with every other device through
+	 * `/api/tonight`. Starts from what the server holds, so a second phone or a
+	 * reload sees the same evening the television shows, rather than a full count
+	 * that would then decide somebody's film without them.
+	 */
+	let absent: string[] = $state(untrack(() => data.absent));
+	// The whole row, chips and toggle alike, is dead while a change is on its way.
+	let publishing = $state(false);
+	// …and a counter behind it, because "dead" is a promise the interface makes
+	// and a race does not have to keep. Only the answer to the newest request may
+	// touch the selection; an older, slower one is dropped rather than allowed to
+	// overtake it.
+	let publishSeq = 0;
+
+	/**
+	 * Tells the other devices who is away. Deliberately quiet about failure: this
+	 * is a display hint, not a move in the game, and the next successful tap
+	 * catches up.
+	 */
+	async function publishAbsent(next: string[]) {
+		const seq = ++publishSeq;
+		publishing = true;
+		try {
+			const result = await call<{ absent: string[] }>('/api/tonight', {
+				body: { absent: next },
+				refresh: false,
+				signal: publishTimeout()
+			});
+			if (seq !== publishSeq) return; // a newer tap has taken over
+			// The server tidies duplicates and refuses outright while a winner is on
+			// the table. Either way, its answer is the truth about the evening.
+			if (result.ok && result.data) absent = result.data.absent;
+		} finally {
+			// Whatever went wrong, the row has to be usable again.
+			if (seq === publishSeq) publishing = false;
+		}
+	}
+
+	/**
+	 * Four seconds, so a wifi that accepts the connection and then says nothing
+	 * cannot freeze the chip row until the browser gives up — on a phone that is
+	 * about a minute.
+	 *
+	 * Guarded because `AbortSignal.timeout` arrived in Safari 16, and this app
+	 * still meets older iPhones (see the `Intl.Segmenter` fallback in
+	 * `$lib/member`). Without the guard this would throw before the request was
+	 * even made, and the row would stay dead for good.
+	 */
+	function publishTimeout(): AbortSignal | undefined {
+		return typeof AbortSignal.timeout === 'function' ? AbortSignal.timeout(4000) : undefined;
+	}
+
+	/** The same count the server will run, so the screen cannot promise otherwise. */
+	const board = $derived(nightBoard(data.movies, absent));
+	const verdict = $derived(nightVerdict(board, absent));
+
+	/**
+	 * A night nobody would be at. The verdict cannot see this on its own: votes of
+	 * a person who has since left the configuration still count as present, so the
+	 * board can read "ready" for an evening with nobody in the room. Same guard as
+	 * the free-pick dialog on the movie page.
+	 */
+	const nobodyLeft = $derived(absent.length >= data.members.length);
+
+	/** Highest token count among the candidates; the highlight follows it. */
+	const highestCount = $derived(
+		board.reduce((max, s) => (s.blockedBy.length > 0 ? max : Math.max(max, s.tokens)), 0)
 	);
 
-	/** Highest token count in the field; the highlight follows it. */
-	const highestCount = $derived(
-		data.standings.reduce((max: number, s: { tokens: number }) => Math.max(max, s.tokens), 0)
-	);
+	const names = (ids: string[]) => listNames(data.members, ids, locale());
 
 	async function evaluate() {
 		confirmOpen = false;
 		busy = true;
 		error = '';
 		const result = await call<{ winner: WinnerView; wheel: WheelData | null }>('/api/evaluate', {
-			refresh: false
+			refresh: false,
+			body: { absent }
 		});
 		busy = false;
 		if (!result.ok || !result.data) {
@@ -116,7 +185,18 @@
 		if (!result.ok) error = errorText(result, t);
 		errorHolds = Boolean(result.reference);
 		busy = false;
-		if (action === 'watched') reveal = null;
+		// Only once it actually went through: an offline "watched" leaves the winner
+		// pending, and the evening it belongs to is still this one.
+		if (action === 'watched' && result.ok) {
+			reveal = null;
+			// The evening is over, so who missed it is over with it. `confirmWatched()`
+			// has already cleared the shared copy; this is the local one. A revert
+			// keeps the selection on purpose: that is the same evening, run again.
+			absent = [];
+			// Rating is what comes next, and the film is the top card there. Straight
+			// to it rather than leaving an empty evaluation page behind.
+			await goto('/archive');
+		}
 	}
 </script>
 
@@ -142,6 +222,9 @@
 		<strong class="wtitle"><a href="/movie/{data.winner.id}">{data.winner.title}</a></strong>
 		{#if data.winner.wonVia === 'free_pick'}<p class="muted">✨ {t('evaluation.viaFreePick')}</p>{/if}
 		{#if data.winner.wonVia === 'wheel'}<p class="muted">{t('evaluation.viaWheel')}</p>{/if}
+		{#if data.winner.absent}
+			<p class="muted">{t('evaluation.without', { names: names(data.winner.absent) })}</p>
+		{/if}
 
 		<div class="wactions">
 			<button class="btn" disabled={busy} onclick={() => (confirmWatched = true)}
@@ -154,7 +237,7 @@
 	</div>
 	<p class="muted center">{t('evaluation.winnerPending')}</p>
 {:else}
-	{#if data.standings.length === 0}
+	{#if data.movies.length === 0}
 		<div class="empty">
 			<span class="big">🗳️</span>{t('evaluation.empty')}<br />
 			<a href="/propose"><strong>{t('evaluation.emptyLink')}</strong></a>
@@ -162,24 +245,44 @@
 	{:else}
 		<!-- Action first, the ranking below is optional scrolling. -->
 		<div class="evalbox">
-			<button class="btn big" disabled={busy || totalTokens === 0} onclick={() => (confirmOpen = true)}>
+			<button
+				class="btn big"
+				disabled={busy || nobodyLeft || verdict.state !== 'ready'}
+				onclick={() => (confirmOpen = true)}
+			>
 				🏆 {t('evaluation.run')}
 			</button>
-			{#if totalTokens === 0}
+			<!-- Right under the big button, not below the ranking: whoever is missing
+			     is the first thing to say about tonight, before anybody reads a
+			     single count. Nobody ticked off means nothing changes anywhere. -->
+			<AbsentPicker members={data.members} bind:absent busy={publishing} onchange={publishAbsent} />
+			<!-- A disabled button always says why. "Nobody left" comes first: it is
+			     the reason the verdict cannot see. -->
+			{#if nobodyLeft}
+				<p class="muted center">{t('rule.nobodyPresent')}</p>
+			{:else if verdict.state === 'noTokens'}
 				<p class="muted center">{t('evaluation.needTokens')}</p>
+			{:else if verdict.state === 'allBlocked'}
+				<p class="muted center">{t('evaluation.allBlocked')}</p>
 			{/if}
 		</div>
 
 		<h2>{t('evaluation.standings')}</h2>
 		<ol class="board card">
-			{#each data.standings as s (s.movieId)}
-				<!-- Three levels: the lead in gold, movies with tokens normal, movies
-				     without tokens stepped back. On a tie several are in the lead. -->
-				{@const leads = s.tokens > 0 && s.tokens === highestCount}
-				<li class:leading={leads} class:noTokens={s.tokens === 0}>
+			{#each board as s (s.movieId)}
+				<!-- Four levels: the lead in gold, movies with tokens normal, movies
+				     without tokens stepped back, and movies waiting for somebody who is
+				     not here out of the running altogether. On a tie several lead. -->
+				{@const waiting = s.blockedBy.length > 0}
+				{@const leads = !waiting && s.tokens > 0 && s.tokens === highestCount}
+				<li class:leading={leads} class:noTokens={s.tokens === 0 && !waiting} class:blocked={waiting}>
 					<a href="/movie/{s.movieId}">{s.title}</a>
 					{#if leads}<span class="sr-only">{t('evaluation.leading')}</span>{/if}
-					<span class="tokens">{s.tokens} 🍿</span>
+					{#if waiting}
+						<span class="waiting">{t('evaluation.waitingFor', { names: names(s.blockedBy) })}</span>
+					{:else}
+						<span class="tokens">{s.tokens} 🍿</span>
+					{/if}
 				</li>
 			{/each}
 		</ol>
@@ -188,12 +291,18 @@
 
 <ConfirmDialog
 	bind:open={confirmOpen}
-	title={t('evaluation.confirmRunTitle')}
+	title={absent.length > 0
+		? t('evaluation.confirmRunTitleAbsent', { names: names(absent) })
+		: t('evaluation.confirmRunTitle')}
 	confirmText={t('evaluation.confirmRunButton')}
 	{busy}
 	onconfirm={evaluate}
 >
-	{t('evaluation.confirmRunBody')}
+	{#if absent.length > 0}
+		{t('evaluation.confirmRunBodyAbsent', { names: names(absent) })}
+	{:else}
+		{t('evaluation.confirmRunBody')}
+	{/if}
 </ConfirmDialog>
 
 <ConfirmDialog
@@ -277,6 +386,19 @@
 	.board li.noTokens .tokens {
 		color: var(--muted);
 		font-weight: 400;
+	}
+
+	/* Waiting for somebody who is not here: further back still, and out of the
+	   running, but deliberately still on the list. It is not gone, it is waiting. */
+	.board li.blocked a {
+		color: var(--muted);
+		font-weight: 400;
+	}
+
+	.waiting {
+		color: var(--muted);
+		font-size: 0.85rem;
+		text-align: right;
 	}
 
 	.board li::before {

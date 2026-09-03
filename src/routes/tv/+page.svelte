@@ -4,15 +4,11 @@
 	import { redirectIfUnauthorized } from '$lib/client/api';
 	import { detectStandalone } from '$lib/client/install.svelte';
 	import { supernova } from '$lib/client/celebrate';
-	import { getI18n } from '$lib/i18n/context';
+	import { getI18n, getLocale } from '$lib/i18n/context';
+	import { listNames } from '$lib/member';
+	import { tvBoard, type NightStanding } from '$lib/standings';
 	import Poster from '$lib/components/Poster.svelte';
 	import Wheel from '$lib/components/Wheel.svelte';
-
-	interface Standing {
-		movieId: number;
-		title: string;
-		tokens: number;
-	}
 
 	interface WinnerView {
 		id: number;
@@ -22,6 +18,7 @@
 		genres: string | null;
 		poster: string | null;
 		wonVia: string | null;
+		absent: string[] | null;
 	}
 
 	interface TvEvent {
@@ -36,11 +33,14 @@
 	let { data } = $props();
 
 	const t = getI18n();
+	const locale = getLocale();
 
 	// State machine of the TV stage: standings → (wheel) → winner celebration.
 	type Mode = 'board' | 'wheel' | 'reveal';
 	let mode: Mode = $state(untrack(() => (data.winner ? 'reveal' : 'board')));
-	let standings: Standing[] = $state(untrack(() => data.standings));
+	// Each row carries its own `blockedBy`, so the names under a waiting movie
+	// follow the poll without the page tracking the evening separately.
+	let standings: NightStanding[] = $state(untrack(() => data.standings));
 	let winner: WinnerView | null = $state(untrack(() => data.winner));
 	let wheelData: { labels: string[]; winnerIndex: number } | null = $state(null);
 	// Events already present when switching on count as seen, only new ones are celebrated.
@@ -53,7 +53,7 @@
 			if (redirectIfUnauthorized(res)) return;
 			if (!res.ok) return;
 			const body = (await res.json()) as {
-				standings: Standing[];
+				standings: NightStanding[];
 				winner: WinnerView | null;
 				lastEvent: TvEvent | null;
 			};
@@ -294,13 +294,18 @@
 			`;S.browser_fallback_url=${encodeURIComponent(location.href)};end`;
 	}
 
-	// On the screen only what actually carries tokens counts, movies at zero are
-	// mere noise from across the living room.
-	const board = $derived(standings.filter((s) => s.tokens > 0));
+	// Candidates first, whoever is waiting after them. That one rule is what keeps
+	// `board[0]` the leading candidate, so everything below can go on asking the
+	// first row what the lead is. See `tvBoard()` for why the stage sorts
+	// differently from the phone.
+	const board = $derived(tvBoard(standings));
+
+	/** Only rows that can actually win tonight decide crown, fade and tie count. */
+	const candidates = $derived(board.filter((s) => s.blockedBy.length === 0));
 
 	// A crown only for an outright lead, on a tie there is no first place.
 	const uniqueLeader = $derived(
-		board.length > 0 && (board.length === 1 || board[0].tokens > board[1].tokens)
+		candidates.length > 0 && (candidates.length === 1 || candidates[0].tokens > candidates[1].tokens)
 	);
 
 	/** More than seven rows are no longer readable from the sofa. */
@@ -310,16 +315,21 @@
 	// opaque, only below that does it fade out. Otherwise the fade would take the
 	// gold frame with it.
 	const fadeStart = $derived(
-		board.length > 0
-			? (visible.filter((s) => s.tokens === board[0].tokens).length / visible.length) * 100
-			: 100
+		candidates.length > 0 ? (visible.filter((s) => leads(s)).length / visible.length) * 100 : 100
 	);
 
 	// On a wide tie, leaders drop off the board. That has to be said, or the gold
 	// list looks complete when it is not.
-	const hiddenLeaders = $derived(
-		board.length > 7 ? board.slice(7).filter((s) => s.tokens === board[0].tokens).length : 0
-	);
+	const hiddenLeaders = $derived(board.length > 7 ? board.slice(7).filter((s) => leads(s)).length : 0);
+
+	/**
+	 * In the lead — which a waiting movie never is, however many votes of the
+	 * people present happen to sit on it. Without the second half a partially
+	 * blocked row whose present votes tie the leader would take the gold frame.
+	 */
+	function leads(s: NightStanding): boolean {
+		return s.blockedBy.length === 0 && candidates.length > 0 && s.tokens === candidates[0].tokens;
+	}
 
 	const winnerFacts = $derived(
 		winner
@@ -382,6 +392,11 @@
 					{:else}
 						<p class="rvia">🏆 &nbsp;{t('tv.viaVote')}</p>
 					{/if}
+					<!-- The board above already counts for whoever is in the room; this
+					     line names them once the winner is out. -->
+					{#if winner.absent}
+						<p class="rvia">{t('tv.without', { names: listNames(data.members, winner.absent, locale()) })}</p>
+					{/if}
 				</div>
 			</div>
 		{:else if board.length === 0}
@@ -394,12 +409,20 @@
 			<ol class="board" style="--fade-start: {fadeStart}%">
 				{#each visible as s, i (s.movieId)}
 					<!-- Whoever carries the highest count is in the lead, on a tie that is
-					     several of them. The crown stays reserved for an outright lead. -->
-					{@const leading = s.tokens === board[0].tokens}
-					<li class:leader={leading} class:steppedBack={!leading}>
+					     several of them. The crown stays reserved for an outright lead.
+					     A waiting movie is neither: `waiting` beats both. -->
+					{@const waiting = s.blockedBy.length > 0}
+					{@const leading = leads(s)}
+					<li class:leader={leading} class:steppedBack={!leading && !waiting} class:waiting>
 						<span class="rank">{i === 0 && uniqueLeader ? '👑' : i + 1}</span>
 						<span class="title">{s.title}</span>
-						<span class="tokens">{s.tokens}<span class="unit">🍿</span></span>
+						{#if waiting}
+							<span class="waitingFor"
+								>{t('evaluation.waitingFor', { names: listNames(data.members, s.blockedBy, locale()) })}</span
+							>
+						{:else}
+							<span class="tokens">{s.tokens}<span class="unit">🍿</span></span>
+						{/if}
 					</li>
 				{/each}
 			</ol>
@@ -608,6 +631,21 @@
 	.board li.steppedBack {
 		background: transparent;
 		border-color: rgb(255 255 255 / 0.06);
+	}
+
+	/* Waiting for somebody who is not here: further back than "stepped back", and
+	   out of the running — but deliberately still on the stage. It is not gone,
+	   it is waiting. */
+	.board li.waiting {
+		background: transparent;
+		border-color: rgb(255 255 255 / 0.04);
+		opacity: 0.55;
+	}
+
+	.waitingFor {
+		font-size: clamp(0.8rem, 1.7vh, 1.05rem);
+		color: #8d99ab;
+		text-align: right;
 	}
 
 	.more {
