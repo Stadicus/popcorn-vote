@@ -1052,7 +1052,7 @@
 			}
 			.features {
 				display: grid;
-				grid-template-columns: repeat(3, 1fr);
+				grid-template-columns: repeat(2, 1fr);
 				gap: 1rem;
 			}
 			.feature {
@@ -1062,6 +1062,9 @@
 				background: var(--cream);
 				border: 1px solid var(--line);
 			}
+			/* Four cards in two rows: cream and gold above, deep and cream below.
+			   The two cream cards sit on the diagonal on purpose, so each row has
+			   one accent and the dark card does not end the set. */
 			.feature:nth-child(2) {
 				background: var(--feature-gold);
 				border-color: var(--feature-gold-line);
@@ -1946,6 +1949,14 @@
 						<p>
 							Run it at home or on a VPS. No ads, no outside accounts, and no mysterious algorithm insisting
 							you watch another Christmas rom-com.
+						</p>
+					</article>
+					<article class="feature">
+						<span class="icon" aria-hidden="true">🛋️</span>
+						<h3>Movie night without everyone. Still fair.</h3>
+						<p>
+							Say who is missing before the reveal and only the votes of the people in the room count. Films
+							somebody absent voted for wait for them instead of being watched without them.
 						</p>
 					</article>
 				</div>
