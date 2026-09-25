@@ -19,6 +19,7 @@
 		<link rel="alternate" hreflang="pl" href="https://popcornvote.org/pl/" />
 		<link rel="alternate" hreflang="tr" href="https://popcornvote.org/tr/" />
 		<link rel="alternate" hreflang="ja" href="https://popcornvote.org/ja/" />
+		<link rel="alternate" hreflang="ar" href="https://popcornvote.org/ar/" />
 		<link rel="alternate" hreflang="x-default" href="https://popcornvote.org/" />
 		<link rel="icon" href="/assets/favicon-32.png" sizes="32x32" type="image/png" />
 		<meta property="og:type" content="website" />
@@ -57,7 +58,7 @@
 		</style>
 		<script>
 			(() => {
-				const supported = {"en":"en","de":"de","es":"es","fr":"fr","pt-br":"pt-br","it":"it","pl":"pl","tr":"tr","ja":"ja"};
+				const supported = {"en":"en","de":"de","es":"es","fr":"fr","pt-br":"pt-br","it":"it","pl":"pl","tr":"tr","ja":"ja","ar":"ar"};
 				let saved = null;
 				try { saved = localStorage.getItem('pv_website_language'); } catch {}
 				const browserLanguages = navigator.languages || [navigator.language];
@@ -92,6 +93,7 @@
 			<a href="/pl/" hreflang="pl" lang="pl" data-language="pl">Polski</a>
 			<a href="/tr/" hreflang="tr" lang="tr" data-language="tr">Türkçe</a>
 			<a href="/ja/" hreflang="ja" lang="ja" data-language="ja">日本語</a>
+			<a href="/ar/" hreflang="ar" lang="ar" data-language="ar">العربية</a>
 			</nav>
 		</main>
 		<script>

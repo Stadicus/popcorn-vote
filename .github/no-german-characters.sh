@@ -99,7 +99,7 @@ allow=(
 	'^docs/website-src/generate\.mjs:[0-9]+:[^äöüÄÖÜß\x{0308}]*Sprache wählen[^äöüÄÖÜß\x{0308}]*$'
 	# Generated locale pages and the x-default gateway repeat native language
 	# names and localized copy. Hand-maintained website documentation stays scanned.
-	'^docs/website/(index\.html|(?:en|de|es|fr|pt-br|it|pl|tr|ja)/index\.html):'
+	'^docs/website/(index\.html|(?:en|de|es|fr|pt-br|it|pl|tr|ja|ar)/index\.html):'
 	# Store-facing translation catalogues and CasaOS's required inline de_DE
 	# fields are reviewed localized UI copy, not implementation prose.
 	'^packaging/home-assistant/translations/de\.yaml:'

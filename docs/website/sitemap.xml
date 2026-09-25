@@ -11,6 +11,7 @@
 		<xhtml:link rel="alternate" hreflang="pl" href="https://popcornvote.org/pl/" />
 		<xhtml:link rel="alternate" hreflang="tr" href="https://popcornvote.org/tr/" />
 		<xhtml:link rel="alternate" hreflang="ja" href="https://popcornvote.org/ja/" />
+		<xhtml:link rel="alternate" hreflang="ar" href="https://popcornvote.org/ar/" />
 		<xhtml:link rel="alternate" hreflang="x-default" href="https://popcornvote.org/" />
 	</url>
 	<url>
@@ -24,6 +25,7 @@
 		<xhtml:link rel="alternate" hreflang="pl" href="https://popcornvote.org/pl/" />
 		<xhtml:link rel="alternate" hreflang="tr" href="https://popcornvote.org/tr/" />
 		<xhtml:link rel="alternate" hreflang="ja" href="https://popcornvote.org/ja/" />
+		<xhtml:link rel="alternate" hreflang="ar" href="https://popcornvote.org/ar/" />
 		<xhtml:link rel="alternate" hreflang="x-default" href="https://popcornvote.org/" />
 	</url>
 	<url>
@@ -37,6 +39,7 @@
 		<xhtml:link rel="alternate" hreflang="pl" href="https://popcornvote.org/pl/" />
 		<xhtml:link rel="alternate" hreflang="tr" href="https://popcornvote.org/tr/" />
 		<xhtml:link rel="alternate" hreflang="ja" href="https://popcornvote.org/ja/" />
+		<xhtml:link rel="alternate" hreflang="ar" href="https://popcornvote.org/ar/" />
 		<xhtml:link rel="alternate" hreflang="x-default" href="https://popcornvote.org/" />
 	</url>
 	<url>
@@ -50,6 +53,7 @@
 		<xhtml:link rel="alternate" hreflang="pl" href="https://popcornvote.org/pl/" />
 		<xhtml:link rel="alternate" hreflang="tr" href="https://popcornvote.org/tr/" />
 		<xhtml:link rel="alternate" hreflang="ja" href="https://popcornvote.org/ja/" />
+		<xhtml:link rel="alternate" hreflang="ar" href="https://popcornvote.org/ar/" />
 		<xhtml:link rel="alternate" hreflang="x-default" href="https://popcornvote.org/" />
 	</url>
 	<url>
@@ -63,6 +67,7 @@
 		<xhtml:link rel="alternate" hreflang="pl" href="https://popcornvote.org/pl/" />
 		<xhtml:link rel="alternate" hreflang="tr" href="https://popcornvote.org/tr/" />
 		<xhtml:link rel="alternate" hreflang="ja" href="https://popcornvote.org/ja/" />
+		<xhtml:link rel="alternate" hreflang="ar" href="https://popcornvote.org/ar/" />
 		<xhtml:link rel="alternate" hreflang="x-default" href="https://popcornvote.org/" />
 	</url>
 	<url>
@@ -76,6 +81,7 @@
 		<xhtml:link rel="alternate" hreflang="pl" href="https://popcornvote.org/pl/" />
 		<xhtml:link rel="alternate" hreflang="tr" href="https://popcornvote.org/tr/" />
 		<xhtml:link rel="alternate" hreflang="ja" href="https://popcornvote.org/ja/" />
+		<xhtml:link rel="alternate" hreflang="ar" href="https://popcornvote.org/ar/" />
 		<xhtml:link rel="alternate" hreflang="x-default" href="https://popcornvote.org/" />
 	</url>
 	<url>
@@ -89,6 +95,7 @@
 		<xhtml:link rel="alternate" hreflang="pl" href="https://popcornvote.org/pl/" />
 		<xhtml:link rel="alternate" hreflang="tr" href="https://popcornvote.org/tr/" />
 		<xhtml:link rel="alternate" hreflang="ja" href="https://popcornvote.org/ja/" />
+		<xhtml:link rel="alternate" hreflang="ar" href="https://popcornvote.org/ar/" />
 		<xhtml:link rel="alternate" hreflang="x-default" href="https://popcornvote.org/" />
 	</url>
 	<url>
@@ -102,6 +109,7 @@
 		<xhtml:link rel="alternate" hreflang="pl" href="https://popcornvote.org/pl/" />
 		<xhtml:link rel="alternate" hreflang="tr" href="https://popcornvote.org/tr/" />
 		<xhtml:link rel="alternate" hreflang="ja" href="https://popcornvote.org/ja/" />
+		<xhtml:link rel="alternate" hreflang="ar" href="https://popcornvote.org/ar/" />
 		<xhtml:link rel="alternate" hreflang="x-default" href="https://popcornvote.org/" />
 	</url>
 	<url>
@@ -115,6 +123,7 @@
 		<xhtml:link rel="alternate" hreflang="pl" href="https://popcornvote.org/pl/" />
 		<xhtml:link rel="alternate" hreflang="tr" href="https://popcornvote.org/tr/" />
 		<xhtml:link rel="alternate" hreflang="ja" href="https://popcornvote.org/ja/" />
+		<xhtml:link rel="alternate" hreflang="ar" href="https://popcornvote.org/ar/" />
 		<xhtml:link rel="alternate" hreflang="x-default" href="https://popcornvote.org/" />
 	</url>
 	<url>
@@ -128,6 +137,21 @@
 		<xhtml:link rel="alternate" hreflang="pl" href="https://popcornvote.org/pl/" />
 		<xhtml:link rel="alternate" hreflang="tr" href="https://popcornvote.org/tr/" />
 		<xhtml:link rel="alternate" hreflang="ja" href="https://popcornvote.org/ja/" />
+		<xhtml:link rel="alternate" hreflang="ar" href="https://popcornvote.org/ar/" />
+		<xhtml:link rel="alternate" hreflang="x-default" href="https://popcornvote.org/" />
+	</url>
+	<url>
+		<loc>https://popcornvote.org/ar/</loc>
+		<xhtml:link rel="alternate" hreflang="en" href="https://popcornvote.org/en/" />
+		<xhtml:link rel="alternate" hreflang="de" href="https://popcornvote.org/de/" />
+		<xhtml:link rel="alternate" hreflang="es" href="https://popcornvote.org/es/" />
+		<xhtml:link rel="alternate" hreflang="fr" href="https://popcornvote.org/fr/" />
+		<xhtml:link rel="alternate" hreflang="pt-BR" href="https://popcornvote.org/pt-br/" />
+		<xhtml:link rel="alternate" hreflang="it" href="https://popcornvote.org/it/" />
+		<xhtml:link rel="alternate" hreflang="pl" href="https://popcornvote.org/pl/" />
+		<xhtml:link rel="alternate" hreflang="tr" href="https://popcornvote.org/tr/" />
+		<xhtml:link rel="alternate" hreflang="ja" href="https://popcornvote.org/ja/" />
+		<xhtml:link rel="alternate" hreflang="ar" href="https://popcornvote.org/ar/" />
 		<xhtml:link rel="alternate" hreflang="x-default" href="https://popcornvote.org/" />
 	</url>
 	<url>

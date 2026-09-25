@@ -38,7 +38,7 @@
 			},
 			{
 				"question": "Which languages are supported?",
-				"answer": "The app and website are available in English, German, Spanish, French, Brazilian Portuguese, Italian, Polish, Turkish, and Japanese."
+				"answer": "The app and website are available in English, German, Spanish, French, Brazilian Portuguese, Italian, Polish, Turkish, Japanese, and Arabic."
 			}
 		]
 	},
@@ -81,7 +81,7 @@
 			},
 			{
 				"question": "Welche Sprachen werden unterstützt?",
-				"answer": "App und Website sind auf Englisch, Deutsch, Spanisch, Französisch, brasilianischem Portugiesisch, Italienisch, Polnisch, Türkisch und Japanisch verfügbar."
+				"answer": "App und Website sind auf Englisch, Deutsch, Spanisch, Französisch, brasilianischem Portugiesisch, Italienisch, Polnisch, Türkisch, Japanisch und Arabisch verfügbar."
 			}
 		]
 	},
@@ -124,7 +124,7 @@
 			},
 			{
 				"question": "¿Qué idiomas están disponibles?",
-				"answer": "La aplicación y el sitio web están disponibles en inglés, alemán, español, francés, portugués de Brasil, italiano, polaco, turco y japonés."
+				"answer": "La aplicación y el sitio web están disponibles en inglés, alemán, español, francés, portugués de Brasil, italiano, polaco, turco, japonés y árabe."
 			}
 		]
 	},
@@ -167,7 +167,7 @@
 			},
 			{
 				"question": "Quelles langues sont disponibles ?",
-				"answer": "L’application et le site sont disponibles en anglais, allemand, espagnol, français, portugais brésilien, italien, polonais, turc et japonais."
+				"answer": "L’application et le site sont disponibles en anglais, allemand, espagnol, français, portugais brésilien, italien, polonais, turc, japonais et arabe."
 			}
 		]
 	},
@@ -210,7 +210,7 @@
 			},
 			{
 				"question": "Quais idiomas estão disponíveis?",
-				"answer": "O aplicativo e o site estão disponíveis em inglês, alemão, espanhol, francês, português do Brasil, italiano, polonês, turco e japonês."
+				"answer": "O aplicativo e o site estão disponíveis em inglês, alemão, espanhol, francês, português do Brasil, italiano, polonês, turco, japonês e árabe."
 			}
 		]
 	},
@@ -253,7 +253,7 @@
 			},
 			{
 				"question": "Quali lingue sono disponibili?",
-				"answer": "L’app e il sito sono disponibili in inglese, tedesco, spagnolo, francese, portoghese brasiliano, italiano, polacco, turco e giapponese."
+				"answer": "L’app e il sito sono disponibili in inglese, tedesco, spagnolo, francese, portoghese brasiliano, italiano, polacco, turco, giapponese e arabo."
 			}
 		]
 	},
@@ -296,7 +296,7 @@
 			},
 			{
 				"question": "Jakie języki są dostępne?",
-				"answer": "Aplikacja i strona są dostępne w języku angielskim, niemieckim, hiszpańskim, francuskim, portugalskim brazylijskim, włoskim, polskim, tureckim i japońskim."
+				"answer": "Aplikacja i strona są dostępne w języku angielskim, niemieckim, hiszpańskim, francuskim, portugalskim brazylijskim, włoskim, polskim, tureckim, japońskim i arabskim."
 			}
 		]
 	},
@@ -339,7 +339,7 @@
 			},
 			{
 				"question": "Hangi diller destekleniyor?",
-				"answer": "Uygulama ve web sitesi İngilizce, Almanca, İspanyolca, Fransızca, Brezilya Portekizcesi, İtalyanca, Lehçe, Türkçe ve Japonca olarak kullanılabilir."
+				"answer": "Uygulama ve web sitesi İngilizce, Almanca, İspanyolca, Fransızca, Brezilya Portekizcesi, İtalyanca, Lehçe, Türkçe, Japonca ve Arapça olarak kullanılabilir."
 			}
 		]
 	},
@@ -382,7 +382,50 @@
 			},
 			{
 				"question": "どの言語に対応していますか？",
-				"answer": "アプリとウェブサイトは、英語、ドイツ語、スペイン語、フランス語、ブラジルポルトガル語、イタリア語、ポーランド語、トルコ語、日本語に対応しています。"
+				"answer": "アプリとウェブサイトは、英語、ドイツ語、スペイン語、フランス語、ブラジルポルトガル語、イタリア語、ポーランド語、トルコ語、日本語、アラビア語に対応しています。"
+			}
+		]
+	},
+	"ar": {
+		"eyebrow": "أسئلة قبل الإعلانات التشويقية",
+		"title": "باختصار، قبل سهرة الأفلام.",
+		"intro": "كل ما تريد العائلات ومحبو الاستضافة الذاتية معرفته عادةً عن Popcorn Vote.",
+		"items": [
+			{
+				"question": "ما هو Popcorn Vote؟",
+				"answer": "Popcorn Vote تطبيق ويب مجاني ومفتوح المصدر يساعد العائلات على اختيار فيلم معًا. يمكن للجميع اقتراح الأفلام، ووضع الأصوات وادّخارها، وحسم التعادل بالعجلة، والاحتفاظ بيوميات أفلام مشتركة."
+			},
+			{
+				"question": "كيف يعمل التصويت؟",
+				"answer": "يحصل كل فرد من العائلة على العدد نفسه من الأصوات وفق جدول مشترك. يمكن ادّخار الأصوات، أو وضعها على فيلم واحد أو عدة أفلام، ونقلها حتى سهرة الأفلام. الفيلم صاحب أكبر عدد من الأصوات يفوز، والعجلة تحسم التعادل."
+			},
+			{
+				"question": "ماذا لو غاب أحد عن سهرة الأفلام؟",
+				"answer": "قبل الكشف، حدّدوا من الغائب. لا تُحتسب إلا أصوات الحاضرين، والفيلم الذي صوّت له أحد الغائبين ينتظره بدلًا من أن يُشاهَد بدونه. تظهر قائمة الغائبين نفسها على جميع الهواتف وعلى التلفاز، وتُمسح تلقائيًا بعد السهرة."
+			},
+			{
+				"question": "هل يحتاج أفراد العائلة إلى حسابات؟",
+				"answer": "لا. تستخدم العائلة نسخة واحدة من التطبيق ورمز PIN مشتركًا من أربعة أرقام، ثم يختار كل شخص اسمه من أي هاتف أو جهاز لوحي أو حاسوب. ويمكن لاحقًا إضافة حسابات بأسماء أصحابها ورموز PIN فردية من الإعدادات، للعائلات التي تفضّل تسجيل دخول منفصلًا."
+			},
+			{
+				"question": "هل Popcorn Vote مجاني ومفتوح المصدر؟",
+				"answer": "نعم. Popcorn Vote برنامج حر صادر بموجب ترخيص MIT. الشيفرة المصدرية وصور الحاويات وتعليمات الإعداد ومتتبع المشكلات متاحة كلها على GitHub."
+			},
+			{
+				"question": "أين تُخزَّن بياناتنا؟",
+				"answer": "تبقى قائمة أفلامكم وأصواتكم وتقييماتكم وإعداداتكم والملصقات والنسخ الاحتياطية على الخادم الذي تتحكمون فيه. لا يعرض Popcorn Vote أي إعلانات ولا يتطلب حسابات مستخدمين خارجية."
+			},
+			{
+				"question": "كيف أثبّت Popcorn Vote؟",
+				"answer": "شغّلوا صورة Docker المنشورة على خادم Linux بمعمارية AMD64 أو ARM64، أو على جهاز NAS أو Raspberry Pi أو خادم VPS. يستخدم Popcorn Vote قاعدة بيانات SQLite ولا يحتاج إلى خدمة قاعدة بيانات منفصلة. ينبغي تشغيل النسخ المتاحة عبر الإنترنت خلف وكيل عكسي يعمل بـHTTPS."
+			},
+			{
+				"question": "ما مصدر معلومات الأفلام؟",
+				"answer": "البحث عن الأفلام وبياناتها والملصقات والإعلانات التشويقية مصدرها The Movie Database، وتقييمات IMDb مصدرها تكامل OMDb الاختياري. Popcorn Vote غير معتمد أو مصدَّق عليه من TMDB."
+			},
+			{
+				"question": "ما اللغات المدعومة؟",
+				"answer": "التطبيق والموقع متاحان بالإنجليزية والألمانية والإسبانية والفرنسية والبرتغالية البرازيلية والإيطالية والبولندية والتركية واليابانية والعربية."
 			}
 		]
 	}

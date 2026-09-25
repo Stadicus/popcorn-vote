@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{HTML_LANG}}">
+<html lang="{{HTML_LANG}}" dir="{{HTML_DIR}}">
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -306,7 +306,7 @@
 			}
 			.skip {
 				position: absolute;
-				left: 1rem;
+				inset-inline-start: 1rem;
 				top: -5rem;
 				background: var(--button-bg);
 				color: var(--button-ink);
@@ -481,7 +481,7 @@
 				z-index: -1;
 				width: 38rem;
 				height: 38rem;
-				right: -15rem;
+				inset-inline-end: -15rem;
 				top: -12rem;
 				background: var(--hero-glow);
 				opacity: 0.62;
@@ -555,7 +555,7 @@
 			.language-options {
 				position: absolute;
 				top: calc(100% + 0.55rem);
-				right: 0;
+				inset-inline-end: 0;
 				z-index: 20;
 				width: max-content;
 				min-width: 190px;
@@ -637,7 +637,7 @@
 				content: '';
 				position: absolute;
 				top: 16px;
-				left: 50%;
+				left: 50%; /* physical-ok: centred with translateX(-50%) */
 				width: 30%;
 				height: 20px;
 				border-radius: 99px;
@@ -649,8 +649,8 @@
 				content: '';
 				position: absolute;
 				top: 11px;
-				left: 11px;
-				right: 11px;
+				left: 11px; /* physical-ok: symmetric inset */
+				right: 11px; /* physical-ok: symmetric inset */
 				height: 36px;
 				border-radius: 29px 29px 0 0;
 				background: #f4f2ee;
@@ -688,6 +688,14 @@
 					0 -9px 24px var(--ticker-glow),
 					0 9px 24px var(--ticker-glow);
 				overflow: hidden;
+				/* The ticker loops by sliding a doubled line by half its width, which
+				   only works while the line starts at the left edge. Right-to-left
+				   pages keep that anchor and run the text the other way instead. */
+				direction: ltr;
+			}
+			[dir='rtl'] .stripe p {
+				direction: rtl;
+				animation-direction: reverse;
 			}
 			.stripe p {
 				display: inline-block;
@@ -845,10 +853,10 @@
 			}
 			.nova .pop::before {
 				top: -18%;
-				left: -12%;
+				left: -12%; /* physical-ok: decorative popcorn kernel shape */
 			}
 			.nova .pop::after {
-				right: -16%;
+				right: -16%; /* physical-ok: decorative popcorn kernel shape */
 				bottom: -14%;
 			}
 			.nova .emo {
@@ -991,10 +999,10 @@
 				box-shadow: 0 0 0 clamp(5px, 1vw, 10px) #4a5661;
 			}
 			.reel:after {
-				transform: translateX(155%);
+				transform: translateX(155%); /* physical-ok: symmetric film reel decoration */
 			}
 			.reel:before {
-				transform: translateX(-155%);
+				transform: translateX(-155%); /* physical-ok: symmetric film reel decoration */
 			}
 			.demo-copy small {
 				color: var(--gold);
@@ -1106,7 +1114,7 @@
 				content: '?' / '';
 				position: absolute;
 				top: -4rem;
-				right: max(1rem, calc((100vw - 1180px) / 2));
+				inset-inline-end: max(1rem, calc((100vw - 1180px) / 2));
 				z-index: 0;
 				color: var(--line);
 				font:
@@ -1195,7 +1203,7 @@
 			.nerd-panel::after {
 				content: '';
 				position: absolute;
-				right: -7rem;
+				inset-inline-end: -7rem;
 				bottom: -9rem;
 				width: 21rem;
 				aspect-ratio: 1;
@@ -1296,7 +1304,7 @@
 				content: '✦';
 				position: absolute;
 				top: -0.34em;
-				left: 50%;
+				left: 50%; /* physical-ok: centred decoration */
 				color: var(--gold);
 				font-size: 20rem;
 				line-height: 1;
@@ -1440,7 +1448,7 @@
 			}
 			@keyframes marquee {
 				to {
-					transform: translateX(-50%);
+					transform: translateX(-50%); /* physical-ok: the ticker is anchored left, see .stripe */
 				}
 			}
 			@keyframes spin {
@@ -1635,6 +1643,22 @@
 					flex: 1;
 				}
 			}
+			/* Arrows that point along the reading direction turn round with it. */
+			[dir='rtl'] .dir-glyph {
+				display: inline-block;
+				transform: scaleX(-1);
+			}
+			/* Paths and platform tags are left-to-right tokens; without isolation a
+			   right-to-left paragraph moves their leading slash to the far end. */
+			code {
+				direction: ltr;
+				unicode-bidi: isolate;
+			}
+			/* Tracking pulls joined Arabic letters apart. The tracked selectors above
+			   are plain classes, so this wins through !important, not specificity. */
+			:lang(ar) {
+				letter-spacing: 0 !important;
+			}
 			@media (prefers-reduced-motion: reduce) {
 				html {
 					scroll-behavior: auto;
@@ -1752,13 +1776,13 @@
 						</p>
 						<div class="hero-actions">
 							<a class="button" href="https://demo.popcornvote.org" target="_blank" rel="noreferrer"
-								>Try live demo <span aria-hidden="true">↗</span></a
+								>Try live demo <span class="dir-glyph" aria-hidden="true">↗</span></a
 							><a
 								class="button alt"
 								href="https://github.com/Stadicus/popcorn-vote"
 								target="_blank"
 								rel="noreferrer"
-								>Self-host Popcorn Vote <span aria-hidden="true">↗</span></a
+								>Self-host Popcorn Vote <span class="dir-glyph" aria-hidden="true">↗</span></a
 							>
 						</div>
 						<p class="note">
@@ -1905,7 +1929,7 @@
 						</p>
 						<div class="video-actions">
 							<a class="button" href="https://demo.popcornvote.org" target="_blank" rel="noreferrer"
-								>Try live demo <span aria-hidden="true">↗</span></a
+								>Try live demo <span class="dir-glyph" aria-hidden="true">↗</span></a
 							>
 						</div>
 					</div>
@@ -2027,13 +2051,13 @@
 					<p>Self-hosted, open source, and ready to settle tonight’s most important question.</p>
 					<div class="closer-actions">
 						<a class="button" href="https://demo.popcornvote.org" target="_blank" rel="noreferrer"
-							>Try live demo <span aria-hidden="true">↗</span></a
+							>Try live demo <span class="dir-glyph" aria-hidden="true">↗</span></a
 						><a
 							class="button alt"
 							href="https://github.com/Stadicus/popcorn-vote"
 							target="_blank"
 							rel="noreferrer"
-							>Give it a star on GitHub <span aria-hidden="true">↗</span></a
+							>Give it a star on GitHub <span class="dir-glyph" aria-hidden="true">↗</span></a
 						>
 					</div>
 				</div>
@@ -2087,7 +2111,7 @@
 			<div class="shell star-bar-row">
 				<p class="star-bar-text">Popcorn Vote is brand new. A star on GitHub would mean a lot.</p>
 				<a class="button" href="https://github.com/Stadicus/popcorn-vote" target="_blank" rel="noreferrer"
-					>Star this project <span aria-hidden="true">↗</span></a
+					>Star this project <span class="dir-glyph" aria-hidden="true">↗</span></a
 				>
 				<button class="star-bar-close" type="button" aria-label="Dismiss this note">
 					<span aria-hidden="true">×</span>
