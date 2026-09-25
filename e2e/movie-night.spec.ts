@@ -8,6 +8,13 @@ const { version } = JSON.parse(readFileSync(new URL('../package.json', import.me
 	version: string;
 };
 
+// Arabic text is read from its catalogue for the same reason: the translation is
+// still under review, and a reworded title should not turn a test red.
+const arabic = JSON.parse(readFileSync(new URL('../messages/ar.json', import.meta.url), 'utf8')) as Record<
+	string,
+	string
+>;
+
 async function enterPin(page: Page) {
 	await page.goto('/');
 	await expect(page).toHaveURL(/\/pin$/);
@@ -283,6 +290,7 @@ test('the language switcher on the PIN page changes the interface', async ({ pag
 		{ code: 'pl', title: 'Wpisz PIN' },
 		{ code: 'tr', title: "PIN'i gir" },
 		{ code: 'ja', title: 'PINを入力' },
+		{ code: 'ar', title: arabic['pin.title'] },
 		{ code: 'de', title: 'PIN eingeben' }
 	];
 	for (const { code, title } of languages) {
@@ -290,6 +298,14 @@ test('the language switcher on the PIN page changes the interface', async ({ pag
 		await expect(page).toHaveTitle(title);
 		// Not just the text: this is what a screen reader picks its voice from.
 		await expect(page.locator('html')).toHaveAttribute('lang', code);
+		await expect(page.locator('html')).toHaveAttribute('dir', code === 'ar' ? 'rtl' : 'ltr');
+		if (code === 'ar') {
+			// The same from the server, not only from the effect in the layout, and
+			// never with the template placeholder left in.
+			const html = await (await page.request.get('/pin')).text();
+			expect(html).toContain('<html lang="ar" dir="rtl">');
+			expect(html).not.toContain('%dir%');
+		}
 	}
 
 	// The choice applies to the device and survives a page change.
@@ -520,4 +536,43 @@ test('a wrong PIN leads to a rising wait', async ({ page }) => {
 		await page.waitForTimeout(300);
 	}
 	await expect(page.getByText(/Next attempt in \d+ seconds?/)).toBeVisible();
+});
+
+// Arabic runs from right to left, but a Latin title inside it keeps its own
+// order: "Movie (2019)" must not turn into ")Movie (2019".
+test('Arabic lays the interface out from right to left', async ({ page }) => {
+	await enterPin(page);
+	await choosePerson(page, 'Anna');
+	await addMovieByHand(page, 'Movie (2019)');
+
+	await page.evaluate(async () => {
+		const response = await fetch('/api/language', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({ language: 'ar' })
+		});
+		if (!response.ok) throw new Error(`language request failed: ${response.status}`);
+	});
+	await page.goto('/');
+	await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
+
+	const name = page.locator('.tile .name', { hasText: 'Movie (2019)' });
+	await expect(name).toHaveAttribute('dir', 'auto');
+	// Visually, not in the DOM: the first character has to sit left of the last.
+	const [first, last] = await name.evaluate((element) => {
+		const text = element.firstChild as Text;
+		const left = (from: number) => {
+			const range = document.createRange();
+			range.setStart(text, from);
+			range.setEnd(text, from + 1);
+			return range.getClientRects()[0].left;
+		};
+		return [left(0), left(text.length - 1)];
+	});
+	expect(first).toBeLessThan(last);
+
+	// Letter spacing would tear the joined Arabic letters apart; the scoped
+	// component rule has to lose against the Arabic override.
+	await page.goto('/archive');
+	await expect(page.locator('.wrap').first()).toHaveCSS('letter-spacing', /^(0px|normal)$/);
 });

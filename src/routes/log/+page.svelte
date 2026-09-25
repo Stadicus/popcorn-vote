@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { MessageKey } from '$lib/i18n/catalogues';
 	import { getI18n, getLocale } from '$lib/i18n/context';
+	import { formatLocale } from '$lib/i18n/locales';
 	import { listNames } from '$lib/member';
 	import type { BlockedMovie } from '$lib/standings';
 
@@ -14,7 +15,7 @@
 	}
 
 	function formatDate(iso: string): string {
-		return new Date(iso).toLocaleString(locale(), {
+		return new Date(iso).toLocaleString(formatLocale(locale()), {
 			day: '2-digit',
 			month: '2-digit',
 			year: 'numeric',
@@ -163,7 +164,7 @@
 
 	details ul {
 		margin: 0.4rem 0 0;
-		padding-left: 1.2rem;
+		padding-inline-start: 1.2rem;
 	}
 
 	li.waiting {

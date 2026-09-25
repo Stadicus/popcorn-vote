@@ -1,5 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import { DEFAULT_LOCALE, isLocale, LOCALE_NAMES, LOCALES, parseLocale, resolveLocale } from './locales';
+import {
+	DEFAULT_LOCALE,
+	direction,
+	formatLocale,
+	isLocale,
+	LOCALE_NAMES,
+	LOCALES,
+	parseLocale,
+	resolveLocale
+} from './locales';
 
 // The precedence lives in a function of its own, because it would otherwise sit
 // in hooks.server.ts, the one place with real branching that no unit test can
@@ -48,6 +57,7 @@ describe('parseLocale()', () => {
 	it('returns the canonical shipped tag regardless of input casing', () => {
 		expect(parseLocale(' PT-br ')).toBe('pt-BR');
 		expect(parseLocale('FR')).toBe('fr');
+		expect(parseLocale('AR')).toBe('ar');
 		expect(parseLocale('nl')).toBeUndefined();
 	});
 });
@@ -57,5 +67,36 @@ describe('LOCALE_NAMES', () => {
 		// For the switcher: whoever cannot read the interface still finds
 		// "Deutsch".
 		for (const locale of LOCALES) expect(LOCALE_NAMES[locale]).toBeTruthy();
+	});
+});
+
+describe('direction()', () => {
+	it('lays out Arabic from right to left and everything else from left to right', () => {
+		expect(direction('ar')).toBe('rtl');
+		for (const locale of LOCALES) if (locale !== 'ar') expect(direction(locale)).toBe('ltr');
+	});
+});
+
+describe('formatLocale()', () => {
+	it('asks for Latin digits in Arabic and passes every other language through', () => {
+		expect(formatLocale('ar')).toBe('ar-u-nu-latn');
+		for (const locale of LOCALES) if (locale !== 'ar') expect(formatLocale(locale)).toBe(locale);
+	});
+
+	// Node 22 and older browsers print plain `ar` with Arabic-Indic digits. The
+	// interface promises 0-9 in every language, whatever ICU the runtime ships.
+	it('prints only the digits 0-9 in Arabic dates, times and numbers', () => {
+		const tag = formatLocale('ar');
+		const moment = new Date(Date.UTC(2026, 8, 25, 20, 45));
+		const printed = [
+			new Intl.DateTimeFormat(tag, { dateStyle: 'long', timeStyle: 'short', timeZone: 'UTC' }).format(moment),
+			new Intl.DateTimeFormat(tag, { hour: 'numeric', minute: '2-digit', timeZone: 'UTC' }).format(moment),
+			moment.toLocaleString(tag, { timeZone: 'UTC' }),
+			moment.toLocaleDateString(tag, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }),
+			(1234.5).toLocaleString(tag),
+			(4.5).toLocaleString(tag, { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+		].join(' ');
+		expect(printed).toMatch(/[0-9]/);
+		expect(printed).not.toMatch(/[\u0660-\u0669\u06F0-\u06F9]/);
 	});
 });

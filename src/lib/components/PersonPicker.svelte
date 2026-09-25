@@ -69,7 +69,7 @@
 		{#each members as m (m.id)}
 			<button class="person" onclick={() => choose(m.id)}>
 				<PersonBadge member={m} size="large" />
-				<span class="pname">{m.name}</span>
+				<span class="pname" dir="auto">{m.name}</span>
 				<span class="tokens" title={t('person.freeTokens', { name: m.name, n: balances[m.id] ?? 0 })}>
 					{balances[m.id] ?? 0}&thinsp;🍿
 				</span>
@@ -94,7 +94,7 @@
 		border-radius: 12px;
 		background: var(--card2);
 		font-size: 1.05rem;
-		text-align: left;
+		text-align: start;
 	}
 
 	.pname {

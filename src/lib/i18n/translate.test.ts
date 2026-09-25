@@ -62,6 +62,28 @@ describe('message catalogues', () => {
 		}
 	});
 
+	// Arabic tells six plural forms apart, and CLDR hands out every one of them
+	// for real counts (0, 1, 2, 3-10, 11-99, 100 …). A missing one would quietly
+	// fall back to "other" and read wrong. The counted keys are taken from the
+	// source language, so a new one is covered without touching this test.
+	// `{n}` is required where the number is not already spelled out in the word:
+	// in `zero`, `one` and `two` Arabic grammar may carry it in the noun itself.
+	it('spell out all six Arabic plural forms', () => {
+		const counted = Object.entries(CATALOGUES.en).filter(([, message]) => typeof message !== 'string');
+		expect(counted.length).toBeGreaterThan(0);
+		for (const [key] of counted) {
+			const message = CATALOGUES.ar[key];
+			expect(typeof message, `"${key}" in ar`).toBe('object');
+			if (typeof message !== 'object') continue;
+			for (const category of ['zero', 'one', 'two', 'few', 'many', 'other']) {
+				expect(message[category]?.trim(), `"${key}".${category} in ar`).toBeTruthy();
+			}
+			for (const category of ['few', 'many', 'other']) {
+				expect(message[category], `"${key}".${category} in ar`).toContain('{n}');
+			}
+		}
+	});
+
 	// An empty text is as bad as a missing one but slips past every other check:
 	// the key is there, the placeholders match, the type checker is satisfied, and
 	// nothing appears on the screen anyway.
@@ -88,6 +110,7 @@ describe('translate()', () => {
 		expect(translate('pl', 'nav.movieNight')).toBe('Wieczór filmowy');
 		expect(translate('tr', 'nav.movieNight')).toBe('Film gecesi');
 		expect(translate('ja', 'nav.movieNight')).toBe('映画の夜');
+		expect(translate('ar', 'nav.movieNight')).toBe('سهرة الأفلام');
 	});
 
 	it('substitutes placeholders', () => {
@@ -138,10 +161,59 @@ describe('translate()', () => {
 		);
 	});
 
+	it('picks each of the six Arabic plural forms', () => {
+		const key = 'token.count' as MessageKey;
+		const registry = {
+			ar: {
+				'token.count': { zero: 'zero', one: 'one', two: 'two', few: 'few', many: 'many', other: 'other' }
+			}
+		};
+		const pick = (n: number) => translate('ar', key, { n }, registry);
+		expect([0, 1, 2, 3, 11, 100].map(pick)).toEqual(['zero', 'one', 'two', 'few', 'many', 'other']);
+	});
+
 	it('takes "other" when the matching category is missing', () => {
 		const key = 'token.count' as MessageKey;
 		const registry = { en: { 'token.count': { other: '{n} tokens' } } };
 		expect(translate('en', key, { n: 1 }, registry)).toBe('1 tokens');
+	});
+});
+
+// Under `dir="rtl"` the bidi algorithm would turn "Movie (2019)" into
+// ")Movie (2019". Every interpolated string is wrapped in FSI … PDI, so that it
+// takes its direction from its own first strong character.
+describe('bidi isolation', () => {
+	const FSI = '\u2068';
+	const PDI = '\u2069';
+	const key = 'movie.picked' as MessageKey;
+	const registry = {
+		en: { 'movie.picked': '{title} was picked by {n} people' },
+		de: { 'movie.picked': '{title} haben {n} Leute ausgesucht' },
+		ar: { 'movie.picked': 'اختار {n} أشخاص {title}' }
+	};
+
+	it('isolates a Latin title inside an Arabic sentence, but not a count', () => {
+		expect(translate('ar', key, { title: 'Movie (2019)', n: 3 }, registry)).toBe(
+			'اختار 3 أشخاص \u2068Movie (2019)\u2069'
+		);
+	});
+
+	// The criterion is the runtime type, not the placeholder name. A title that
+	// happens to be all digits arrives as a string and is isolated, which does no
+	// harm; the same goes for a number somebody passed as a string.
+	it('decides by the runtime type of the value', () => {
+		expect(translate('ar', key, { title: '1917', n: '3' }, registry)).toBe(
+			`اختار ${FSI}3${PDI} أشخاص ${FSI}1917${PDI}`
+		);
+	});
+
+	it('leaves left-to-right languages byte for byte as they were', () => {
+		expect(translate('en', key, { title: 'Movie (2019)', n: 3 }, registry)).toBe(
+			'Movie (2019) was picked by 3 people'
+		);
+		expect(translate('de', key, { title: 'Movie (2019)', n: 3 }, registry)).toBe(
+			'Movie (2019) haben 3 Leute ausgesucht'
+		);
 	});
 });
 

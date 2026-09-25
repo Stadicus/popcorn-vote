@@ -86,7 +86,7 @@
 					onclick={() => toggle(m.id)}
 				>
 					<PersonBadge member={m} />
-					<span class="cname">{m.name}</span>
+					<span class="cname" dir="auto">{m.name}</span>
 				</button>
 			{/each}
 		</div>

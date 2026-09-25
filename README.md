@@ -77,8 +77,8 @@ family's film diary.
   puts the app on the internet should know it beforehand ([SECURITY.md](SECURITY.md)
   says what the app protects and what it does not).
 
-- **Choose from nine interface languages:** English, German, Spanish, French, Brazilian
-  Portuguese, Italian, Polish, Turkish and Japanese, switchable per device.
+- **Choose from ten interface languages:** English, German, Spanish, French, Brazilian
+  Portuguese, Italian, Polish, Turkish, Japanese and Arabic (right to left), switchable per device.
   Without configuration the interface speaks English.
 
 - **Install it like a real app:** Install it on a phone with its own icon; it
@@ -260,6 +260,12 @@ two demo people (a PIN still has to be set).
 The code, its comments and the commit messages are English. The translated
 interface lives in the catalogues in `messages/`; adding a language is a JSON
 file plus an entry in `src/lib/i18n/locales.ts` and `src/lib/i18n/catalogues.ts`.
+A language written from right to left also goes into `RTL_LOCALES` in
+`locales.ts`; the layout needs nothing more, because it uses logical CSS
+properties throughout (`margin-inline-start`, `inset-inline-end`,
+`text-align: start`), which `.github/no-physical-css.sh` enforces. Arrows that
+point along the reading direction carry the class `dir-glyph` and are mirrored
+there.
 
 ## Project status
 

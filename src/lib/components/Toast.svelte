@@ -35,7 +35,7 @@
 
 	.toast {
 		position: fixed;
-		left: 50%;
+		left: 50%; /* physical-ok: centred with translateX(-50%) */
 		bottom: calc(4.5rem + env(safe-area-inset-bottom));
 		transform: translateX(-50%);
 		z-index: 50;

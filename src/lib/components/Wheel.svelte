@@ -79,7 +79,10 @@
 </script>
 
 <div class="wrap">
-	<svg viewBox="-120 -124 240 248" role="img" aria-label={t('wheel.label')}>
+	<!-- Left to right in every language: the labels are laid out along the spokes
+	     with `text-anchor="start"`, which a right-to-left page would flip towards
+	     the hub. The text inside a label still runs in its own direction. -->
+	<svg viewBox="-120 -124 240 248" direction="ltr" role="img" aria-label={t('wheel.label')}>
 		<defs>
 			<!-- A gradient per movie: rich and dark inside, lighting up towards the rim -->
 			{#each labels as _, c (c)}

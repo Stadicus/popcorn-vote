@@ -3,6 +3,7 @@
 	import Poster from '$lib/components/Poster.svelte';
 	import Stars from '$lib/components/Stars.svelte';
 	import { getI18n, getLocale } from '$lib/i18n/context';
+	import { formatLocale } from '$lib/i18n/locales';
 	import { listNames } from '$lib/member';
 
 	let { data } = $props();
@@ -23,7 +24,11 @@
 
 	function formatDate(iso: string | null): string {
 		return iso
-			? new Date(iso).toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric' })
+			? new Date(iso).toLocaleDateString(formatLocale(locale()), {
+					day: 'numeric',
+					month: 'long',
+					year: 'numeric'
+				})
 			: '';
 	}
 
@@ -58,7 +63,7 @@
 				<div class="top">
 					<Poster src={entry.poster} title={entry.title} size="small" />
 					<div class="info">
-						<strong>{entry.title}</strong>
+						<strong><bdi>{entry.title}</bdi></strong>
 						<div class="muted">{t('archive.watchedOn', { date: formatDate(entry.watchedAt) })}</div>
 						<!-- Only for a night somebody missed; a full night says nothing at all. -->
 						{#if entry.absent}
@@ -70,7 +75,9 @@
 							<div class="avg">
 								<Stars value={entry.average} size="1rem" />
 								<span class="muted"
-									>{t('archive.average', { value: entry.average.toLocaleString(locale()) })}</span
+									>{t('archive.average', {
+										value: entry.average.toLocaleString(formatLocale(locale()))
+									})}</span
 								>
 							</div>
 						{:else}

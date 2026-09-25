@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { call, errorText, redirectIfUnauthorized } from '$lib/client/api';
 	import { getI18n, getLocale } from '$lib/i18n/context';
+	import { formatLocale } from '$lib/i18n/locales';
 	import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
 
 	interface Hit {
@@ -201,7 +202,7 @@
 
 	function duplicateText(d: Duplicate): string {
 		if (d.kind === 'archived' && d.watchedAt) {
-			const date = new Date(d.watchedAt).toLocaleDateString(locale(), {
+			const date = new Date(d.watchedAt).toLocaleDateString(formatLocale(locale()), {
 				day: 'numeric',
 				month: 'long'
 			});
@@ -235,6 +236,7 @@
 	placeholder={t('propose.searchPlaceholder')}
 	bind:this={searchInput}
 	bind:value={query}
+	dir="auto"
 	oninput={onInput}
 	autocomplete="off"
 	disabled={!data.tmdbSearchable}
@@ -299,7 +301,7 @@
 					<div class="noposter">🎞️</div>
 				{/if}
 				<div>
-					<strong>{hit.title}</strong>
+					<strong><bdi>{hit.title}</bdi></strong>
 					{#if hit.year}<div class="muted">{hit.year}</div>{/if}
 				</div>
 			</button>
@@ -315,7 +317,7 @@
 		<div class="card form">
 			<label>
 				{t('propose.titleLabel')}
-				<input bind:value={manualTitle} placeholder={t('propose.titleLabel')} />
+				<input bind:value={manualTitle} dir="auto" placeholder={t('propose.titleLabel')} />
 			</label>
 			<label>
 				{t('propose.yearLabel')}
@@ -368,7 +370,7 @@
 		display: flex;
 		gap: 0.75rem;
 		align-items: center;
-		text-align: left;
+		text-align: start;
 	}
 
 	.hit img,
@@ -445,6 +447,6 @@
 
 	.duplist {
 		margin: 0.5rem 0;
-		padding-left: 1.2rem;
+		padding-inline-start: 1.2rem;
 	}
 </style>

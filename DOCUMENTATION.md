@@ -481,6 +481,10 @@ advantage: it works on any device with a browser – phone, tablet, laptop – a
 nobody has to install or update anything. You *can* still install it (see
 above), and then it feels like a normal app.
 
+It does need a reasonably current browser: Chrome or Edge 111, Safari 16.2
+(iPhone and iPad with iOS 16.2), Firefox 113, or anything newer. Phones from
+the last few years are all above that line.
+
 ### Everything stays with you
 
 The app runs entirely on your own server. There is no outside provider holding
@@ -610,8 +614,9 @@ contains:
 - **The languages** (`language`) – two different things in the same
   block:
   - `interface` is the language of the app itself: `en`, `de`, `es`, `fr`,
-    `pt-BR`, `it`, `pl`, `tr`, or `ja`. **Without a value, the app speaks
-    English.** Each device can additionally switch this for itself.
+    `pt-BR`, `it`, `pl`, `tr`, `ja`, or `ar`. **Without a value, the app
+    speaks English.** Each device can additionally switch this for itself.
+    Arabic lays the whole interface out from right to left.
   - `primary`, `fallback`, `certification_country`, and `trailer` concern
     the film data: main language, fallback language, the country for the
     age rating, and the preferred order of trailer languages. Default:

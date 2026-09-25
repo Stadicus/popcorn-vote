@@ -2,6 +2,7 @@
 	// Shows, and optionally takes, 1–5 stars in half steps. Half stars come from a
 	// width-clipped overlay row, that works on every device.
 	import { getI18n, getLocale } from '$lib/i18n/context';
+	import { formatLocale } from '$lib/i18n/locales';
 
 	let {
 		value = null,
@@ -15,7 +16,7 @@
 	const pct = $derived(value == null ? 0 : (value / 5) * 100);
 
 	/** "4,5" in German, "4.5" in English, what is read out is what is written. */
-	const number = (value: number) => value.toLocaleString(locale());
+	const number = (value: number) => value.toLocaleString(formatLocale(locale()));
 </script>
 
 <span class="wrap" style:font-size={size}>
@@ -49,7 +50,7 @@
 
 	.fill {
 		position: absolute;
-		left: 0;
+		inset-inline-start: 0;
 		top: 0;
 		overflow: hidden;
 		color: var(--accent);

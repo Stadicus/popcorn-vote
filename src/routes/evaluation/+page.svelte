@@ -219,7 +219,7 @@
 	<div class="card center winner">
 		{#if reveal}<h2>🎉 {t('evaluation.winnerRevealed')}</h2>{:else}<h2>{t('movie.nextUp')}</h2>{/if}
 		<div class="wposter"><Poster src={data.winner.poster} title={data.winner.title} size="large" /></div>
-		<strong class="wtitle"><a href="/movie/{data.winner.id}">{data.winner.title}</a></strong>
+		<strong class="wtitle"><a href="/movie/{data.winner.id}" dir="auto">{data.winner.title}</a></strong>
 		{#if data.winner.wonVia === 'free_pick'}<p class="muted">✨ {t('evaluation.viaFreePick')}</p>{/if}
 		{#if data.winner.wonVia === 'wheel'}<p class="muted">{t('evaluation.viaWheel')}</p>{/if}
 		{#if data.winner.absent}
@@ -276,7 +276,7 @@
 				{@const waiting = s.blockedBy.length > 0}
 				{@const leads = !waiting && s.tokens > 0 && s.tokens === highestCount}
 				<li class:leading={leads} class:noTokens={s.tokens === 0 && !waiting} class:blocked={waiting}>
-					<a href="/movie/{s.movieId}">{s.title}</a>
+					<a href="/movie/{s.movieId}" dir="auto">{s.title}</a>
 					{#if leads}<span class="sr-only">{t('evaluation.leading')}</span>{/if}
 					{#if waiting}
 						<span class="waiting">{t('evaluation.waitingFor', { names: names(s.blockedBy) })}</span>
@@ -398,7 +398,7 @@
 	.waiting {
 		color: var(--muted);
 		font-size: 0.85rem;
-		text-align: right;
+		text-align: end;
 	}
 
 	.board li::before {

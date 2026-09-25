@@ -43,6 +43,23 @@
 	box-sizing: border-box;
 }
 
+/* Arrows that point along the reading direction. Kept as characters in the
+   markup rather than in the catalogue; a right-to-left page mirrors them here. */
+.dir-glyph {
+	display: inline-block;
+}
+
+[dir='rtl'] .dir-glyph {
+	transform: scaleX(-1);
+}
+
+/* Letter spacing tears Arabic letters apart, they are joined by nature. The
+   component rules that set it are scoped by Svelte and carry a higher
+   specificity than any global rule, hence the `!important`, limited to Arabic. */
+:lang(ar) * {
+	letter-spacing: 0 !important;
+}
+
 html,
 body {
 	margin: 0;
@@ -262,12 +279,12 @@ dialog::backdrop {
 
 .nova .pop::before {
 	top: -18%;
-	left: -12%;
+	left: -12%; /* physical-ok: decoration */
 }
 
 .nova .pop::after {
 	bottom: -14%;
-	right: -16%;
+	right: -16%; /* physical-ok: decoration */
 }
 
 .nova .emo {

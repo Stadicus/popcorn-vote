@@ -22,7 +22,10 @@ jobs:
       # Before lint: a German comment that slipped back in should be named as
       # such, not buried under whatever else a full run turns up.
       - run: .github/no-german-characters.sh
-      # First of the substantive checks, and the only one besides the guard that
+      # Same reasoning: a margin-left that slipped in is only wrong in Arabic,
+      # name it before the rest of the run.
+      - run: .github/no-physical-css.sh
+      # First of the substantive checks, and the only one besides the guards that
       # blocks unconditionally: a key that reaches a public repository is out of
       # our hands the moment it is pushed, whatever the rest of the run says.
       - run: npm run lint:secrets

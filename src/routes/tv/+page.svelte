@@ -366,7 +366,7 @@
 		{/if}
 		{#if breakoutVisible}
 			<button class="corner breakout" class:awake onclick={openInBrowser} aria-label={t('tv.openInBrowser')}
-				>↗</button
+				><span class="dir-glyph">↗</span></button
 			>
 		{/if}
 	</header>
@@ -381,7 +381,7 @@
 				<div class="rposter"><Poster src={winner.poster} title={winner.title} size="large" /></div>
 				<div class="rinfo">
 					<p class="rkicker">{t('tv.watchingToday')}</p>
-					<h1 class="rtitle">{winner.title}</h1>
+					<h1 class="rtitle"><bdi>{winner.title}</bdi></h1>
 					{#if winnerFacts}<p class="rfacts">{winnerFacts}</p>{/if}
 					{#if winner.wonVia === 'wheel'}
 						<!-- Without a symbol: the sentence names the wheel, and the app keeps
@@ -415,7 +415,7 @@
 					{@const leading = leads(s)}
 					<li class:leader={leading} class:steppedBack={!leading && !waiting} class:waiting>
 						<span class="rank">{i === 0 && uniqueLeader ? '👑' : i + 1}</span>
-						<span class="title">{s.title}</span>
+						<span class="title"><bdi>{s.title}</bdi></span>
 						{#if waiting}
 							<span class="waitingFor"
 								>{t('evaluation.waitingFor', { names: listNames(data.members, s.blockedBy, locale()) })}</span
@@ -491,7 +491,7 @@
 	.corner {
 		position: absolute;
 		top: clamp(1rem, 2.5vh, 1.75rem);
-		right: var(--corner-right, clamp(1rem, 3vw, 2.5rem));
+		inset-inline-end: var(--corner-end, clamp(1rem, 3vw, 2.5rem));
 		width: 2.6rem;
 		height: 2.6rem;
 		border-radius: 50%;
@@ -517,16 +517,16 @@
 		outline-offset: 2px;
 	}
 
-	/* The offsets assume the cluster fills right to left (✕, then ⛶, then ↗).
+	/* The offsets assume the cluster fills from the end (✕, then ⛶, then ↗).
 	   A device that is Android-standalone but without the fullscreen API would
 	   leave a gap where ⛶ is missing, accepted: the buttons stay where a hand
 	   has learnt them, and such a device is a museum piece. */
 	.tvmode {
-		--corner-right: calc(clamp(1rem, 3vw, 2.5rem) + 3.8rem);
+		--corner-end: calc(clamp(1rem, 3vw, 2.5rem) + 3.8rem);
 	}
 
 	.breakout {
-		--corner-right: calc(clamp(1rem, 3vw, 2.5rem) + 7.6rem);
+		--corner-end: calc(clamp(1rem, 3vw, 2.5rem) + 7.6rem);
 	}
 
 	@media (prefers-reduced-motion: reduce) {
@@ -645,7 +645,7 @@
 	.waitingFor {
 		font-size: clamp(0.8rem, 1.7vh, 1.05rem);
 		color: #8d99ab;
-		text-align: right;
+		text-align: end;
 	}
 
 	.more {
@@ -678,7 +678,7 @@
 
 	.title {
 		flex: 1;
-		text-align: left;
+		text-align: start;
 		font-weight: 650;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -693,7 +693,7 @@
 
 	.unit {
 		font-size: 0.8em;
-		margin-left: 0.35em;
+		margin-inline-start: 0.35em;
 	}
 
 	/* Winner celebration */
@@ -721,7 +721,7 @@
 		display: grid;
 		gap: clamp(0.7rem, 1.8vh, 1.2rem);
 		justify-items: start;
-		text-align: left;
+		text-align: start;
 		max-width: 32rem;
 	}
 
@@ -738,7 +738,7 @@
 		font-size: clamp(2.2rem, 8vh, 4.4rem);
 		line-height: 1.04;
 		letter-spacing: -0.02em;
-		text-align: left;
+		text-align: start;
 	}
 
 	.rfacts {

@@ -2,13 +2,15 @@
 	import { goto } from '$app/navigation';
 	import { untrack } from 'svelte';
 	import { getI18n } from '$lib/i18n/context';
+	import { formatLocale } from '$lib/i18n/locales';
+	import { splitList } from '$lib/list';
 	import LanguageSwitch from '$lib/components/LanguageSwitch.svelte';
 
 	const t = getI18n();
 	let { data } = $props();
 	const weekdays = $derived(
 		Array.from({ length: 7 }, (_, day) =>
-			new Intl.DateTimeFormat(data.locale, { weekday: 'long', timeZone: 'UTC' }).format(
+			new Intl.DateTimeFormat(formatLocale(data.locale), { weekday: 'long', timeZone: 'UTC' }).format(
 				new Date(Date.UTC(2024, 0, 7 + day))
 			)
 		)
@@ -26,16 +28,25 @@
 	let sources = $state('Netflix, Google, Server');
 	let tmdbApiKey = $state('');
 	let omdbApiKey = $state('');
-	const localeDefaults: Record<string, { movie: string; country: string; trailers: string }> = {
-		en: { movie: 'en-US', country: 'US', trailers: 'original,en' },
-		de: { movie: 'de-DE', country: 'DE', trailers: 'original,de,en' },
-		es: { movie: 'es-ES', country: 'ES', trailers: 'original,es,en' },
-		fr: { movie: 'fr-FR', country: 'FR', trailers: 'original,fr,en' },
-		'pt-BR': { movie: 'pt-BR', country: 'BR', trailers: 'original,pt,en' },
-		it: { movie: 'it-IT', country: 'IT', trailers: 'original,it,en' },
-		pl: { movie: 'pl-PL', country: 'PL', trailers: 'original,pl,en' },
-		tr: { movie: 'tr-TR', country: 'TR', trailers: 'original,tr,en' },
-		ja: { movie: 'ja-JP', country: 'JP', trailers: 'original,ja,en' }
+	// `movie` is the film-data language, `fallback` what `latin` falls back to.
+	// Arabic titles are rarely written in Latin script, so there the film data
+	// asks for Arabic directly and falls back to English. The age rating stays
+	// with the US: TMDB carries next to no ratings for Saudi Arabia or its
+	// neighbours.
+	const localeDefaults: Record<
+		string,
+		{ movie: string; fallback: string; country: string; trailers: string }
+	> = {
+		en: { movie: 'latin', fallback: 'en-US', country: 'US', trailers: 'original,en' },
+		de: { movie: 'latin', fallback: 'de-DE', country: 'DE', trailers: 'original,de,en' },
+		es: { movie: 'latin', fallback: 'es-ES', country: 'ES', trailers: 'original,es,en' },
+		fr: { movie: 'latin', fallback: 'fr-FR', country: 'FR', trailers: 'original,fr,en' },
+		'pt-BR': { movie: 'latin', fallback: 'pt-BR', country: 'BR', trailers: 'original,pt,en' },
+		it: { movie: 'latin', fallback: 'it-IT', country: 'IT', trailers: 'original,it,en' },
+		pl: { movie: 'latin', fallback: 'pl-PL', country: 'PL', trailers: 'original,pl,en' },
+		tr: { movie: 'latin', fallback: 'tr-TR', country: 'TR', trailers: 'original,tr,en' },
+		ja: { movie: 'latin', fallback: 'ja-JP', country: 'JP', trailers: 'original,ja,en' },
+		ar: { movie: 'ar-SA', fallback: 'en-US', country: 'US', trailers: 'ar,en,original' }
 	};
 	const movieLanguages = [
 		['en-US', 'English (en-US)'],
@@ -46,7 +57,8 @@
 		['it-IT', 'Italiano (it-IT)'],
 		['pl-PL', 'Polski (pl-PL)'],
 		['tr-TR', 'T\u00fcrk\u00e7e (tr-TR)'],
-		['ja-JP', '日本語 (ja-JP)']
+		['ja-JP', '日本語 (ja-JP)'],
+		['ar-SA', 'العربية (ar-SA)']
 	] as const;
 	const countries = [
 		['US', 'United States (US)'],
@@ -76,11 +88,25 @@
 	)
 		.map((zone) => ({ zone, offset: utcOffset(zone) }))
 		.sort((a, b) => a.offset.localeCompare(b.offset) || a.zone.localeCompare(b.zone));
-	const localeDefault = untrack(() => localeDefaults[data.locale] ?? localeDefaults.en);
-	let movieLanguage = $state('latin');
-	let movieFallbackLanguage = $state(localeDefault.movie);
+	const defaultsFor = (locale: string) => localeDefaults[locale] ?? localeDefaults.en;
+	const localeDefault = untrack(() => defaultsFor(data.locale));
+	let movieLanguage = $state(localeDefault.movie);
+	let movieFallbackLanguage = $state(localeDefault.fallback);
 	let certificationCountry = $state(localeDefault.country);
 	let trailerLanguages = $state(localeDefault.trailers);
+	// A language switch in the open wizard carries the film defaults along, except
+	// for a field somebody already set by hand. Deliberately not reactive: only
+	// the effect below reads them.
+	const touched = { movie: false, fallback: false, country: false, trailers: false };
+	$effect(() => {
+		const next = defaultsFor(data.locale);
+		untrack(() => {
+			if (!touched.movie) movieLanguage = next.movie;
+			if (!touched.fallback) movieFallbackLanguage = next.fallback;
+			if (!touched.country) certificationCountry = next.country;
+			if (!touched.trailers) trailerLanguages = next.trailers;
+		});
+	});
 	let error = $state('');
 	let busy = $state(false);
 
@@ -130,7 +156,7 @@
 		) {
 			return fail(t('setup.errorMembers'), '[data-member-invalid="true"]');
 		}
-		if (!sources.split(',').some((source) => source.trim())) {
+		if (!splitList(sources).some((source) => source.trim())) {
 			return fail(t('setup.errorSources'), '#setup-sources');
 		}
 		if (!data.tmdbConfigured && !tmdbApiKey.trim()) {
@@ -166,14 +192,14 @@
 					tokenCap,
 					tokenStart,
 					timezone,
-					sources: sources.split(','),
+					sources: splitList(sources),
 					tmdbApiKey,
 					omdbApiKey,
 					interfaceLanguage: data.locale,
 					movieLanguage,
 					movieFallbackLanguage,
 					certificationCountry,
-					trailerLanguages: trailerLanguages.split(',')
+					trailerLanguages: splitList(trailerLanguages)
 				})
 			});
 			const body = await response.json().catch(() => ({}));
@@ -210,6 +236,7 @@
 						>{t('settings.instanceName')}<input
 							id="setup-instance-name"
 							bind:value={title}
+							dir="auto"
 							maxlength="80"
 						/></label
 					>
@@ -255,6 +282,7 @@
 							>{t('setup.memberName')}
 							<input
 								bind:value={members[index]}
+								dir="auto"
 								data-member-invalid={members[index].trim().length < 2 ||
 									members.some(
 										(member, other) =>
@@ -311,10 +339,10 @@
 				</div>
 				<p class="key-links">
 					<a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noreferrer"
-						>{t('setup.getTmdbKey')} ↗</a
+						>{t('setup.getTmdbKey')} <span class="dir-glyph">↗</span></a
 					>
 					<a href="https://www.omdbapi.com/apikey.aspx" target="_blank" rel="noreferrer"
-						>{t('setup.getOmdbKey')} ↗</a
+						>{t('setup.getOmdbKey')} <span class="dir-glyph">↗</span></a
 					>
 				</p>
 				<hr />
@@ -322,7 +350,11 @@
 					<h3 id="movie-language-heading">{t('setup.movieLanguages')}</h3>
 					<div class="form-grid two language-grid">
 						<label
-							>{t('setup.movieLanguage')}<select id="setup-movie-language" bind:value={movieLanguage}>
+							>{t('setup.movieLanguage')}<select
+								id="setup-movie-language"
+								bind:value={movieLanguage}
+								onchange={() => (touched.movie = true)}
+							>
 								<option value="latin">{t('setup.movieLanguageLatin')}</option>
 								<option value="original">{t('setup.movieLanguageOriginal')}</option>
 								{#each movieLanguages as [value, label] (value)}<option {value}>{label}</option>{/each}
@@ -331,6 +363,7 @@
 						<label class:inactive={movieLanguage !== 'latin'}
 							>{t('setup.movieFallbackLanguage')}<select
 								bind:value={movieFallbackLanguage}
+								onchange={() => (touched.fallback = true)}
 								disabled={movieLanguage !== 'latin'}
 							>
 								{#each movieLanguages as [value, label] (value)}<option {value}>{label}</option>{/each}
@@ -338,11 +371,16 @@
 						>
 						<label>
 							{t('setup.certificationCountry')}
-							<select bind:value={certificationCountry}>
+							<select bind:value={certificationCountry} onchange={() => (touched.country = true)}>
 								{#each countries as [value, label] (value)}<option {value}>{label}</option>{/each}
 							</select>
 						</label>
-						<label>{t('setup.trailerLanguages')}<input bind:value={trailerLanguages} /></label>
+						<label
+							>{t('setup.trailerLanguages')}<input
+								bind:value={trailerLanguages}
+								oninput={() => (touched.trailers = true)}
+							/></label
+						>
 					</div>
 					<p class="hint">{t('setup.movieLanguagesHint')}</p>
 				</section>
@@ -393,7 +431,7 @@
 				<hr />
 				<section class="rule-group" aria-labelledby="rules-sources">
 					<h3 id="rules-sources">{t('setup.rulesSources')}</h3>
-					<label>{t('setup.sources')}<input id="setup-sources" bind:value={sources} /></label>
+					<label>{t('setup.sources')}<input id="setup-sources" bind:value={sources} dir="auto" /></label>
 					<p class="hint">{t('setup.sourcesHint')}</p>
 				</section>
 			</fieldset>
@@ -401,7 +439,9 @@
 			{#if error && error !== t('settings.errorPin') && error !== t('settings.errorPinMismatch')}
 				<p class="inline-error" role="alert">{error}</p>
 			{/if}
-			<button class="btn" disabled={busy}>{busy ? '…' : t('setup.complete')} <span>→</span></button>
+			<button class="btn" disabled={busy}
+				>{busy ? '…' : t('setup.complete')} <span class="dir-glyph">→</span></button
+			>
 		</form>
 	</main>
 </div>
@@ -555,7 +595,7 @@
 	.inline-error {
 		margin: 0;
 		padding: 0.7rem 0.8rem;
-		border-left: 3px solid #b91c1c;
+		border-inline-start: 3px solid #b91c1c;
 		background: #fff1f1;
 		color: #8f1616;
 		font-size: 0.82rem;

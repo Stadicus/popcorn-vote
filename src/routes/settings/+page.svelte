@@ -168,6 +168,7 @@
 				<label
 					>{t('settings.instanceName')}<input
 						bind:value={title}
+						dir="auto"
 						disabled={!settings.general.title.editable}
 						maxlength="80"
 					/>{#if !settings.general.title.editable}<small>{envHint(settings.general.title.source)}</small
@@ -196,7 +197,7 @@
 					<article class="user-row">
 						<div class="avatar">{user.name.slice(0, 1).toUpperCase()}</div>
 						<div>
-							<strong>{user.name}</strong>
+							<strong><bdi>{user.name}</bdi></strong>
 							<p>
 								{user.role === 'admin' ? t('settings.administrator') : t('settings.user')} ·
 								{user.enabled ? t('settings.enabled') : t('settings.disabled')}
@@ -288,6 +289,7 @@
 			<label
 				>{t('settings.displayName')}<input
 					bind:value={editName}
+					dir="auto"
 					minlength="2"
 					maxlength="80"
 					required
@@ -501,7 +503,7 @@
 	}
 	.notice {
 		padding: 0.8rem;
-		border-left: 3px solid var(--accent);
+		border-inline-start: 3px solid var(--accent);
 		background: var(--accent-soft);
 		font-size: 0.82rem;
 		line-height: 1.5;

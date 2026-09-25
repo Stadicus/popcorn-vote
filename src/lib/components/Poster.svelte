@@ -17,7 +17,7 @@
 	     replace the title in the child element, it competes with it. -->
 	<div class="placeholder {size}" role="img" aria-label={t('poster.none')}>
 		<span>🎞️</span>
-		<span class="t">{title}</span>
+		<span class="t" dir="auto">{title}</span>
 	</div>
 {/if}
 

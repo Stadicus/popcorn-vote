@@ -4,6 +4,7 @@
 	import { call, errorText, redirectIfUnauthorized, type ApiResult } from '$lib/client/api';
 	import { supernova } from '$lib/client/celebrate';
 	import { getI18n, getLocale } from '$lib/i18n/context';
+	import { formatLocale } from '$lib/i18n/locales';
 	import AbsentPicker from '$lib/components/AbsentPicker.svelte';
 	import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
 	import PersonBadge from '$lib/components/PersonBadge.svelte';
@@ -48,7 +49,7 @@
 	 * average go through `toLocaleString` the same way.
 	 */
 	const rating = (value: number) =>
-		value.toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+		value.toLocaleString(formatLocale(locale()), { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
 	/** Whoever is ticked off and still has a vote on this movie. */
 	const blockedBy = $derived(
@@ -152,7 +153,7 @@
 	</div>
 	<div>
 		<h1>
-			{movie.title}
+			<bdi>{movie.title}</bdi>
 			{#if movie.year}<span class="muted">({movie.year})</span>{/if}
 		</h1>
 		<dl>
@@ -207,7 +208,7 @@
 				{@const m = member(s.personId)}
 				<li>
 					<PersonBadge member={m} />
-					{m.name}: {s.count} 🍿
+					<bdi>{m.name}</bdi>: {s.count} 🍿
 				</li>
 			{/each}
 		</ul>
@@ -224,7 +225,7 @@
 	{/if}
 </div>
 
-{#if movie.overview}<p class="overview">{movie.overview}</p>{/if}
+{#if movie.overview}<p class="overview" dir="auto">{movie.overview}</p>{/if}
 
 {#if movie.trailerYoutubeId}
 	<h2>{t('movie.trailer')}</h2>
@@ -479,7 +480,7 @@
 
 	.hit {
 		width: 100%;
-		text-align: left;
+		text-align: start;
 		margin-top: 0.5rem;
 	}
 </style>

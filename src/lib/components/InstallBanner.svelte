@@ -98,7 +98,7 @@
 		/* The same touch target as the round buttons in the movie list. */
 		width: 2.2rem;
 		height: 2.2rem;
-		margin-right: -0.35rem;
+		margin-inline-end: -0.35rem;
 		border-radius: 50%;
 		font-size: 0.9rem;
 		line-height: 1;

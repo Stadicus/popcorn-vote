@@ -142,7 +142,7 @@
 
 		<label class="pin-field">
 			<span class="sr-only">{t('pin.entryLabel')}</span>
-			<span class="dots" aria-hidden="true">
+			<span class="dots" dir="ltr" aria-hidden="true">
 				{#each [0, 1, 2, 3] as i (i)}
 					<span class="pindot" class:filled={digits.length > i}></span>
 				{/each}
@@ -163,7 +163,10 @@
 		{#if error}<p class="error">{error}</p>{/if}
 		{#if wait > 0}<p class="error">{t('pin.retryIn', { n: wait })}</p>{/if}
 
-		<div class="pad">
+		<!-- A PIN is a string of digits and reads left to right in every language,
+		     so the keypad and the dots keep that order; ⌫ takes the rightmost digit
+		     and stays unmirrored. -->
+		<div class="pad" dir="ltr">
 			{#each ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as d (d)}
 				<button onclick={() => press(d)} disabled={busy || wait > 0}>{d}</button>
 			{/each}
@@ -198,14 +201,14 @@
 	.notice {
 		max-width: 26rem;
 		line-height: 1.6;
-		text-align: left;
+		text-align: start;
 	}
 
 	.account {
 		display: grid;
 		gap: 0.35rem;
 		width: min(18rem, 100%);
-		text-align: left;
+		text-align: start;
 		font-size: 0.8rem;
 		font-weight: 700;
 		color: var(--muted);
@@ -216,7 +219,7 @@
 	.demo-pin {
 		position: fixed;
 		top: 1rem;
-		right: 1rem;
+		inset-inline-end: 1rem;
 		z-index: 2;
 		display: grid;
 		gap: 0.2rem;
@@ -227,7 +230,7 @@
 		border-radius: 0.55rem;
 		box-shadow: 0 0.45rem 1.1rem rgb(0 0 0 / 0.14);
 		color: var(--text);
-		text-align: left;
+		text-align: start;
 		transform: rotate(2.5deg);
 	}
 
@@ -235,7 +238,7 @@
 		content: '';
 		position: absolute;
 		top: -0.3rem;
-		left: 50%;
+		left: 50%; /* physical-ok: centred with translateX(-50%) */
 		width: 2.4rem;
 		height: 0.65rem;
 		background: rgb(var(--gold-rgb) / 0.68);
@@ -258,7 +261,7 @@
 	@media (max-width: 420px) {
 		.demo-pin {
 			top: 0.7rem;
-			right: 0.7rem;
+			inset-inline-end: 0.7rem;
 			min-width: 7.5rem;
 			padding: 0.65rem 0.75rem 0.6rem;
 		}

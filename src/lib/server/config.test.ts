@@ -307,6 +307,18 @@ describe('game values, language and timezone', () => {
 		expect(load('language-original.yaml').languageFallback).toBe('en-US');
 	});
 
+	// An Arabic keyboard types "،" instead of ",". Both separate every list the
+	// environment or the file takes as a single string.
+	it('splits lists at the Arabic comma too', () => {
+		process.env.PV_TRAILER_LANGS = 'ar\u060C en\u060C original';
+		process.env.PV_SOURCES = 'Netflix\u060C Google, Server';
+		process.env.PV_MEMBERS = 'Anna\u060C Ben';
+		const config = load('pin-only.yaml');
+		expect(config.trailerLanguages).toEqual(['ar', 'en', 'original']);
+		expect(config.sources).toEqual(['Netflix', 'Google', 'Server']);
+		expect(config.members.map((member) => member.name)).toEqual(['Anna', 'Ben']);
+	});
+
 	it('reduces trailer languages to the language part and drops duplicates', () => {
 		process.env.PV_TRAILER_LANGS = 'de-DE, de, xx-yy-zz, en';
 		expect(load('pin-only.yaml').trailerLanguages).toEqual(['de', 'en']);
@@ -462,6 +474,15 @@ describe('Interface language', () => {
 	it('lets the environment win over the file', () => {
 		process.env.PV_INTERFACE_LANGUAGE = 'en';
 		expect(load('language-english.yaml').interfaceLanguage).toBe('en');
+	});
+
+	it('loads what the setup wizard writes for Arabic', () => {
+		const config = load('language-arabic.yaml');
+		expect(config.interfaceLanguage).toBe('ar');
+		expect(config.language).toBe('ar-SA');
+		expect(config.languageFallback).toBe('en-US');
+		expect(config.certificationCountry).toBe('US');
+		expect(config.trailerLanguages).toEqual(['ar', 'en', 'original']);
 	});
 
 	it('accepts it in an unusual spelling too', () => {

@@ -9,7 +9,7 @@ import { log } from '$lib/server/log';
 import { AUTH_COOKIE, authenticatedUser, cookieValue, userCookieValue } from '$lib/server/auth';
 import { authCookie as authCookieOptions, deviceCookie } from '$lib/server/cookies';
 import { logFailure, shortPath } from '$lib/server/api';
-import { LANG_COOKIE, resolveLocale } from '$lib/i18n/locales';
+import { direction, LANG_COOKIE, resolveLocale } from '$lib/i18n/locales';
 import { translator } from '$lib/i18n/translate';
 import { authenticationMissing, pristineForSetup } from '$lib/server/setup';
 
@@ -145,8 +145,10 @@ export const handle: Handle = async ({ event, resolve }) => {
 		// The whole attribute is searched for, not just `%lang%`: this function
 		// runs over every output chunk, including the ones with movie titles and
 		// descriptions in them. A movie carrying `%lang%` in its title should not
-		// quietly turn into "de".
-		transformPageChunk: ({ html }) => html.replace('lang="%lang%"', `lang="${locale}"`)
+		// quietly turn into "de". `dir` follows the same language, Arabic is laid
+		// out from right to left.
+		transformPageChunk: ({ html }) =>
+			html.replace('lang="%lang%"', `lang="${locale}"`).replace('dir="%dir%"', `dir="${direction(locale)}"`)
 	});
 	// Security headers for public operation; SvelteKit sets the CSP
 	// (svelte.config.js) including nonces for our own inline scripts.
