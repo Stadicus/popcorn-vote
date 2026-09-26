@@ -17,8 +17,10 @@
 set -euo pipefail
 
 # Svelte files are scanned whole, not just their <style> block: a hit outside of
-# it is not expected in this repository and would be reported all the same.
-roots=(src)
+# it is not expected in this repository and would be reported all the same. The
+# website sources carry their CSS inline in the HTML templates; the generated
+# pages under docs/website are copies and are left to `generate.mjs --check`.
+roots=(src docs/website-src)
 
 # Every root has to exist, or a rename would quietly shrink what is scanned and
 # this script would still report success.
@@ -36,7 +38,7 @@ pattern='(margin|padding|border)-(left|right)|text-align\s*:\s*(left|right)|\bfl
 # `grep` exits 1 for "no match" and 2 for a real error. Only the first is fine;
 # swallowing both would turn a broken scan into a green run.
 set +e
-hits=$(grep -rnPI --include='*.svelte' --include='*.css' "$pattern" "${roots[@]}")
+hits=$(grep -rnPI --include='*.svelte' --include='*.css' --include='*.html' "$pattern" "${roots[@]}")
 status=$?
 set -e
 if [ "$status" -gt 1 ]; then
