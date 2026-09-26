@@ -1,5 +1,23 @@
 # Changelog
 
+## v1.5.0 Arabic, right to left
+
+- Added Arabic as the tenth interface language, and with it the first
+  right-to-left layout. The whole interface mirrors: menus, cards, the TV
+  board, the setup. Film titles and names in Latin letters stay readable inside
+  Arabic sentences, numbers use Western digits, and the PIN pad keeps its
+  left-to-right order.
+- Made the setup follow a language switch. Changing the language in the open
+  setup now also moves the movie language, the fallback, the age-rating
+  country and the trailer languages to the new language's defaults, except
+  those changed by hand. Before, they stayed on the language the setup was
+  opened in. Arabic starts with Arabic film data and US age ratings, because
+  the film database has none for Saudi Arabia, the Emirates or Egypt.
+- Made lists in the configuration and the setup accept the Arabic comma, so
+  sources, members and trailer languages typed on an Arabic keyboard are split
+  as expected.
+- Added an Arabic edition of the project website.
+
 ## v1.4.0 Movie night when somebody is out
 
 - Added a movie night for the evenings when somebody is out. Before the reveal,

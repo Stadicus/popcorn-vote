@@ -12,7 +12,7 @@
   <Overview>
     Fair family movie night voting. Everyone suggests films, gets one vote a week and can save votes up, so a film only one person wants wins eventually too. Ties are settled by a wheel of fortune, and watched films go into a shared rated archive with star ratings.
 
-    Mobile-first and installable as a PWA. Nine interface languages. Film data, posters and trailers come from TMDB, IMDb ratings through OMDb; both services are free for private use and each needs its own key.
+    Mobile-first and installable as a PWA. Ten interface languages, Arabic included. Film data, posters and trailers come from TMDB, IMDb ratings through OMDb; both services are free for private use and each needs its own key.
 
     Everything is configured in the browser on first start: family PIN, members, both API keys and the languages. No configuration file to edit, no console needed.
   </Overview>
