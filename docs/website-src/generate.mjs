@@ -24,6 +24,9 @@ const safeSlug = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 // substitution patterns, not literal text.
 const unsafeMarkup = /["<>&\\$]/u;
 const reservedSlugs = new Set(['assets', 'media-kit']);
+// Scripts written right to left. The page direction follows the locale, so the
+// template's logical CSS properties mirror the layout without a second stylesheet.
+const rightToLeftLocales = new Set(['ar']);
 
 const fail = (message) => {
 	throw new Error(`Website generation failed: ${message}`);
@@ -71,6 +74,9 @@ for (const [locale, details] of locales) {
 			fail(`${locale} override index ${index} is invalid`);
 		requireSafeText(message, `${locale} override ${index}`);
 	}
+}
+for (const locale of rightToLeftLocales) {
+	if (!catalogue.locales[locale]) fail(`right-to-left locale ${locale} is not in the catalogue`);
 }
 for (const locale of Object.keys(overrides)) {
 	if (!catalogue.locales[locale]) fail(`overrides exist for unknown locale ${locale}`);
@@ -251,6 +257,7 @@ const translate = (html, locale) => {
 for (const [locale, details] of locales) {
 	let html = translate(template, locale)
 		.replaceAll('{{HTML_LANG}}', locale)
+		.replaceAll('{{HTML_DIR}}', rightToLeftLocales.has(locale) ? 'rtl' : 'ltr')
 		.replaceAll('{{CANONICAL_URL}}', localeUrl(locale))
 		.replaceAll('{{HREFLANG_LINKS}}', hreflangLinks)
 		.replaceAll('{{OG_LOCALE}}', details.ogLocale)
