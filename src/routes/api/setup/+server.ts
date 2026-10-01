@@ -8,6 +8,7 @@ import { authenticationMissing, pristineForSetup } from '$lib/server/setup';
 import { seedDemoMovies } from '$lib/server/demo';
 import { log } from '$lib/server/log';
 import { ensureBalances } from '$lib/server/game';
+import { isLocale } from '$lib/i18n/locales';
 
 export const POST: RequestHandler = async ({ request, locals, cookies }) => {
 	if (!authenticationMissing(locals.config))
@@ -84,7 +85,7 @@ export const POST: RequestHandler = async ({ request, locals, cookies }) => {
 	)
 		return json({ error: locals.t('setup.errorMovieKeys') }, { status: 400 });
 	if (
-		!['en', 'de', 'es', 'fr', 'pt-BR', 'it', 'pl', 'tr', 'ja'].includes(interfaceLanguage) ||
+		!isLocale(interfaceLanguage) ||
 		![
 			'latin',
 			'original',
@@ -96,9 +97,10 @@ export const POST: RequestHandler = async ({ request, locals, cookies }) => {
 			'it-IT',
 			'pl-PL',
 			'tr-TR',
-			'ja-JP'
+			'ja-JP',
+			'ar-SA'
 		].includes(movieLanguage) ||
-		!['en-US', 'de-DE', 'es-ES', 'fr-FR', 'pt-BR', 'it-IT', 'pl-PL', 'tr-TR', 'ja-JP'].includes(
+		!['en-US', 'de-DE', 'es-ES', 'fr-FR', 'pt-BR', 'it-IT', 'pl-PL', 'tr-TR', 'ja-JP', 'ar-SA'].includes(
 			movieFallbackLanguage
 		) ||
 		!/^[A-Z]{2}$/.test(certificationCountry) ||

@@ -70,7 +70,7 @@ token:
 # movie database.
 #
 # Without 'interface' the app speaks English.
-# Available: en, de, es, fr, pt-BR, it, pl, tr, ja.
+# Available: en, de, es, fr, pt-BR, it, pl, tr, ja, ar.
 #
 # 'primary' knows two special values besides a plain language code:
 #
@@ -87,7 +87,7 @@ token:
 # Neither is allowed for 'fallback', whose value goes to TMDB unchanged; only
 # 'original' is allowed in 'trailer', which lists languages a trailer can be in.
 language:
-  interface: en # interface: en, de, es, fr, pt-BR, it, pl, tr, or ja (unset: en)
+  interface: en # interface: en, de, es, fr, pt-BR, it, pl, tr, ja, or ar (unset: en)
   primary: latin # language of the movie data: latin, original, or a code like de-DE
   fallback: en-US # what 'latin' requests for non-German films, and what fills a gap
   certification_country: DE # country whose age rating is shown, whatever the language

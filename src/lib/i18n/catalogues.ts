@@ -1,3 +1,4 @@
+import ar from '../../../messages/ar.json';
 import de from '../../../messages/de.json';
 import en from '../../../messages/en.json';
 import es from '../../../messages/es.json';
@@ -33,7 +34,8 @@ export const CATALOGUES: Record<Locale, Catalogue> = {
 	it,
 	pl,
 	tr,
-	ja
+	ja,
+	ar
 };
 
 /**

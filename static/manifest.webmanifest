@@ -4,6 +4,7 @@
 	"short_name": "Popcorn Vote",
 	"description": "Suggest movies, place your votes, celebrate movie night.",
 	"lang": "en",
+	"dir": "auto",
 	"start_url": "/",
 	"scope": "/",
 	"display": "standalone",

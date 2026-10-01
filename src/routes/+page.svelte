@@ -108,8 +108,8 @@
 		<Poster src={data.winner.poster} title={data.winner.title} size="small" />
 		<div>
 			<div class="muted">{t('movie.nextUp')}</div>
-			<strong>{data.winner.title}</strong>
-			<div class="muted">{t('list.confirmAfterwards')} →</div>
+			<strong><bdi>{data.winner.title}</bdi></strong>
+			<div class="muted">{t('list.confirmAfterwards')} <span class="dir-glyph">→</span></div>
 		</div>
 	</a>
 {/if}
@@ -180,7 +180,7 @@
 						</div>
 					{/if}
 				</a>
-				<a class="name" href="/movie/{movie.id}">{movie.title}</a>
+				<a class="name" href="/movie/{movie.id}" dir="auto">{movie.title}</a>
 				<!-- The stepper carries a ring of its own once you have tokens on this
 				     movie: the number alone is easy to miss while scrolling a grid. -->
 				<div class="actions" class:staked={myStake(movie) > 0}>
@@ -312,7 +312,7 @@
 		--dot: min(1.05rem, 10cqw);
 		position: absolute;
 		top: 0.4rem;
-		right: 0.4rem;
+		inset-inline-end: 0.4rem;
 		bottom: 0.4rem;
 		display: flex;
 		flex-direction: column;
@@ -387,7 +387,7 @@
 		align-content: end;
 		align-items: end;
 		gap: calc(var(--dot) * 0.24);
-		margin-right: 2px;
+		margin-inline-end: 2px;
 		min-height: 0;
 	}
 

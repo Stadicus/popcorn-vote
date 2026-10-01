@@ -1,5 +1,5 @@
 import { CATALOGUES, type Catalogue, type Message, type MessageKey } from './catalogues';
-import { DEFAULT_LOCALE, type Locale } from './locales';
+import { DEFAULT_LOCALE, direction, type Locale } from './locales';
 
 export type Params = Record<string, string | number>;
 
@@ -13,6 +13,15 @@ const PLACEHOLDER = /\{(\w+)\}/g;
 
 /** The parameter that decides the plural category, per the message format. */
 const COUNT = 'n';
+
+/**
+ * First Strong Isolate and Pop Directional Isolate. In a right-to-left sentence
+ * the bidi algorithm would otherwise reorder a Latin title with brackets and a
+ * year, "Movie (2019)" would show up as ")Movie (2019". The pair gives each
+ * interpolated string its own direction, taken from its first strong character.
+ */
+const FSI = '\u2068';
+const PDI = '\u2069';
 
 /**
  * One `Intl.PluralRules` per language. Building one costs roughly twenty times
@@ -63,7 +72,7 @@ export function translate(
 		// leave something on the screen that names what is missing.
 		return key;
 	}
-	return fill(plural(locale, key, message, params), key, params);
+	return fill(plural(locale, key, message, params), key, params, direction(locale) === 'rtl');
 }
 
 /**
@@ -83,7 +92,13 @@ function plural(locale: Locale, key: MessageKey, message: Message, params?: Para
 	return form;
 }
 
-function fill(text: string, key: MessageKey, params?: Params): string {
+/**
+ * Substitutes the placeholders. In a right-to-left language every string value
+ * is isolated, decided by its runtime type rather than the placeholder name:
+ * titles and names arrive as strings, counts as numbers, and a number needs no
+ * isolation. Left-to-right languages stay untouched, byte for byte.
+ */
+function fill(text: string, key: MessageKey, params: Params | undefined, isolate: boolean): string {
 	return text.replace(PLACEHOLDER, (whole, name: string) => {
 		const value = params?.[name];
 		if (value === undefined) {
@@ -92,7 +107,7 @@ function fill(text: string, key: MessageKey, params?: Params): string {
 			// spot and to report than a sentence that silently lost a word.
 			return whole;
 		}
-		return String(value);
+		return isolate && typeof value === 'string' ? FSI + value + PDI : String(value);
 	});
 }
 

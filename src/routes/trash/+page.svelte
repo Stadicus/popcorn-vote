@@ -4,6 +4,7 @@
 	import Poster from '$lib/components/Poster.svelte';
 	import Toast from '$lib/components/Toast.svelte';
 	import { getI18n, getLocale } from '$lib/i18n/context';
+	import { formatLocale } from '$lib/i18n/locales';
 
 	let { data } = $props();
 
@@ -23,7 +24,11 @@
 
 	function formatDate(iso: string | null): string {
 		return iso
-			? new Date(iso).toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric' })
+			? new Date(iso).toLocaleDateString(formatLocale(locale()), {
+					day: 'numeric',
+					month: 'long',
+					year: 'numeric'
+				})
 			: '';
 	}
 
@@ -59,7 +64,7 @@
 				<div class="top">
 					<Poster src={entry.poster} title={entry.title} size="small" />
 					<div>
-						<strong>{entry.title}</strong>
+						<strong><bdi>{entry.title}</bdi></strong>
 						<div class="muted">
 							{t('trash.deletedOn', {
 								date: formatDate(entry.deletedAt),

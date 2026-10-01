@@ -197,7 +197,7 @@
 		display: grid;
 		gap: 0.2rem;
 		font-weight: 600;
-		text-align: left;
+		text-align: start;
 	}
 
 	@media (min-width: 900px) {

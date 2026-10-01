@@ -12,7 +12,7 @@
 		"test:coverage": "vitest run --coverage",
 		"sync": "svelte-kit sync",
 		"check": "npm run sync && svelte-check --tsconfig ./tsconfig.json",
-		"lint": "prettier --check . && eslint .",
+		"lint": "prettier --check . && eslint . && .github/no-physical-css.sh",
 		"lint:secrets": "secretlint --maskSecrets --secretlintignore .gitignore \"**/*\"",
 		"audit:prod": "npm audit --omit=dev --audit-level=high",
 		"audit:all": "npm audit --audit-level=moderate",

@@ -6,7 +6,7 @@
  */
 
 /** Every shipped language. English is the source; the rest are translations. */
-export const LOCALES = ['en', 'de', 'es', 'fr', 'pt-BR', 'it', 'pl', 'tr', 'ja'] as const;
+export const LOCALES = ['en', 'de', 'es', 'fr', 'pt-BR', 'it', 'pl', 'tr', 'ja', 'ar'] as const;
 
 export type Locale = (typeof LOCALES)[number];
 
@@ -28,8 +28,33 @@ export const LOCALE_NAMES: Record<Locale, string> = {
 	it: 'Italiano',
 	pl: 'Polski',
 	tr: 'Türkçe',
-	ja: '日本語'
+	ja: '日本語',
+	ar: 'العربية'
 };
+
+/**
+ * Languages written from right to left. The layout uses logical CSS properties
+ * throughout (`.github/no-physical-css.sh` keeps it that way), so a language in
+ * here needs no stylesheet of its own.
+ */
+export const RTL_LOCALES: ReadonlySet<Locale> = new Set<Locale>(['ar']);
+
+/** Writing direction, for `<html dir>`. */
+export function direction(locale: Locale): 'ltr' | 'rtl' {
+	return RTL_LOCALES.has(locale) ? 'rtl' : 'ltr';
+}
+
+/**
+ * The tag to hand to `Intl` for anything that prints digits.
+ *
+ * The interface shows Western digits 0-9 in every language. Node 22 and older
+ * browsers format plain `ar` with Arabic-Indic digits; the Unicode extension
+ * `nu-latn` asks for Latin ones regardless of the ICU version. Plural rules,
+ * display names and list formats keep the plain locale, they print no digits.
+ */
+export function formatLocale(locale: Locale): string {
+	return locale === 'ar' ? 'ar-u-nu-latn' : locale;
+}
 
 /** Per-device language choice, written by `/api/language`. */
 export const LANG_COOKIE = 'pv_lang';

@@ -1,0 +1,8 @@
+# What the setup wizard writes for an Arabic household.
+pin: '1234'
+language:
+  interface: ar
+  primary: ar-SA
+  fallback: en-US
+  certification_country: US
+  trailer: ar, en, original

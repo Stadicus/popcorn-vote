@@ -1,4 +1,4 @@
-import type { Locale } from './i18n/locales';
+import { formatLocale, type Locale } from './i18n/locales';
 import type { Translate } from './i18n/translate';
 
 export interface TokenPlan {
@@ -17,7 +17,7 @@ const DAY_MS = 86_400_000;
 
 export function weekdayName(locale: Locale, weekday: number): string {
 	const day = Number.isInteger(weekday) && weekday >= 0 && weekday <= 6 ? weekday : 0;
-	return new Intl.DateTimeFormat(locale, { weekday: 'long', timeZone: 'UTC' }).format(
+	return new Intl.DateTimeFormat(formatLocale(locale), { weekday: 'long', timeZone: 'UTC' }).format(
 		new Date(ANCHOR_SUNDAY + day * DAY_MS)
 	);
 }
@@ -25,7 +25,7 @@ export function weekdayName(locale: Locale, weekday: number): string {
 /** "8:00" in German, "8:00 AM" in English, the catalogue sentence carries the "Uhr". */
 export function hourName(locale: Locale, hour: number): string {
 	const h = Number.isInteger(hour) && hour >= 0 && hour <= 23 ? hour : 0;
-	return new Intl.DateTimeFormat(locale, {
+	return new Intl.DateTimeFormat(formatLocale(locale), {
 		hour: 'numeric',
 		minute: '2-digit',
 		timeZone: 'UTC'

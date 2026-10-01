@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { parse } from 'yaml';
 import { DEFAULT_LOCALE, LOCALES, parseLocale, type Locale } from '$lib/i18n/locales';
+import { splitList } from '$lib/list';
 import { log } from './log';
 
 export interface Member {
@@ -360,7 +361,7 @@ function block(name: string, value: unknown): Record<string, unknown> {
  */
 function trailerLanguageList(name: string, source: string, value: unknown): string[] | undefined {
 	if (isBlank(value)) return undefined;
-	const raw_ = Array.isArray(value) ? value.map((e) => String(e)) : String(value).split(',');
+	const raw_ = Array.isArray(value) ? value.map((e) => String(e)) : splitList(String(value));
 	const checked: string[] = [];
 	for (const entry of raw_.map((e) => e.trim()).filter(Boolean)) {
 		const tagOrNothing = languageTag(name, source, entry, [ORIGINAL]);
@@ -725,8 +726,7 @@ export function loadConfig(force = false): AppConfig {
 		'Sources',
 		'PV_SOURCES',
 		notEmpty(
-			env('PV_SOURCES')
-				?.split(',')
+			splitList(env('PV_SOURCES') ?? '')
 				.map((s) => s.trim())
 				.filter(Boolean)
 		),
@@ -980,8 +980,7 @@ export function loadConfig(force = false): AppConfig {
 
 /** "Anna,Ben", or "Anna:#e63946:🦁,Ben:#457b9d", into a list of members. */
 function parseMembersEnv(value: string): Member[] {
-	return value
-		.split(',')
+	return splitList(value)
 		.map((entry, i) => {
 			const [name, color, emoji] = entry.split(':').map((s) => s.trim());
 			if (!name) return null;

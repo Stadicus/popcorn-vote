@@ -49,7 +49,8 @@ desktops. It follows the device light/dark preference and is installable as a
 web app.
 
 The interface is available in English, German, Spanish, French, Brazilian
-Portuguese, Italian, Polish, Turkish and Japanese. An instance has a configurable
+Portuguese, Italian, Polish, Turkish, Japanese and Arabic; Arabic is laid out
+from right to left, with Western digits 0-9. An instance has a configurable
 default; every device can choose another supported language or return to the app
 default.
 

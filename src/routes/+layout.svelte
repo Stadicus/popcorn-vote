@@ -6,6 +6,7 @@
 	import { clearCelebrations } from '$lib/client/celebrate';
 	import { install } from '$lib/client/install.svelte';
 	import { getI18n, setI18n } from '$lib/i18n/context';
+	import { direction } from '$lib/i18n/locales';
 	import InstallBanner from '$lib/components/InstallBanner.svelte';
 	import PersonBadge from '$lib/components/PersonBadge.svelte';
 	import PersonPicker from '$lib/components/PersonPicker.svelte';
@@ -25,9 +26,11 @@
 	// The hook stamps `<html lang>` during server rendering (hooks.server.ts).
 	// After an in-page switch there is no new document: every t(…) follows along,
 	// but without this effect the attribute would keep the old language, and that
-	// attribute is what a screen reader picks its voice from.
+	// attribute is what a screen reader picks its voice from. The writing
+	// direction switches together with it.
 	$effect(() => {
 		document.documentElement.lang = data.locale;
+		document.documentElement.dir = direction(data.locale);
 	});
 
 	let pickerOpen = $state(false);
@@ -79,11 +82,11 @@
 	{@render children()}
 {:else}
 	<header>
-		<a class="title" href="/">{data.title}</a>
+		<a class="title" href="/" dir="auto">{data.title}</a>
 		{#if me}
 			<button class="who" onclick={() => (pickerOpen = true)} title={t('nav.switchPerson')}>
 				<PersonBadge member={me} size="medium" />
-				<span class="name">{me.name}</span>
+				<span class="name" dir="auto">{me.name}</span>
 				<span class="tokens" class:full={data.balance >= data.tokenCap}>
 					{data.balance}&thinsp;🍿
 				</span>
@@ -203,8 +206,8 @@
 	nav {
 		position: fixed;
 		bottom: 0;
-		left: 0;
-		right: 0;
+		left: 0; /* physical-ok: symmetric, spans the full width */
+		right: 0; /* physical-ok: symmetric, spans the full width */
 		z-index: 10;
 		display: flex;
 		justify-content: space-around;

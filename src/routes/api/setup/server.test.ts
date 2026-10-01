@@ -115,4 +115,41 @@ describe('POST /api/setup', () => {
 		expect(ensureBalances).toHaveBeenCalledWith(requestEvent.locals.db, currentConfig);
 		expect(requestEvent.cookies.set).toHaveBeenCalledWith('pv_auth', 'auth-cookie', { path: '/' });
 	});
+
+	// What the wizard sends for Arabic by default, and the same with the fallback
+	// set to Arabic by hand: every value it offers has to pass here as well.
+	it.each(['en-US', 'ar-SA'])('accepts the Arabic defaults with fallback %s', async (fallback) => {
+		const response = await POST(
+			event({
+				...validBody,
+				interfaceLanguage: 'ar',
+				movieLanguage: 'ar-SA',
+				movieFallbackLanguage: fallback,
+				certificationCountry: 'US',
+				trailerLanguages: ['ar', 'en', 'original']
+			})
+		);
+
+		expect(response.status).toBe(200);
+		// The whole argument, not a subset: this is what lands in config.yaml.
+		expect(saveInitialSetup).toHaveBeenCalledWith({
+			pin: '2611',
+			title: 'Friday films',
+			members: ['Anna', 'Ben'],
+			tokenAmount: 1,
+			tokenWeekday: 0,
+			tokenHour: 8,
+			tokenCap: 5,
+			tokenStart: 3,
+			timezone: 'Europe/Zurich',
+			sources: ['Cinema', 'Home'],
+			tmdbApiKey: 'tmdb-test-key',
+			omdbApiKey: undefined,
+			interfaceLanguage: 'ar',
+			movieLanguage: 'ar-SA',
+			movieFallbackLanguage: fallback,
+			certificationCountry: 'US',
+			trailerLanguages: ['ar', 'en', 'original']
+		});
+	});
 });
