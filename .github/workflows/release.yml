@@ -297,7 +297,7 @@ jobs:
             echo "::notice::$RELEASE_SHA is not the tip of main ($head_sha). Image publication is superseded."
             echo "publish_candidate=false" >> "$GITHUB_OUTPUT"
           fi
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         if: steps.target.outputs.publish_candidate == 'true'
         with:
           path: ${{ runner.temp }}/digests
