@@ -248,7 +248,7 @@ jobs:
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/digests"
           touch "$RUNNER_TEMP/digests/${DIGEST#sha256:}"
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: digest-${{ steps.target.outputs.slug }}
           path: ${{ runner.temp }}/digests/*
@@ -457,7 +457,7 @@ jobs:
             "$metadata_filter" \
             > "$metadata"
           echo "metadata_path=$metadata" >> "$GITHUB_OUTPUT"
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: steps.publish.outputs.published == 'true' && steps.metadata.outcome == 'success'
         # The immutable image tag already exists at this point. A transient
         # artifact-service failure must not suppress the matching GitHub release
