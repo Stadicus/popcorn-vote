@@ -27,7 +27,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - uses: github/codeql-action/init@24c7eb380a2dc368f2d129e4c65e51d172983a1e # v4
+      - uses: github/codeql-action/init@913e1bb775545322a3613f16c3483c0ac3050da5 # v4
         with:
           languages: javascript-typescript
           config-file: ./.github/codeql/codeql-config.yml
